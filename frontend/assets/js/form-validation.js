@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
               message: 'La fecha de entrega es requerida'
             },
             date: {
-              format: 'YYYY-MM-DD',
+              format: 'DD-MM-YYYY',
               message: 'La fecha no es válida'
             }
           }

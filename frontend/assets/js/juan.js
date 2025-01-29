@@ -13,3 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', clearForm);
     });
 });
+
+document.getElementById('cantidadCobrar').addEventListener('change', function() {
+    console.log("Cambio detectado - Tipo:", typeof this.value, "Valor:", this.value);
+  });
+  
