@@ -1,8 +1,8 @@
 let offCanvasEl;
+let o;
 document.addEventListener("DOMContentLoaded", function (e) {
 
     var r, t = document.querySelector(".datatables-basic");
-    let o;
     t && ((s = document.createElement("h5")).classList.add("card-title", "mb-0", "text-md-start", "text-center"),
         s.innerHTML = "Tabla de Entregas",
         o = new DataTable(t, {
@@ -85,22 +85,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     title: "Acciones",
                     orderable: false,
                     searchable: false,
-                    render: function () {
+                    render: function (data, type, row) {
                         return `
-                            <div class="d-inline-block">
-                                <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="icon-base bx bx-dots-vertical-rounded"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end m-0">
-                                    <li><a href="javascript:;" class="dropdown-item">Detalles</a></li>
-                                    <li><a href="javascript:;" class="dropdown-item">Archivar</a></li>
-                                    <div class="dropdown-divider"></div>
-                                    <li><a href="javascript:;" class="dropdown-item text-danger delete-record">Eliminar</a></li>
-                                </ul>
-                            </div>
-                            <a href="javascript:;" class="btn btn-icon item-edit">
-                                <i class="icon-base bx bx-edit icon-sm"></i>
-                            </a>`;
+                                <div class="d-inline-block">
+                                    <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                        <i class="icon-base bx bx-dots-vertical-rounded"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end m-0">
+                                        <li><a href="javascript:;" class="dropdown-item">Detalles</a></li>
+                                        <li><a href="javascript:;" class="dropdown-item">Archivar</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="javascript:;" class="dropdown-item text-danger delete-record">Eliminar</a></li>
+                                    </ul>
+                                </div>
+                                <a href="javascript:;" class="btn btn-icon item-edit" data-id="${row.id}">
+                                    <i class="icon-base bx bx-edit icon-sm"></i>
+                                </a>`;
                     }
                 }
             ],
@@ -456,4 +456,114 @@ document.addEventListener("DOMContentLoaded", function (e) {
         )
     }
         , 100)
+});
+// Función para cargar los datos en el modal
+function loadDataToModal(data) {
+    // Cambiar el título del modal
+    document.getElementById('recojoModalLabel').textContent = 'Editar Entrega';
+    
+    // Cargar datos básicos
+    document.getElementById('fechaEntrega').value = formatDate(data.fechaEntregaPedido);
+    document.getElementById('proveedorName').value = data.proveedorNombre || '';
+    document.getElementById('proveedorTelefono').value = data.proveedorTelefono || '';
+    document.getElementById('proveedorDistrito').value = data.proveedorDistrito || '';
+    
+    // Información del cliente
+    document.getElementById('clienteName').value = data.clienteNombre || '';
+    document.getElementById('clienteTelefono').value = data.clienteTelefono || '';
+    document.getElementById('clienteDistrito').value = data.clienteDistrito || '';
+    document.getElementById('clienteUbicacion').value = data.pedidoDireccionFormulario || '';
+    
+    // Detalles del pedido
+    document.getElementById('pedidoDetalle').value = data.pedidoDetalle || '';
+    document.getElementById('cantidadCobrar').value = data.pedidoCantidadCobrar || '';
+    document.getElementById('metodoPago').value = data.pedidoMetodoPago || '';
+    
+    // Observaciones
+    document.getElementById('observaciones').value = data.observaciones || '';
+    
+    // Agregar un data attribute al formulario para identificar que es una edición
+    document.getElementById('recojoForm').setAttribute('data-edit-id', data.id);
+}
+
+// Función auxiliar para formatear la fecha
+function formatDate(timestamp) {
+    if (!timestamp || !timestamp._seconds) return '';
+    const date = new Date(timestamp._seconds * 1000);
+    return date.toISOString().split('T')[0];
+}
+
+// Event listener para el botón de editar
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.item-edit')) {
+        const row = o.row(e.target.closest('tr')).data();
+        loadDataToModal(row);
+        const modal = new bootstrap.Modal(document.getElementById('backDropModal'));
+        modal.show();
+    }
+});
+
+// Modificar el event listener del formulario para manejar tanto creación como edición
+document.getElementById('recojoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        fechaEntregaPedido: new Date(document.getElementById('fechaEntrega').value),
+        proveedorNombre: document.getElementById('proveedorName').value,
+        proveedorTelefono: document.getElementById('proveedorTelefono').value,
+        proveedorDistrito: document.getElementById('proveedorDistrito').value,
+        clienteNombre: document.getElementById('clienteName').value,
+        clienteTelefono: document.getElementById('clienteTelefono').value,
+        clienteDistrito: document.getElementById('clienteDistrito').value,
+        pedidoDireccionFormulario: document.getElementById('clienteUbicacion').value,
+        pedidoDetalle: document.getElementById('pedidoDetalle').value,
+        pedidoCantidadCobrar: document.getElementById('cantidadCobrar').value,
+        pedidoMetodoPago: document.getElementById('metodoPago').value,
+        observaciones: document.getElementById('observaciones').value
+    };
+
+    const editId = this.getAttribute('data-edit-id');
+    const url = editId 
+        ? `http://localhost:3000/api/recojos/${editId}`
+        : 'http://localhost:3000/api/recojos';
+    
+    const method = editId ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            // Cerrar el modal
+            bootstrap.Modal.getInstance(document.getElementById('backDropModal')).hide();
+            // Recargar la tabla
+            o.ajax.reload();
+            // Resetear el formulario
+            this.reset();
+            // Eliminar el data-edit-id
+            this.removeAttribute('data-edit-id');
+            // Restaurar el título del modal
+            document.getElementById('recojoModalLabel').textContent = 'Nueva Entrega';
+        } else {
+            throw new Error('Error al guardar los datos');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un error al procesar la solicitud');
+    }
+});
+
+// Event listener para el cierre del modal
+document.getElementById('backDropModal').addEventListener('hidden.bs.modal', function () {
+    // Resetear el formulario
+    document.getElementById('recojoForm').reset();
+    // Eliminar el data-edit-id
+    document.getElementById('recojoForm').removeAttribute('data-edit-id');
+    // Restaurar el título del modal
+    document.getElementById('recojoModalLabel').textContent = 'Nueva Entrega';
 });

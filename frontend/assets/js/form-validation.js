@@ -107,10 +107,6 @@ document.addEventListener("DOMContentLoaded", function() {
             numeric: {
               message: 'El valor debe ser numérico',
               decimalSeparator: '.'
-            },
-            greaterThan: {
-              value: 0,
-              message: 'La cantidad debe ser mayor a 0'
             }
           }
         },

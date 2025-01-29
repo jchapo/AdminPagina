@@ -820,139 +820,139 @@
                             </div>
                         </div>
                         <!-- Modal to add new record -->
-                        <!-- Modal -->
                         <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="recojoModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
                                 <form class="modal-content" id="recojoForm">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="recojoModalLabel">Editar Recojo</h5>
+                                        <h5 class="modal-title" id="recojoModalLabel">Nueva Entrega</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <h6>1. Información del Recojo</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="fechaEntrega" class="form-label">Fecha de Entrega</label>
-                                                <input type="date" class="form-control dob-picker" name="fechaEntrega" id="fechaEntrega" placeholder="dd/mm/aaaa" required />
+                                        <div class="row">
+                                            <!-- Columna Izquierda -->
+                                            <div class="col-md-6">
+                                                <h6>1. Información del Recojo</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="fechaEntrega" class="form-label">Fecha de Entrega</label>
+                                                        <input type="date" class="form-control dob-picker" name="fechaEntrega" id="fechaEntrega" placeholder="dd/mm/aaaa" required />
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="proveedorName" class="form-label">Proveedor</label>
+                                                        <input type="text" class="form-control" name="proveedorName" id="proveedorName" placeholder="Nombre del proveedor" required />
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="proveedorTelefono" class="form-label">Teléfono de Proveedor</label>
+                                                        <input type="tel" class="form-control" name="proveedorTelefono" id="proveedorTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="proveedorDistrito" class="form-label">Punto de Recojo</label>
+                                                        <select class="form-select select2" name="proveedorDistrito" id="proveedorDistrito" required>
+                                                            <option value="" disabled selected>Seleccione un distrito</option>
+                                                            <option value="Ancón">Ancón</option>
+                                                            <option value="Ate">Ate</option>
+                                                            <option value="Barranco">Barranco</option>
+                                                            <option value="Breña">Breña</option>
+                                                            <option value="Carabayllo">Carabayllo</option>
+                                                            <option value="Chaclacayo">Chaclacayo</option>
+                                                            <option value="Chorrillos">Chorrillos</option>
+                                                            <option value="Cieneguilla">Cieneguilla</option>
+                                                            <option value="Comas">Comas</option>
+                                                            <option value="El Agustino">El Agustino</option>
+                                                            <option value="Independencia">Independencia</option>
+                                                            <option value="Jesús María">Jesús María</option>
+                                                            <option value="La Molina">La Molina</option>
+                                                            <option value="La Victoria">La Victoria</option>
+                                                            <option value="Lince">Lince</option>
+                                                            <option value="Los Olivos">Los Olivos</option>
+                                                            <option value="Miraflores">Miraflores</option>
+                                                            <option value="Pachacámac">Pachacámac</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                        
+                                                <h6 class="mt-4">2. Información del Cliente</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="clienteName" class="form-label">Cliente</label>
+                                                        <input type="text" class="form-control" name="clienteName" id="clienteName" placeholder="Nombre del cliente" required />
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="clienteTelefono" class="form-label">Teléfono de Cliente</label>
+                                                        <input type="tel" class="form-control" name="clienteTelefono" id="clienteTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="clienteDistrito" class="form-label">Punto de Entrega</label>
+                                                        <select class="form-select select2" name="clienteDistrito" id="clienteDistrito" required>
+                                                            <option value="" disabled selected>Seleccione un distrito</option>
+                                                            <option value="Ancón">Ancón</option>
+                                                            <option value="Ate">Ate</option>
+                                                            <option value="Barranco">Barranco</option>
+                                                            <option value="Breña">Breña</option>
+                                                            <option value="Carabayllo">Carabayllo</option>
+                                                            <option value="Chaclacayo">Chaclacayo</option>
+                                                            <option value="Chorrillos">Chorrillos</option>
+                                                            <option value="Cieneguilla">Cieneguilla</option>
+                                                            <option value="Comas">Comas</option>
+                                                            <option value="El Agustino">El Agustino</option>
+                                                            <option value="Independencia">Independencia</option>
+                                                            <option value="Jesús María">Jesús María</option>
+                                                            <option value="La Molina">La Molina</option>
+                                                            <option value="La Victoria">La Victoria</option>
+                                                            <option value="Lince">Lince</option>
+                                                            <option value="Los Olivos">Los Olivos</option>
+                                                            <option value="Miraflores">Miraflores</option>
+                                                            <option value="Pachacámac">Pachacámac</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="clienteUbicacion" class="form-label">Ubicación de Cliente</label>
+                                                        <input type="text" class="form-control" name="clienteUbicacion" id="clienteUbicacion" placeholder="Dirección de entrega" required />
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="proveedorName" class="form-label">Proveedor</label>
-                                                <input type="text" class="form-control" name="proveedorName" id="proveedorName" placeholder="Nombre del proveedor" required />
-                                            </div>
-                                        </div>
-                                        <div class="row g-3 mt-3">
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="proveedorTelefono" class="form-label">Teléfono de Proveedor</label>
-                                                <input type="tel" class="form-control" name="proveedorTelefono" id="proveedorTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
-                                            </div>
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="proveedorDistrito" class="form-label">Punto de Recojo</label>
-                                                <select class="form-select select2" name="proveedorDistrito" id="proveedorDistrito" required>
-                                                    <option value="" disabled selected>Seleccione un distrito</option>
-                                                    <option value="Ancón">Ancón</option>
-                                                    <option value="Ate">Ate</option>
-                                                    <option value="Barranco">Barranco</option>
-                                                    <option value="Breña">Breña</option>
-                                                    <option value="Carabayllo">Carabayllo</option>
-                                                    <option value="Chaclacayo">Chaclacayo</option>
-                                                    <option value="Chorrillos">Chorrillos</option>
-                                                    <option value="Cieneguilla">Cieneguilla</option>
-                                                    <option value="Comas">Comas</option>
-                                                    <option value="El Agustino">El Agustino</option>
-                                                    <option value="Independencia">Independencia</option>
-                                                    <option value="Jesús María">Jesús María</option>
-                                                    <option value="La Molina">La Molina</option>
-                                                    <option value="La Victoria">La Victoria</option>
-                                                    <option value="Lince">Lince</option>
-                                                    <option value="Los Olivos">Los Olivos</option>
-                                                    <option value="Miraflores">Miraflores</option>
-                                                    <option value="Pachacámac">Pachacámac</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <hr class="my-4">
-                                        <h6>2. Información del Cliente</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="clienteName" class="form-label">Cliente</label>
-                                                <input type="text" class="form-control" name="clienteName" id="clienteName" placeholder="Nombre del cliente" required />
-                                            </div>
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="clienteTelefono" class="form-label">Teléfono de Cliente</label>
-                                                <input type="tel" class="form-control" name="clienteTelefono" id="clienteTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
-                                            </div>
-                                        </div>
-                                        <div class="row g-3 mt-3">
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="clienteDistrito" class="form-label">Punto de Entrega</label>
-                                                <select class="form-select select2" name="clienteDistrito" id="clienteDistrito" required>
-                                                    <option value="" disabled selected>Seleccione un distrito</option>
-                                                    <option value="Ancón">Ancón</option>
-                                                    <option value="Ate">Ate</option>
-                                                    <option value="Barranco">Barranco</option>
-                                                    <option value="Breña">Breña</option>
-                                                    <option value="Carabayllo">Carabayllo</option>
-                                                    <option value="Chaclacayo">Chaclacayo</option>
-                                                    <option value="Chorrillos">Chorrillos</option>
-                                                    <option value="Cieneguilla">Cieneguilla</option>
-                                                    <option value="Comas">Comas</option>
-                                                    <option value="El Agustino">El Agustino</option>
-                                                    <option value="Independencia">Independencia</option>
-                                                    <option value="Jesús María">Jesús María</option>
-                                                    <option value="La Molina">La Molina</option>
-                                                    <option value="La Victoria">La Victoria</option>
-                                                    <option value="Lince">Lince</option>
-                                                    <option value="Los Olivos">Los Olivos</option>
-                                                    <option value="Miraflores">Miraflores</option>
-                                                    <option value="Pachacámac">Pachacámac</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="clienteUbicacion" class="form-label">Ubicación de Cliente</label>
-                                                <input type="text" class="form-control" name="clienteUbicacion" id="clienteUbicacion" placeholder="Dirección de entrega" required />
-                                            </div>
-                                        </div>
-                                        <hr class="my-4">
-                                        <h6>3. Detalles del Pedido</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-12 form-control-validation">
-                                                <label for="pedidoDetalle" class="form-label">Detalle del Pedido</label>
-                                                <textarea class="form-control" id="pedidoDetalle" rows="2" placeholder="Detalles del pedido"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3 mt-3">
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="cantidadCobrar" class="form-label">Cantidad a Cobrar</label>
-                                                <input type="number" step="0.01" class="form-control" name="cantidadCobrar" id="cantidadCobrar" required />
-                                            </div>
-                                            <div class="col-md-6 form-control-validation">
-                                                <label for="metodoPago" class="form-label">Método de Pago</label>
-                                                <select class="form-select select2" name="metodoPago" id="metodoPago" required>
-                                                    <option value="" disabled selected>Seleccione un pago</option>
-                                                    <option value="Yape">Yape</option>
-                                                    <option value="Plin">Plin</option>
-                                                    <option value="Efectivo">Efectivo</option>
-                                                    <option value="Pago Link">Pago Link</option>
-                                                    <option value="Transferencia">Transferencia</option>
-                                                    <option value="Preguntar, no me indicó">Preguntar, no me indicó</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <hr class="my-4">
-                                        <h6>4. Observaciones</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-12 form-control-validation">
-                                                <label for="observaciones" class="form-label">Observaciones</label>
-                                                <textarea class="form-control" id="observaciones" rows="2" placeholder="Detalles adicionales o comentarios"></textarea>
+                        
+                                            <!-- Columna Derecha -->
+                                            <div class="col-md-6">
+                                                <h6>3. Detalles del Pedido</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-md-12 form-control-validation">
+                                                        <label for="pedidoDetalle" class="form-label">Detalle del Pedido</label>
+                                                        <textarea class="form-control" id="pedidoDetalle" rows="2" placeholder="Detalles del pedido"></textarea>
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="cantidadCobrar" class="form-label">Cantidad a Cobrar</label>
+                                                        <input type="number" step="0.01" class="form-control" name="cantidadCobrar" id="cantidadCobrar" required />
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="metodoPago" class="form-label">Método de Pago</label>
+                                                        <select class="form-select select2" name="metodoPago" id="metodoPago" required>
+                                                            <option value="" disabled selected>Seleccione un pago</option>
+                                                            <option value="Yape">Yape</option>
+                                                            <option value="Plin">Plin</option>
+                                                            <option value="Efectivo">Efectivo</option>
+                                                            <option value="Pago Link">Pago Link</option>
+                                                            <option value="Transferencia">Transferencia</option>
+                                                            <option value="Preguntar, no me indicó">Preguntar, no me indicó</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                        
+                                                <h6 class="mt-4">4. Observaciones</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-md-12 form-control-validation">
+                                                        <label for="observaciones" class="form-label">Observaciones</label>
+                                                        <textarea class="form-control" id="observaciones" rows="4" placeholder="Detalles adicionales o comentarios"></textarea>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" name="submitButton"class="btn btn-primary">Guardar</button>
+                                        <button type="submit" name="submitButton" class="btn btn-primary">Guardar</button>
                                     </div>
                                 </form>
-                                
                             </div>
                         </div>
                         <!--/ DataTable with Buttons -->
