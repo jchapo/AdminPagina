@@ -833,21 +833,21 @@
                                         <div class="row g-3">
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="fechaEntrega" class="form-label">Fecha de Entrega</label>
-                                                <input type="date" class="form-control dob-picker" id="fechaEntrega" placeholder="dd/mm/aaaa" required />
+                                                <input type="date" class="form-control dob-picker" name="fechaEntrega" id="fechaEntrega" placeholder="dd/mm/aaaa" required />
                                             </div>
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="proveedorName" class="form-label">Proveedor</label>
-                                                <input type="text" class="form-control" id="proveedorName" placeholder="Nombre del proveedor" required />
+                                                <input type="text" class="form-control" name="proveedorName" id="proveedorName" placeholder="Nombre del proveedor" required />
                                             </div>
                                         </div>
                                         <div class="row g-3 mt-3">
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="proveedorTelefono" class="form-label">Teléfono de Proveedor</label>
-                                                <input type="tel" class="form-control" id="proveedorTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
+                                                <input type="tel" class="form-control" name="proveedorTelefono" id="proveedorTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
                                             </div>
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="proveedorDistrito" class="form-label">Punto de Recojo</label>
-                                                <select class="form-select select2" id="proveedorDistrito" required>
+                                                <select class="form-select select2" name="proveedorDistrito" id="proveedorDistrito" required>
                                                     <option value="" disabled selected>Seleccione un distrito</option>
                                                     <option value="Ancón">Ancón</option>
                                                     <option value="Ate">Ate</option>
@@ -875,17 +875,17 @@
                                         <div class="row g-3">
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="clienteName" class="form-label">Cliente</label>
-                                                <input type="text" class="form-control" id="clienteName" placeholder="Nombre del cliente" required />
+                                                <input type="text" class="form-control" name="clienteName" id="clienteName" placeholder="Nombre del cliente" required />
                                             </div>
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="clienteTelefono" class="form-label">Teléfono de Cliente</label>
-                                                <input type="tel" class="form-control" id="clienteTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
+                                                <input type="tel" class="form-control" name="clienteTelefono" id="clienteTelefono" placeholder="123456789" pattern="^\d{9}$" maxlength="9" required />
                                             </div>
                                         </div>
                                         <div class="row g-3 mt-3">
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="clienteDistrito" class="form-label">Punto de Entrega</label>
-                                                <select class="form-select select2" id="clienteDistrito" required>
+                                                <select class="form-select select2" name="clienteDistrito" id="clienteDistrito" required>
                                                     <option value="" disabled selected>Seleccione un distrito</option>
                                                     <option value="Ancón">Ancón</option>
                                                     <option value="Ate">Ate</option>
@@ -909,7 +909,7 @@
                                             </div>
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="clienteUbicacion" class="form-label">Ubicación de Cliente</label>
-                                                <input type="text" class="form-control" id="clienteUbicacion" placeholder="Dirección de entrega" required />
+                                                <input type="text" class="form-control" name="clienteUbicacion" id="clienteUbicacion" placeholder="Dirección de entrega" required />
                                             </div>
                                         </div>
                                         <hr class="my-4">
@@ -923,11 +923,12 @@
                                         <div class="row g-3 mt-3">
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="cantidadCobrar" class="form-label">Cantidad a Cobrar</label>
-                                                <input type="number" step="0.01" class="form-control" id="cantidadCobrar" required />
+                                                <input type="number" step="0.01" class="form-control" name="cantidadCobrar" id="cantidadCobrar" required />
                                             </div>
                                             <div class="col-md-6 form-control-validation">
                                                 <label for="metodoPago" class="form-label">Método de Pago</label>
-                                                <select class="form-select select2" id="metodoPago" required>
+                                                <select class="form-select select2" name="metodoPago" id="metodoPago" required>
+                                                    <option value="" disabled selected>Seleccione un pago</option>
                                                     <option value="Yape">Yape</option>
                                                     <option value="Plin">Plin</option>
                                                     <option value="Efectivo">Efectivo</option>
@@ -948,7 +949,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                        <button type="submit" name="submitButton"class="btn btn-primary">Guardar</button>
                                     </div>
                                 </form>
                                 
