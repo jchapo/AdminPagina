@@ -41,7 +41,7 @@
                                 clickOpens: !0,
                                 closeOnSelect: !0,
                                 conjunction: ", ",
-                                dateFormat: "Y-m-d",
+                                dateFormat: "d-m-Y",
                                 defaultHour: 12,
                                 defaultMinute: 0,
                                 defaultSeconds: 0,
@@ -722,7 +722,6 @@
                                         }
                                 }
                             }
-
                             function ae() {
                                 var e, t = d("div", "flatpickr-month"),
                                     n = window.document.createDocumentFragment();
