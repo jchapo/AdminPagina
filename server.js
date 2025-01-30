@@ -51,27 +51,40 @@ function generateUniqueId() {
 app.post('/api/recojos', async (req, res) => {
   const nuevoRecojo = req.body;
 
-    if (nuevoRecojo.fechaCreacionPedido) {
+  // Validate and convert fechaCreacionPedido
+  if (nuevoRecojo.fechaCreacionPedido) {
     const fechaCreacionLocal = new Date(nuevoRecojo.fechaCreacionPedido);
-    const fechaEntregaLocal = new Date(nuevoRecojo.fechaEntregaPedido);  
-    // console.log("Fecha de Entrega Pedido (local):", fechaEntregaLocal);
-    fechaEntregaLocal.setHours(fechaEntregaLocal.getHours() + 5);
-    // console.log("Fecha de Entrega Pedido (ajustada sumando 5 horas):", fechaEntregaLocal);
-    nuevoRecojo.fechaCreacionPedido = admin.firestore.Timestamp.fromDate(fechaCreacionLocal);
-    nuevoRecojo.fechaEntregaPedido = admin.firestore.Timestamp.fromDate(fechaEntregaLocal);
+    if (!isNaN(fechaCreacionLocal.getTime())) { // Check if the date is valid
+      nuevoRecojo.fechaCreacionPedido = admin.firestore.Timestamp.fromDate(fechaCreacionLocal);
+    } else {
+      console.error('Invalid fechaCreacionPedido:', nuevoRecojo.fechaCreacionPedido);
+      return res.status(400).json({ error: 'Invalid fechaCreacionPedido' });
     }
+  }
 
-  // Generar un ID único usando la función generateUniqueId
+  // Validate and convert fechaEntregaPedido
+  if (nuevoRecojo.fechaEntregaPedido) {
+    const fechaEntregaLocal = new Date(nuevoRecojo.fechaEntregaPedido);
+    if (!isNaN(fechaEntregaLocal.getTime())) { // Check if the date is valid
+      fechaEntregaLocal.setHours(fechaEntregaLocal.getHours() + 5);
+      nuevoRecojo.fechaEntregaPedido = admin.firestore.Timestamp.fromDate(fechaEntregaLocal);
+    } else {
+      console.error('Invalid fechaEntregaPedido:', nuevoRecojo.fechaEntregaPedido);
+      return res.status(400).json({ error: 'Invalid fechaEntregaPedido' });
+    }
+  }
+
+  // Generate a unique ID
   const uniqueId = generateUniqueId();
 
-  // Asignar el ID único al recojo
+  // Assign the unique ID to the recojo
   const recojoConId = { 
     ...nuevoRecojo, 
     id: uniqueId 
   };
 
-  // Agregar el nuevo recojo con el ID generado manualmente
-  const ref = await db.collection('recojos').doc(uniqueId).set(recojoConId);
+  // Add the new recojo with the manually generated ID
+  await db.collection('recojos').doc(uniqueId).set(recojoConId);
 
   res.json({ id: uniqueId });
 });
