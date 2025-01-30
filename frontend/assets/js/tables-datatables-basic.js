@@ -27,12 +27,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 {
                     data: 'fechaEntregaPedido',
                     render: function (data) {
-                        if (data && data._seconds) {
-                            // Convertir los segundos y nanosegundos a milisegundos
-                            const milliseconds = data._seconds * 1000 + (data._nanoseconds / 1000000);
-                            return new Date(milliseconds).toLocaleDateString();
-                        }
-                        return 'No disponible';
+                        return formatDate(data); // Usar la función formatDate para formatear la fecha
                     }
                 },
                 {
@@ -54,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     }
                 },
                 {
-                    data: 'pedidoDireccionFormulario',
+                    data: 'clienteDistrito',
                     render: function (data) {
                         return data || 'No disponible';
                     }
@@ -451,37 +446,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
     }
         , 100)
 });
-// Función para cargar los datos en el modal
-function loadDataToModal(data) {
-    // Cambiar el título del modal
-    document.getElementById('recojoModalLabel').textContent = 'Editar Entrega';
-    
-    // Cargar datos básicos
-    document.getElementById('fechaEntrega').value = formatDate(data.fechaEntregaPedido);
-    document.getElementById('proveedorName').value = data.proveedorNombre || '';
-    document.getElementById('proveedorTelefono').value = data.proveedorTelefono || '';
-    document.getElementById('proveedorDistrito').value = data.proveedorDistrito || '';
-    
-    // Información del cliente
-    document.getElementById('clienteName').value = data.clienteNombre || '';
-    document.getElementById('clienteTelefono').value = data.clienteTelefono || '';
-    document.getElementById('clienteDistrito').value = data.clienteDistrito || '';
-    document.getElementById('clienteUbicacion').value = data.pedidoDireccionFormulario || '';
-    
-    // Detalles del pedido
-    document.getElementById('pedidoDetalle').value = data.pedidoDetalle || '';
-    document.getElementById('cantidadCobrar').value = data.pedidoCantidadCobrar || '';
-    document.getElementById('metodoPago').value = data.pedidoMetodoPago || '';
-    
-    // Observaciones
-    document.getElementById('observaciones').value = data.observaciones || '';
-    
-    // Agregar un data attribute al formulario para identificar que es una edición
-    document.getElementById('recojoForm').setAttribute('data-edit-id', data.id);
-    
-    // Cambiar el texto del botón de guardar
-    document.querySelector('#recojoForm button[type="submit"]').textContent = 'Actualizar';
-}
 
 // Función auxiliar para formatear la fecha
 function formatDate(timestamp) {
@@ -499,6 +463,49 @@ function formatDate(timestamp) {
     return `${day}-${month}-${year}`;
 }
 
+function loadDataToModal(data) {
+    // Cambiar el título del modal
+    document.getElementById('recojoModalLabel').textContent = 'Editar Entrega';
+    
+    // Cargar datos básicos
+    document.getElementById('fechaEntrega').value = formatDate(data.fechaEntregaPedido);
+    document.getElementById('proveedorName').value = data.proveedorNombre || '';
+    document.getElementById('proveedorTelefono').value = data.proveedorTelefono || '';
+    
+    // Asignar valor al select de proveedorDistrito y actualizar select2
+    const proveedorDistritoSelect = document.getElementById('proveedorDistrito');
+    proveedorDistritoSelect.value = data.proveedorDistrito || '';
+    $(proveedorDistritoSelect).trigger('change'); // Actualizar select2
+    
+    // Información del cliente
+    document.getElementById('clienteName').value = data.clienteNombre || '';
+    document.getElementById('clienteTelefono').value = data.clienteTelefono || '';
+    
+    // Asignar valor al select de clienteDistrito y actualizar select2
+    const clienteDistritoSelect = document.getElementById('clienteDistrito');
+    clienteDistritoSelect.value = data.clienteDistrito || '';
+    $(clienteDistritoSelect).trigger('change'); // Actualizar select2
+    
+    document.getElementById('clienteUbicacion').value = data.pedidoDireccionFormulario || '';
+    
+    // Detalles del pedido
+    document.getElementById('pedidoDetalle').value = data.pedidoDetalle || '';
+    document.getElementById('cantidadCobrar').value = data.pedidoCantidadCobrar || '';
+    
+    // Asignar valor al select de metodoPago y actualizar select2
+    const metodoPagoSelect = document.getElementById('metodoPago');
+    metodoPagoSelect.value = data.pedidoMetodoPago || '';
+    $(metodoPagoSelect).trigger('change'); // Actualizar select2
+    
+    // Observaciones
+    document.getElementById('observaciones').value = data.pedidoObservaciones || '';
+    
+    // Agregar un data attribute al formulario para identificar que es una edición
+    document.getElementById('recojoForm').setAttribute('data-edit-id', data.id);
+    
+    // Cambiar el texto del botón de guardar
+    document.querySelector('#recojoForm button[type="submit"]').textContent = 'Actualizar';
+}
 
 // Event listener para el botón de editar
 document.addEventListener('click', function(e) {
@@ -510,7 +517,20 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Event listener para el botón de eliminar
+document.addEventListener('click', function (e) {
+    if (e.target.closest('.delete-record')) {
+        // Obtener el ID del registro a eliminar
+        const recordId = e.target.closest('.delete-record').getAttribute('data-id');
 
+        // Mostrar el modal de confirmación
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+        deleteModal.show();
+
+        // Asignar el ID al botón de confirmar eliminación
+        document.getElementById('confirmDeleteButton').setAttribute('data-id', recordId);
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function () {
     const modalElement = document.getElementById('recojoForm'); // Tu formulario
