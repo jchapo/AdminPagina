@@ -87,20 +87,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     searchable: false,
                     render: function (data, type, row) {
                         return `
-                                <div class="d-inline-block">
-                                    <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                        <i class="icon-base bx bx-dots-vertical-rounded"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end m-0">
-                                        <li><a href="javascript:;" class="dropdown-item">Detalles</a></li>
-                                        <li><a href="javascript:;" class="dropdown-item">Archivar</a></li>
-                                        <div class="dropdown-divider"></div>
-                                        <li><a href="javascript:;" class="dropdown-item text-danger delete-record">Eliminar</a></li>
-                                    </ul>
-                                </div>
+                            <div class="d-inline-block">
                                 <a href="javascript:;" class="btn btn-icon item-edit" data-id="${row.id}">
                                     <i class="icon-base bx bx-edit icon-sm"></i>
-                                </a>`;
+                                </a>
+                                <a href="javascript:;" class="btn btn-icon text-danger delete-record" data-id="${row.id}">
+                                    <i class="icon-base bx bx-trash icon-sm"></i>
+                                </a>
+                            </div>`;
                     }
                 }
             ],
@@ -484,14 +478,27 @@ function loadDataToModal(data) {
     
     // Agregar un data attribute al formulario para identificar que es una edición
     document.getElementById('recojoForm').setAttribute('data-edit-id', data.id);
+    
+    // Cambiar el texto del botón de guardar
+    document.querySelector('#recojoForm button[type="submit"]').textContent = 'Actualizar';
 }
 
 // Función auxiliar para formatear la fecha
 function formatDate(timestamp) {
     if (!timestamp || !timestamp._seconds) return '';
+
+    // Convertir el timestamp en un objeto Date
     const date = new Date(timestamp._seconds * 1000);
-    return date.toISOString().split('T')[0];
+
+    // Obtener día, mes y año con formato adecuado
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Mes en base 0
+    const year = date.getFullYear();
+
+    // Retornar la fecha en formato DD-MM-YYYY
+    return `${day}-${month}-${year}`;
 }
+
 
 // Event listener para el botón de editar
 document.addEventListener('click', function(e) {
@@ -503,67 +510,30 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Modificar el event listener del formulario para manejar tanto creación como edición
-document.getElementById('recojoForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        fechaEntregaPedido: new Date(document.getElementById('fechaEntrega').value),
-        proveedorNombre: document.getElementById('proveedorName').value,
-        proveedorTelefono: document.getElementById('proveedorTelefono').value,
-        proveedorDistrito: document.getElementById('proveedorDistrito').value,
-        clienteNombre: document.getElementById('clienteName').value,
-        clienteTelefono: document.getElementById('clienteTelefono').value,
-        clienteDistrito: document.getElementById('clienteDistrito').value,
-        pedidoDireccionFormulario: document.getElementById('clienteUbicacion').value,
-        pedidoDetalle: document.getElementById('pedidoDetalle').value,
-        pedidoCantidadCobrar: document.getElementById('cantidadCobrar').value,
-        pedidoMetodoPago: document.getElementById('metodoPago').value,
-        observaciones: document.getElementById('observaciones').value
-    };
 
-    const editId = this.getAttribute('data-edit-id');
-    const url = editId 
-        ? `http://localhost:3000/api/recojos/${editId}`
-        : 'http://localhost:3000/api/recojos';
-    
-    const method = editId ? 'PUT' : 'POST';
 
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
+document.addEventListener('DOMContentLoaded', function () {
+    const modalElement = document.getElementById('recojoForm'); // Tu formulario
+    const modalCloseButtons = document.querySelectorAll('[data-bs-dismiss="modal"], .btn-close'); // Botones de cerrar y cancelar
+    const modal = document.getElementById('backDropModal');
+    const submitButton = document.querySelector('#recojoForm button[type="submit"]');
+    const modalLabel = document.getElementById('recojoModalLabel');
 
-        if (response.ok) {
-            // Cerrar el modal
-            bootstrap.Modal.getInstance(document.getElementById('backDropModal')).hide();
-            // Recargar la tabla
-            o.ajax.reload();
-            // Resetear el formulario
-            this.reset();
-            // Eliminar el data-edit-id
-            this.removeAttribute('data-edit-id');
-            // Restaurar el título del modal
-            document.getElementById('recojoModalLabel').textContent = 'Nueva Entrega';
-        } else {
-            throw new Error('Error al guardar los datos');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Hubo un error al procesar la solicitud');
+    // Función para limpiar el formulario
+    function clearForm() {
+        modalElement.reset(); // Limpia todos los campos del formulario
+        modalElement.removeAttribute('data-edit-id'); // Elimina el atributo de edición
+        modalLabel.textContent = 'Nueva Entrega'; // Restaurar título
+        submitButton.textContent = 'Guardar'; // Restaurar texto del botón
     }
+
+    // Evento para el botón de cancelar o cerrar modal
+    modalCloseButtons.forEach(button => {
+        button.addEventListener('click', clearForm);
+    });
+
+    // Event listener para el cierre del modal
+    modal.addEventListener('hidden.bs.modal', clearForm);
 });
 
-// Event listener para el cierre del modal
-document.getElementById('backDropModal').addEventListener('hidden.bs.modal', function () {
-    // Resetear el formulario
-    document.getElementById('recojoForm').reset();
-    // Eliminar el data-edit-id
-    document.getElementById('recojoForm').removeAttribute('data-edit-id');
-    // Restaurar el título del modal
-    document.getElementById('recojoModalLabel').textContent = 'Nueva Entrega';
-});
+

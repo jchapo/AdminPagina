@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
           rowSelector: '.form-control-validation'
         }),
         submitButton: new FormValidation.plugins.SubmitButton(),
+        defaultSubmit: new FormValidation.plugins.DefaultSubmit,
         autoFocus: new FormValidation.plugins.AutoFocus()
       },
       init: instance => {
@@ -142,17 +143,6 @@ document.addEventListener("DOMContentLoaded", function() {
     select2Elements.forEach(element => {
       $(element).on('change', function() {
         formValidation.revalidateField(element.id);
-      });
-    });
-  
-    // Handle form submission
-    recojoForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      formValidation.validate().then(function(status) {
-        if (status === 'Valid') {
-          // Add your form submission logic here
-          alert('Formulario válido - Enviando datos...');
-        }
       });
     });
   });
