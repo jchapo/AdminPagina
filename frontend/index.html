@@ -384,7 +384,38 @@
                         <ul class="navbar-nav flex-row align-items-center ms-md-auto">
 
 
-
+                            <!-- Style Switcher -->
+                            <li class="nav-item dropdown me-2 me-xl-5">
+                                <a class="nav-link dropdown-toggle hide-arrow" id="nav-theme" href="javascript:void(0);"
+                                    data-bs-toggle="dropdown">
+                                    <i class="icon-base bx bx-sun icon-md theme-icon-active"></i>
+                                    <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
+                                    <li>
+                                        <button type="button" class="dropdown-item align-items-center active"
+                                            data-bs-theme-value="light" aria-pressed="false">
+                                            <span><i class="icon-base bx bx-sun icon-md me-3"
+                                                    data-icon="sun"></i>Light</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item align-items-center"
+                                            data-bs-theme-value="dark" aria-pressed="true">
+                                            <span><i class="icon-base bx bx-moon icon-md me-3"
+                                                    data-icon="moon"></i>Dark</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item align-items-center"
+                                            data-bs-theme-value="system" aria-pressed="false">
+                                            <span><i class="icon-base bx bx-desktop icon-md me-3"
+                                                    data-icon="desktop"></i>System</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- / Style Switcher-->
 
                             <!-- User -->
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
@@ -480,14 +511,14 @@
                                             <th></th>
                                             <th></th>
                                             <th>id</th>
-                                            <th>Fecha de entrega</th>
+                                            <th>F. Entrega</th>
                                             <th>Proveedor</th>
                                             <th>Cliente</th>
-                                            <th>Teléfono Cliente</th>
+                                            <th>Estado</th>
                                             <th>Destino</th>
                                             <th>Comisión</th>
                                             <th>Cobro</th>
-                                            <th>Método de pago</th>
+                                            <th>Pago</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -535,74 +566,51 @@
                                                             Recojo</label>
                                                         <select class="form-select select2" name="proveedorDistrito"
                                                             id="proveedorDistrito" required>
-                                                            <option value="" disabled selected>Seleccione un distrito
-                                                            </option>
+                                                            <option value="" disabled selected>Seleccione un distrito</option>
                                                             <option value="Ate (Lima)">Ate (Lima)</option>
                                                             <option value="Barranco (Lima)">Barranco (Lima)</option>
-                                                            <option value="Bellavista (Callao)">Bellavista (Callao)
-                                                            </option>
+                                                            <option value="Bellavista (Callao)">Bellavista (Callao)</option>
                                                             <option value="Breña (Lima)">Breña (Lima)</option>
                                                             <option value="Callao (Callao)">Callao (Callao)</option>
                                                             <option value="Carabayllo (Lima)">Carabayllo (Lima)</option>
-                                                            <option value="Carmen de la Legua (Callao)">Carmen de la
-                                                                Legua (Callao)</option>
-                                                            <option value="Cercado de Lima (Lima)">Cercado de Lima
-                                                                (Lima)</option>
+                                                            <option value="Carmen de la Legua (Callao)">Carmen de la Legua (Callao)</option>
+                                                            <option value="Cercado de Lima (Lima)">Cercado de Lima (Lima)</option>
                                                             <option value="Chorrillos (Lima)">Chorrillos (Lima)</option>
                                                             <option value="Comas (Lima)">Comas (Lima)</option>
-                                                            <option value="El Agustino (Lima)">El Agustino (Lima)
-                                                            </option>
-                                                            <option value="Huachipa (Ate, Lima)">Huachipa (Ate, Lima)
-                                                            </option>
-                                                            <option value="Independencia (Lima)">Independencia (Lima)
-                                                            </option>
-                                                            <option value="Jesús María (Lima)">Jesús María (Lima)
-                                                            </option>
+                                                            <option value="El Agustino (Lima)">El Agustino (Lima)</option>
+                                                            <option value="Huachipa (Ate, Lima)">Huachipa (Ate, Lima)</option>
+                                                            <option value="Independencia (Lima)">Independencia (Lima)</option>
+                                                            <option value="Jesús María (Lima)">Jesús María (Lima)</option>
                                                             <option value="La Molina (Lima)">La Molina (Lima)</option>
                                                             <option value="La Perla (Callao)">La Perla (Callao)</option>
                                                             <option value="La Punta (Callao)">La Punta (Callao)</option>
-                                                            <option value="La Victoria (Lima)">La Victoria (Lima)
-                                                            </option>
+                                                            <option value="La Victoria (Lima)">La Victoria (Lima)</option>
                                                             <option value="Lince (Lima)">Lince (Lima)</option>
                                                             <option value="Los Olivos (Lima)">Los Olivos (Lima)</option>
                                                             <option value="Lurín (Lima)">Lurín (Lima)</option>
-                                                            <option value="Magdalena del Mar (Lima)">Magdalena del Mar
-                                                                (Lima)</option>
+                                                            <option value="Magdalena del Mar (Lima)">Magdalena del Mar (Lima)</option>
                                                             <option value="Mi Perú (Callao)">Mi Perú (Callao)</option>
                                                             <option value="Miraflores (Lima)">Miraflores (Lima)</option>
                                                             <option value="Oquendo (Callao)">Oquendo (Callao)</option>
-                                                            <option value="Puente Piedra (Lima)">Puente Piedra (Lima)
-                                                            </option>
-                                                            <option value="Pueblo Libre (Lima)">Pueblo Libre (Lima)
-                                                            </option>
+                                                            <option value="Puente Piedra (Lima)">Puente Piedra (Lima)</option>
+                                                            <option value="Pueblo Libre (Lima)">Pueblo Libre (Lima)</option>
                                                             <option value="Rímac (Lima)">Rímac (Lima)</option>
                                                             <option value="San Borja (Lima)">San Borja (Lima)</option>
                                                             <option value="San Isidro (Lima)">San Isidro (Lima)</option>
-                                                            <option value="San Juan de Lurigancho (Lima)">San Juan de
-                                                                Lurigancho (Lima)</option>
-                                                            <option value="San Juan de Miraflores (Lima)">San Juan de
-                                                                Miraflores (Lima)</option>
+                                                            <option value="San Juan de Lurigancho (Lima)">San Juan de Lurigancho (Lima)</option>
+                                                            <option value="San Juan de Miraflores (Lima)">San Juan de Miraflores (Lima)</option>
                                                             <option value="San Luis (Lima)">San Luis (Lima)</option>
-                                                            <option value="San Martín de Porres (Lima)">San Martín de
-                                                                Porres (Lima)</option>
+                                                            <option value="San Martín de Porres (Lima)">San Martín de Porres (Lima)</option>
                                                             <option value="San Miguel (Lima)">San Miguel (Lima)</option>
-                                                            <option value="Santa Anita (Lima)">Santa Anita (Lima)
-                                                            </option>
-                                                            <option value="Santa Clara (Ate, Lima)">Santa Clara (Ate,
-                                                                Lima)</option>
-                                                            <option value="Santa Rosa (Callao)">Santa Rosa (Callao)
-                                                            </option>
-                                                            <option value="Santiago de Surco (Lima)">Santiago de Surco
-                                                                (Lima)</option>
-                                                            <option value="Surco (Santiago de Surco, Lima)">Surco
-                                                                (Santiago de Surco, Lima)</option>
+                                                            <option value="Santa Anita (Lima)">Santa Anita (Lima)</option>
+                                                            <option value="Santa Clara (Ate, Lima)">Santa Clara (Ate, Lima)</option>
+                                                            <option value="Santa Rosa (Callao)">Santa Rosa (Callao)</option>
+                                                            <option value="Santiago de Surco (Lima)">Santiago de Surco (Lima)</option>
+                                                            <option value="Surco (Santiago de Surco, Lima)">Surco (Santiago de Surco, Lima)</option>
                                                             <option value="Surquillo (Lima)">Surquillo (Lima)</option>
-                                                            <option value="Ventanilla (Callao)">Ventanilla (Callao)
-                                                            </option>
-                                                            <option value="Villa El Salvador (Lima)">Villa El Salvador
-                                                                (Lima)</option>
-                                                            <option value="Villa María del Triunfo (Lima)">Villa María
-                                                                del Triunfo (Lima)</option>
+                                                            <option value="Ventanilla (Callao)">Ventanilla (Callao) </option>
+                                                            <option value="Villa El Salvador (Lima)">Villa El Salvador (Lima)</option>
+                                                            <option value="Villa María del Triunfo (Lima)">Villa María del Triunfo (Lima)</option>
 
                                                         </select>
                                                     </div>
@@ -628,74 +636,51 @@
                                                             Entrega</label>
                                                         <select class="form-select select2" name="clienteDistrito"
                                                             id="clienteDistrito" required>
-                                                            <option value="" disabled selected>Seleccione un distrito
-                                                            </option>
+                                                            <option value="" disabled selected>Seleccione un distrito</option>
                                                             <option value="Ate (Lima)">Ate (Lima)</option>
                                                             <option value="Barranco (Lima)">Barranco (Lima)</option>
-                                                            <option value="Bellavista (Callao)">Bellavista (Callao)
-                                                            </option>
+                                                            <option value="Bellavista (Callao)">Bellavista (Callao)</option>
                                                             <option value="Breña (Lima)">Breña (Lima)</option>
                                                             <option value="Callao (Callao)">Callao (Callao)</option>
                                                             <option value="Carabayllo (Lima)">Carabayllo (Lima)</option>
-                                                            <option value="Carmen de la Legua (Callao)">Carmen de la
-                                                                Legua (Callao)</option>
-                                                            <option value="Cercado de Lima (Lima)">Cercado de Lima
-                                                                (Lima)</option>
+                                                            <option value="Carmen de la Legua (Callao)">Carmen de la Legua (Callao)</option>
+                                                            <option value="Cercado de Lima (Lima)">Cercado de Lima (Lima)</option>
                                                             <option value="Chorrillos (Lima)">Chorrillos (Lima)</option>
                                                             <option value="Comas (Lima)">Comas (Lima)</option>
-                                                            <option value="El Agustino (Lima)">El Agustino (Lima)
-                                                            </option>
-                                                            <option value="Huachipa (Ate, Lima)">Huachipa (Ate, Lima)
-                                                            </option>
-                                                            <option value="Independencia (Lima)">Independencia (Lima)
-                                                            </option>
-                                                            <option value="Jesús María (Lima)">Jesús María (Lima)
-                                                            </option>
+                                                            <option value="El Agustino (Lima)">El Agustino (Lima)</option>
+                                                            <option value="Huachipa (Ate, Lima)">Huachipa (Ate, Lima)</option>
+                                                            <option value="Independencia (Lima)">Independencia (Lima)</option>
+                                                            <option value="Jesús María (Lima)">Jesús María (Lima)</option>
                                                             <option value="La Molina (Lima)">La Molina (Lima)</option>
                                                             <option value="La Perla (Callao)">La Perla (Callao)</option>
                                                             <option value="La Punta (Callao)">La Punta (Callao)</option>
-                                                            <option value="La Victoria (Lima)">La Victoria (Lima)
-                                                            </option>
+                                                            <option value="La Victoria (Lima)">La Victoria (Lima)</option>
                                                             <option value="Lince (Lima)">Lince (Lima)</option>
                                                             <option value="Los Olivos (Lima)">Los Olivos (Lima)</option>
                                                             <option value="Lurín (Lima)">Lurín (Lima)</option>
-                                                            <option value="Magdalena del Mar (Lima)">Magdalena del Mar
-                                                                (Lima)</option>
+                                                            <option value="Magdalena del Mar (Lima)">Magdalena del Mar (Lima)</option>
                                                             <option value="Mi Perú (Callao)">Mi Perú (Callao)</option>
                                                             <option value="Miraflores (Lima)">Miraflores (Lima)</option>
                                                             <option value="Oquendo (Callao)">Oquendo (Callao)</option>
-                                                            <option value="Puente Piedra (Lima)">Puente Piedra (Lima)
-                                                            </option>
-                                                            <option value="Pueblo Libre (Lima)">Pueblo Libre (Lima)
-                                                            </option>
+                                                            <option value="Puente Piedra (Lima)">Puente Piedra (Lima)</option>
+                                                            <option value="Pueblo Libre (Lima)">Pueblo Libre (Lima)</option>
                                                             <option value="Rímac (Lima)">Rímac (Lima)</option>
                                                             <option value="San Borja (Lima)">San Borja (Lima)</option>
                                                             <option value="San Isidro (Lima)">San Isidro (Lima)</option>
-                                                            <option value="San Juan de Lurigancho (Lima)">San Juan de
-                                                                Lurigancho (Lima)</option>
-                                                            <option value="San Juan de Miraflores (Lima)">San Juan de
-                                                                Miraflores (Lima)</option>
+                                                            <option value="San Juan de Lurigancho (Lima)">San Juan de Lurigancho (Lima)</option>
+                                                            <option value="San Juan de Miraflores (Lima)">San Juan de Miraflores (Lima)</option>
                                                             <option value="San Luis (Lima)">San Luis (Lima)</option>
-                                                            <option value="San Martín de Porres (Lima)">San Martín de
-                                                                Porres (Lima)</option>
+                                                            <option value="San Martín de Porres (Lima)">San Martín de Porres (Lima)</option>
                                                             <option value="San Miguel (Lima)">San Miguel (Lima)</option>
-                                                            <option value="Santa Anita (Lima)">Santa Anita (Lima)
-                                                            </option>
-                                                            <option value="Santa Clara (Ate, Lima)">Santa Clara (Ate,
-                                                                Lima)</option>
-                                                            <option value="Santa Rosa (Callao)">Santa Rosa (Callao)
-                                                            </option>
-                                                            <option value="Santiago de Surco (Lima)">Santiago de Surco
-                                                                (Lima)</option>
-                                                            <option value="Surco (Santiago de Surco, Lima)">Surco
-                                                                (Santiago de Surco, Lima)</option>
+                                                            <option value="Santa Anita (Lima)">Santa Anita (Lima)</option>
+                                                            <option value="Santa Clara (Ate, Lima)">Santa Clara (Ate, Lima)</option>
+                                                            <option value="Santa Rosa (Callao)">Santa Rosa (Callao)</option>
+                                                            <option value="Santiago de Surco (Lima)">Santiago de Surco (Lima)</option>
+                                                            <option value="Surco (Santiago de Surco, Lima)">Surco (Santiago de Surco, Lima)</option>
                                                             <option value="Surquillo (Lima)">Surquillo (Lima)</option>
-                                                            <option value="Ventanilla (Callao)">Ventanilla (Callao)
-                                                            </option>
-                                                            <option value="Villa El Salvador (Lima)">Villa El Salvador
-                                                                (Lima)</option>
-                                                            <option value="Villa María del Triunfo (Lima)">Villa María
-                                                                del Triunfo (Lima)</option>
+                                                            <option value="Ventanilla (Callao)">Ventanilla (Callao) </option>
+                                                            <option value="Villa El Salvador (Lima)">Villa El Salvador (Lima)</option>
+                                                            <option value="Villa María del Triunfo (Lima)">Villa María del Triunfo (Lima)</option>
 
                                                         </select>
                                                     </div>
@@ -768,6 +753,31 @@
                                                             placeholder="Detalles adicionales o comentarios"></textarea>
                                                     </div>
                                                 </div>
+                                                <h6 class="mt-4">5. Asignación de Motorizados</h6>
+            <div class="row g-3">
+                <div class="col-md-6 form-control-validation">
+                    <label for="motorizadoRecojo" class="form-label">Motorizado Recojo</label>
+                    <select class="form-select select2" name="motorizadoRecojo" id="motorizadoRecojo" required>
+                        <option value="" disabled selected>Seleccione un motorizado</option>
+                        <option value="motorizadoNorte">Motorizado Norte</option>
+                        <option value="motorizadoSur">Motorizado Sur</option>
+                        <option value="motorizadoEste">Motorizado Este</option>
+                        <option value="motorizadoOeste">Motorizado Oeste</option>
+                        <option value="motorizadoCentro">Motorizado Centro</option>
+                    </select>
+                </div>
+                <div class="col-md-6 form-control-validation">
+                    <label for="motorizadoEntrega" class="form-label">Motorizado Entrega</label>
+                    <select class="form-select select2" name="motorizadoEntrega" id="motorizadoEntrega" required>
+                        <option value="" disabled selected>Seleccione un motorizado</option>
+                        <option value="motorizadoNorte">Motorizado Norte</option>
+                        <option value="motorizadoSur">Motorizado Sur</option>
+                        <option value="motorizadoEste">Motorizado Este</option>
+                        <option value="motorizadoOeste">Motorizado Oeste</option>
+                        <option value="motorizadoCentro">Motorizado Centro</option>
+                    </select>
+                </div>
+            </div>
                                             </div>
                                         </div>
                                     </div>

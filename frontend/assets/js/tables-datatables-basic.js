@@ -33,13 +33,23 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 {
                     data: 'proveedorNombre',
                     render: function (data) {
-                        return data || 'No disponible';
+                        if (data) {
+                            // Truncar el texto a 20 caracteres y añadir puntos suspensivos si es más largo
+                            return data.length > 20 ? data.substring(0, 20) + '...' : data;
+                        } else {
+                            return 'No disponible';
+                        }
                     }
                 },
                 {
                     data: 'clienteNombre',
                     render: function (data) {
-                        return data || 'No disponible';
+                        if (data) {
+                            // Truncar el texto a 20 caracteres y añadir puntos suspensivos si es más largo
+                            return data.length > 20 ? data.substring(0, 20) + '...' : data;
+                        } else {
+                            return 'No disponible';
+                        }
                     }
                 },
                 {
@@ -498,6 +508,16 @@ function loadDataToModal(data) {
     const metodoPagoSelect = document.getElementById('metodoPago');
     metodoPagoSelect.value = data.pedidoMetodoPago || '';
     $(metodoPagoSelect).trigger('change'); // Actualizar select2
+
+    // Asignar valor al select de motorizadoEntrega y actualizar select2
+    const motorizadoEntregaSelect = document.getElementById('motorizadoEntrega');
+    motorizadoEntregaSelect.value = data.motorizadoEntrega || '';
+    $(motorizadoEntregaSelect).trigger('change'); // Actualizar select2
+
+    // Asignar valor al select de motorizadoRecojo y actualizar select2
+    const motorizadoRecojoSelect = document.getElementById('motorizadoRecojo');
+    motorizadoRecojoSelect.value = data.motorizadoRecojo || '';
+    $(motorizadoRecojoSelect).trigger('change'); // Actualizar select2
     
     // Observaciones
     document.getElementById('observaciones').value = data.pedidoObservaciones || '';
@@ -601,13 +621,72 @@ function calcularComision() {
     comisionTarifaInput.value = comisionFinal;
 }
 
+// Función para determinar el grupo según el distrito
+function determinarGrupo(distrito) {
+    const grupos = {
+        norte: ["Carabayllo (Lima)", "Comas (Lima)", "Independencia (Lima)", "Los Olivos (Lima)", 
+               "Puente Piedra (Lima)", "San Martín de Porres (Lima)", "Santa Rosa (Callao)", 
+               "Ventanilla (Callao)", "Mi Perú (Callao)", "Oquendo (Callao)"],
+        sur: ["Chorrillos (Lima)", "Lurín (Lima)", "San Juan de Miraflores (Lima)", 
+             "Santiago de Surco (Lima)", "Surco (Santiago de Surco, Lima)", "Surquillo (Lima)", 
+             "Villa El Salvador (Lima)", "Villa María del Triunfo (Lima)"],
+        este: ["Ate (Lima)", "Chaclacayo (Lima)", "El Agustino (Lima)", "Huachipa (Ate, Lima)", 
+              "San Juan de Lurigancho (Lima)", "Santa Anita (Lima)", "Santa Clara (Ate, Lima)"],
+        oeste: ["Bellavista (Callao)", "Callao (Callao)", "Carmen de la Legua (Callao)", 
+               "La Perla (Callao)", "La Punta (Callao)"],
+        centro: ["Barranco (Lima)", "Breña (Lima)", "Cercado de Lima (Lima)", "Jesús María (Lima)", 
+                "La Molina (Lima)", "La Victoria (Lima)", "Lince (Lima)", "Magdalena del Mar (Lima)", 
+                "Pueblo Libre (Lima)", "Rímac (Lima)", "San Borja (Lima)", "San Isidro (Lima)", 
+                "San Luis (Lima)", "San Miguel (Lima)"]
+    };
+    
+    for (const grupo in grupos) {
+        if (grupos[grupo].includes(distrito)) {
+            return grupo;
+        }
+    }
+    return null;
+}
+
+// Función para asignar motorizado según el grupo
+function asignarMotorizado(distrito) {
+    const grupo = determinarGrupo(distrito);
+    if (!grupo) return "";  // Valor vacío para Select2
+    return `motorizado${grupo.charAt(0).toUpperCase() + grupo.slice(1)}`;
+}
+
 // Eventos para recalcular la comisión
 $(document).ready(function () {
     // Inicializar Select2 en el campo clienteDistrito
-    $('#clienteDistrito').select2();
+    //$('#clienteDistrito').select2();
 
-    // Detectar cambios en el Select2
-    $('#clienteDistrito').on('change', function () {
+    // Event listener para el distrito del proveedor
+    $('#proveedorDistrito').on('select2:select', function(e) {
+        const motorizadoValue = asignarMotorizado(e.params.data.text);
+        
+        // Actualizar Select2 para motorizado recojo
+        $('#motorizadoRecojo').val(motorizadoValue).trigger('change');
+        
+        // Revalidar el campo
+        if (typeof formValidation !== 'undefined') {
+            formValidation.revalidateField('motorizadoRecojo');
+        }
+    });
+
+    // Event listener para el distrito del cliente
+    $('#clienteDistrito').on('select2:select', function(e) {
+        // Asignar motorizado de entrega
+        const motorizadoValue = asignarMotorizado(e.params.data.text);
+        
+        // Actualizar Select2 para motorizado entrega
+        $('#motorizadoEntrega').val(motorizadoValue).trigger('change');
+        
+        // Revalidar el campo
+        if (typeof formValidation !== 'undefined') {
+            formValidation.revalidateField('motorizadoEntrega');
+        }
+
+        // Recalcular la comisión
         const comisionTarifaInput = document.getElementById('comisionTarifa');
         delete comisionTarifaInput.dataset.manual; // Reiniciar la edición manual
         calcularComision(); // Recalcular la comisión
@@ -620,10 +699,6 @@ document.getElementById('supera30x30').addEventListener('change', function () {
     calcularComision(); // Recalcular la comisión
 });
 
-// Evento para permitir la edición manual del input de comisión
-document.getElementById('comisionTarifa').addEventListener('input', function () {
-    // Si el usuario modifica manualmente el valor, deshabilitamos el cálculo automático
-    this.dataset.manual = true;
-});
+
 
 

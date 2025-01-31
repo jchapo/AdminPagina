@@ -82,6 +82,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     notEmpty: { message: 'La comisión de tarifa es requerida' },
                     numeric: { message: 'Debe ser numérico', decimalSeparator: '.' }
                 }
+            },
+            motorizadoRecojo: {
+                validators: {
+                    notEmpty: { message: 'Debe seleccionar un motorizado para recojo' }
+                }
+            },
+            motorizadoEntrega: {
+                validators: {
+                    notEmpty: { message: 'Debe seleccionar un motorizado para entrega' }
+                }
             }
         },
         plugins: {
@@ -117,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('recojoModalLabel').textContent = 'Nueva Entrega'; // Restaurar título
         document.querySelector('#recojoForm button[type="submit"]').textContent = 'Guardar'; // Restaurar texto del botón
     }
+
 
     // Capturar el envío con AJAX en lugar del DefaultSubmit
     formValidation.on('core.form.valid', function () {
@@ -158,8 +169,8 @@ document.addEventListener("DOMContentLoaded", function () {
             pedidoCantidadCobrar: cantidadCobrarFormatted,
             pedidoSeCobra: pedidoSeCobraValor,
             pedidoMetodoPago: formData.get('metodoPago'),
-            motorizadoRecojo: "Asignar Recojo",
-            motorizadoEntrega: "Asignar Entrega",
+            motorizadoRecojo: formData.get('motorizadoRecojo'),
+            motorizadoEntrega: formData.get('motorizadoEntrega'),
             fechaRecojoPedido: null,
             fechaAnulacionPedido: null,
             fechaAsignaciónPedido: null,
