@@ -54,6 +54,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
                         return data || 'No disponible';
                     }
                 },
+                // Nueva columna para comisionTarifa
+                {
+                    data: 'comisionTarifa',
+                    render: function (data) {
+                        return data ? `S/ ${parseFloat(data).toFixed(2)}` : 'S/ 0.00';
+                    }
+                },
                 {
                     data: 'pedidoCantidadCobrar',
                     render: function (data) {
@@ -70,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                             'Pago Link': 'bg-label-dark',
                             'Plin': 'bg-label-info'
                         };
-
+        
                         const clase = metodoPagoClases[data] || 'bg-label-secondary';
                         return `<span class="badge ${clase}">${data || 'No especificado'}</span>`;
                     }
@@ -215,22 +222,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bx-printer me-1"></i>Print</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7],
+                                    columns: [3, 4, 5, 6, 7, 8, 9], // Incluye la columna de comisionTarifa
                                     format: {
                                         body: function (e, t, a) {
-                                            if (e.length <= 0 || !(-1 < e.indexOf("<")))
+                                            if (e.length <= 0)
                                                 return e;
-                                            {
-                                                e = (new DOMParser).parseFromString(e, "text/html");
-                                                let t = "";
-                                                var s = e.querySelectorAll(".user-name");
-                                                return 0 < s.length ? s.forEach(e => {
-                                                    e = e.querySelector(".fw-medium")?.textContent || e.querySelector(".d-block")?.textContent || e.textContent;
-                                                    t += e.trim() + " "
-                                                }
-                                                ) : t = e.body.textContent || e.body.innerText,
-                                                    t.trim()
+                                            e = (new DOMParser).parseFromString(e, "text/html");
+                                            let s = "";
+                                            var n = e.querySelectorAll(".user-name");
+                                            return 0 < n.length ? n.forEach(e => {
+                                                e = e.querySelector(".fw-medium")?.textContent || e.querySelector(".d-block")?.textContent || e.textContent;
+                                                s += e.trim() + " "
                                             }
+                                            ) : s = e.body.textContent || e.body.innerText,
+                                                s.trim()
                                         }
                                     }
                                 },
@@ -464,9 +469,6 @@ function formatDate(timestamp) {
 }
 
 function loadDataToModal(data) {
-    // Cambiar el título del modal
-    document.getElementById('recojoModalLabel').textContent = 'Editar Entrega';
-    
     // Cargar datos básicos
     document.getElementById('fechaEntrega').value = formatDate(data.fechaEntregaPedido);
     document.getElementById('proveedorName').value = data.proveedorNombre || '';
@@ -476,7 +478,7 @@ function loadDataToModal(data) {
     const proveedorDistritoSelect = document.getElementById('proveedorDistrito');
     proveedorDistritoSelect.value = data.proveedorDistrito || '';
     $(proveedorDistritoSelect).trigger('change'); // Actualizar select2
-    
+
     // Información del cliente
     document.getElementById('clienteName').value = data.clienteNombre || '';
     document.getElementById('clienteTelefono').value = data.clienteTelefono || '';
@@ -487,11 +489,11 @@ function loadDataToModal(data) {
     $(clienteDistritoSelect).trigger('change'); // Actualizar select2
     
     document.getElementById('clienteUbicacion').value = data.pedidoDireccionFormulario || '';
-    
+
     // Detalles del pedido
     document.getElementById('pedidoDetalle').value = data.pedidoDetalle || '';
     document.getElementById('cantidadCobrar').value = data.pedidoCantidadCobrar || '';
-    
+
     // Asignar valor al select de metodoPago y actualizar select2
     const metodoPagoSelect = document.getElementById('metodoPago');
     metodoPagoSelect.value = data.pedidoMetodoPago || '';
@@ -499,10 +501,17 @@ function loadDataToModal(data) {
     
     // Observaciones
     document.getElementById('observaciones').value = data.pedidoObservaciones || '';
-    
+
+    // Cargar comisionTarifa y supera30x30
+    document.getElementById('comisionTarifa').value = data.comisionTarifa || '';
+    document.getElementById('supera30x30').checked = data.supera30x30 === 1;
+
+    // No calcular la comisión automáticamente al cargar los datos
+    // El valor se muestra tal como está en la base de datos
+
     // Agregar un data attribute al formulario para identificar que es una edición
     document.getElementById('recojoForm').setAttribute('data-edit-id', data.id);
-    
+
     // Cambiar el texto del botón de guardar
     document.querySelector('#recojoForm button[type="submit"]').textContent = 'Actualizar';
 }
@@ -541,10 +550,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Función para limpiar el formulario
     function clearForm() {
-        modalElement.reset(); // Limpia todos los campos del formulario
-        modalElement.removeAttribute('data-edit-id'); // Elimina el atributo de edición
-        modalLabel.textContent = 'Nueva Entrega'; // Restaurar título
-        submitButton.textContent = 'Guardar'; // Restaurar texto del botón
+        // Limpiar todos los campos del formulario
+        modalElement.reset();
+    
+        // Limpiar campos de Select2
+        $('#clienteDistrito').val(null).trigger('change'); // Limpiar Select2 de clienteDistrito
+        $('#proveedorDistrito').val(null).trigger('change'); // Limpiar Select2 de proveedorDistrito (si existe)
+        $('#metodoPago').val(null).trigger('change'); // Limpiar Select2 de metodoPago (si existe)
+    
+        // Eliminar el atributo de edición
+        modalElement.removeAttribute('data-edit-id');
+    
+        // Restaurar título y texto del botón
+        modalLabel.textContent = 'Nueva Entrega';
+        submitButton.textContent = 'Guardar';
     }
 
     // Evento para el botón de cancelar o cerrar modal
@@ -554,6 +573,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Event listener para el cierre del modal
     modal.addEventListener('hidden.bs.modal', clearForm);
+});
+
+// Función para calcular la comisión automáticamente
+function calcularComision() {
+    const clienteDistrito = document.getElementById('clienteDistrito').value;
+    const supera30x30 = document.getElementById('supera30x30').checked;
+    const comisionTarifaInput = document.getElementById('comisionTarifa');
+
+    // Si el usuario ha editado manualmente el valor, no lo sobrescribimos
+    if (comisionTarifaInput.dataset.manual) {
+        return;
+    }
+
+    let comisionBase = 10; // Valor base para distritos distintos de Chaclacayo
+    if (['Carabayllo (Lima)', 'Ventanilla (Callao)', 'Puente Piedra (Lima)'].includes(clienteDistrito)) {
+        comisionBase = 15;
+    } else if (['Comas (Lima)', 'Villa El Salvador (Lima)', 'Villa María del Triunfo (Lima)', 'Oquendo (Callao)', 'Santa Clara (Ate, Lima)'].includes(clienteDistrito)) {
+        comisionBase = 13;
+    }
+    
+
+    // Sumar 5 si el checkbox está activado
+    const comisionFinal = supera30x30 ? comisionBase + 5 : comisionBase;
+
+    // Actualizar el valor del input de comisión
+    comisionTarifaInput.value = comisionFinal;
+}
+
+// Eventos para recalcular la comisión
+$(document).ready(function () {
+    // Inicializar Select2 en el campo clienteDistrito
+    $('#clienteDistrito').select2();
+
+    // Detectar cambios en el Select2
+    $('#clienteDistrito').on('change', function () {
+        const comisionTarifaInput = document.getElementById('comisionTarifa');
+        delete comisionTarifaInput.dataset.manual; // Reiniciar la edición manual
+        calcularComision(); // Recalcular la comisión
+    });
+});
+
+document.getElementById('supera30x30').addEventListener('change', function () {
+    const comisionTarifaInput = document.getElementById('comisionTarifa');
+    delete comisionTarifaInput.dataset.manual; // Reiniciar la edición manual
+    calcularComision(); // Recalcular la comisión
+});
+
+// Evento para permitir la edición manual del input de comisión
+document.getElementById('comisionTarifa').addEventListener('input', function () {
+    // Si el usuario modifica manualmente el valor, deshabilitamos el cálculo automático
+    this.dataset.manual = true;
 });
 
 

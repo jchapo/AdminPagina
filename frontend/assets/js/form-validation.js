@@ -76,7 +76,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     numeric: { message: 'Debe ser numérico', decimalSeparator: '.' }
                 }
             },
-            metodoPago: { validators: { notEmpty: { message: 'Debe seleccionar un método de pago' } } }
+            metodoPago: { validators: { notEmpty: { message: 'Debe seleccionar un método de pago' } } },
+            comisionTarifa: {
+                validators: {
+                    notEmpty: { message: 'La comisión de tarifa es requerida' },
+                    numeric: { message: 'Debe ser numérico', decimalSeparator: '.' }
+                }
+            }
         },
         plugins: {
             trigger: new FormValidation.plugins.Trigger(),
@@ -117,11 +123,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData(recojoForm);
         const dateValue = new Date().toISOString();
         const formattedDocId = generateUniqueId();
-
+    
         // Verificar si estamos editando un registro existente
         const isEdit = recojoForm.hasAttribute('data-edit-id');
         const docId = isEdit ? recojoForm.getAttribute('data-edit-id') : formattedDocId;
-
+    
+        // Obtener el valor de comisionTarifa (puede ser automático o manual)
+        const comisionTarifa = parseFloat(document.getElementById('comisionTarifa').value);
+    
         // Format data
         const proveedorNombre = formData.get('proveedorName').toUpperCase();
         const clienteNombreFormatted = capitalizeWords(formData.get('clienteName'));
@@ -130,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const fechaEntrega = formData.get('fechaEntrega'); // Assuming this is in DD-MM-YYYY format
         const [day, month, year] = fechaEntrega.split('-');
         const formattedFechaEntrega = `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
-
+    
         const newRecojo = {
             id: docId,
             proveedorNombre: proveedorNombre,
@@ -158,13 +167,14 @@ document.addEventListener("DOMContentLoaded", function () {
             pedidoFotoEntrega: null,
             thumbnailFotoRecojo: null,
             thumbnailFotoEntrega: null,
-            comisionTarifa: null,
+            comisionTarifa: comisionTarifa,
+            supera30x30: document.getElementById('supera30x30').checked ? 1 : 0,
             pedidoFotoRecojo: null
         };
-
+    
         const url = isEdit ? `${API_URL}/${docId}` : API_URL;
         const method = isEdit ? 'PUT' : 'POST';
-
+    
         fetch(url, {
             method: method,
             headers: {
@@ -174,11 +184,9 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
-                //console.log('Respuesta:', data);
-
                 // Limpiar el formulario y cerrar el modal
                 document.querySelector('.btn-close[data-bs-dismiss="modal"]').click();
-
+    
                 // Recargar la lista de recojos si es necesario
                 if (typeof loadRecojos === 'function') {
                     loadRecojos();

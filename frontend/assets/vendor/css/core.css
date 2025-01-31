@@ -832,7 +832,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 1440px
+        max-width: 1640px
     }
 }
 
@@ -27939,7 +27939,7 @@ li:not(:first-child) .dropdown-item,
 }
 
 .layout-navbar.navbar-detached.container-xxl {
-    max-inline-size: calc(1440px - 1.625rem*2)
+    max-inline-size: calc(1640px - 1.625rem*2)
 }
 
 .layout-navbar-fixed .layout-navbar.navbar-detached {
