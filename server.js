@@ -33,19 +33,20 @@ app.get('/api/recojos', async (req, res) => {
 });
 
 function generateUniqueId() {
-    const now = new Date();
-    
-    // Obtener los componentes de la fecha y hora
-    const day = String(now.getDate()).padStart(2, '0'); // Día con dos dígitos
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes con dos dígitos
-    const year = now.getFullYear(); // Año
-    const hours = String(now.getHours()).padStart(2, '0'); // Hora con dos dígitos
-    const minutes = String(now.getMinutes()).padStart(2, '0'); // Minutos con dos dígitos
-    const seconds = String(now.getSeconds()).padStart(2, '0'); // Segundos con dos dígitos
-  
-    // Formatear el ID en el formato DD-MM-YYYY-HHMMSS
-    return `${day}-${month}-${year}-${hours}${minutes}${seconds}`;
+  const now = new Date();
+  const padToTwoDigits = (num) => num.toString().padStart(2, '0');
+
+  const day = padToTwoDigits(now.getDate());
+  const month = padToTwoDigits(now.getMonth() + 1);
+  const year = now.getFullYear();
+  const hours = padToTwoDigits(now.getHours());
+  const minutes = padToTwoDigits(now.getMinutes());
+  const seconds = padToTwoDigits(now.getSeconds());
+  const randomId = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+
+  return `${day}-${month}-${year}-${hours}${minutes}${seconds}-${randomId}`;
 }
+
   
 
 app.post('/api/recojos', async (req, res) => {
@@ -76,6 +77,7 @@ app.post('/api/recojos', async (req, res) => {
 
   // Generate a unique ID
   const uniqueId = generateUniqueId();
+  console.log('Generated Unique ID:', uniqueId); // Verificación
 
   // Assign the unique ID to the recojo
   const recojoConId = { 
@@ -91,30 +93,42 @@ app.post('/api/recojos', async (req, res) => {
 
 
 app.put('/api/recojos/:id', async (req, res) => {
-    const { id } = req.params;
-    const datosActualizados = req.body;
+  const { id } = req.params;
+  const datosActualizados = req.body;
 
-    if (datosActualizados.fechaEntregaPedido) {
-        // Convertir la fecha del picker (cadena) a un objeto Date
-        const fechaEntregaLocal = new Date(datosActualizados.fechaEntregaPedido); // Fecha seleccionada
-        // console.log("Fecha de Entrega Pedido (local):", fechaEntregaLocal);
-        
-        // Ajustar la hora sumando 5 horas (por la diferencia de zona horaria)
-        fechaEntregaLocal.setHours(fechaEntregaLocal.getHours() + 5);
-        
-        // console.log("Fecha de Entrega Pedido (ajustada sumando 5 horas):", fechaEntregaLocal);
+  try {
+      // Obtener el documento existente de Firestore
+      const recojoRef = db.collection('recojos').doc(id);
+      const recojoDoc = await recojoRef.get();
 
-        // Convertir la fecha ajustada a un Timestamp de Firebase
-        datosActualizados.fechaEntregaPedido = admin.firestore.Timestamp.fromDate(fechaEntregaLocal);
-    }
+      if (!recojoDoc.exists) {
+          return res.status(404).json({ error: 'Recojo no encontrado' });
+      }
 
-    // Actualizar en Firestore
-    await db.collection('recojos').doc(id).update(datosActualizados);
-    res.json({ id });
+      // Mantener el valor original de fechaCreacionPedido
+      datosActualizados.fechaCreacionPedido = recojoDoc.data().fechaCreacionPedido;
+
+      // Convertir fechaEntregaPedido a Timestamp si está presente
+      if (datosActualizados.fechaEntregaPedido) {
+          const fechaEntregaLocal = new Date(datosActualizados.fechaEntregaPedido);
+          if (!isNaN(fechaEntregaLocal.getTime())) { // Verificar si la fecha es válida
+              fechaEntregaLocal.setHours(fechaEntregaLocal.getHours() + 5); // Ajustar zona horaria
+              datosActualizados.fechaEntregaPedido = admin.firestore.Timestamp.fromDate(fechaEntregaLocal);
+          } else {
+              console.error('Invalid fechaEntregaPedido:', datosActualizados.fechaEntregaPedido);
+              return res.status(400).json({ error: 'Invalid fechaEntregaPedido' });
+          }
+      }
+
+      // Actualizar el documento en Firestore
+      await recojoRef.update(datosActualizados);
+
+      res.json({ id });
+  } catch (error) {
+      console.error('Error al actualizar el recojo:', error);
+      res.status(500).json({ error: 'Error al actualizar el recojo' });
+  }
 });
-
-
-
   
   
 

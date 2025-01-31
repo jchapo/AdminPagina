@@ -13,14 +13,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function generateUniqueId() {
         const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const padToTwoDigits = (num) => num.toString().padStart(2, '0');
+    
+        const day = padToTwoDigits(now.getDate());
+        const month = padToTwoDigits(now.getMonth() + 1);
         const year = now.getFullYear();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        return `${day}-${month}-${year}-${hours}${minutes}${seconds}-${random}`;
+        const hours = padToTwoDigits(now.getHours());
+        const minutes = padToTwoDigits(now.getMinutes());
+        const seconds = padToTwoDigits(now.getSeconds());
+        const randomId = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    
+        return `${day}-${month}-${year}-${hours}${minutes}${seconds}-${randomId}`;
     }
 
     function capitalizeWords(str) {
@@ -132,12 +135,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Capturar el envío con AJAX en lugar del DefaultSubmit
     formValidation.on('core.form.valid', function () {
         const formData = new FormData(recojoForm);
-        const dateValue = new Date().toISOString();
-        const formattedDocId = generateUniqueId();
-    
-        // Verificar si estamos editando un registro existente
         const isEdit = recojoForm.hasAttribute('data-edit-id');
-        const docId = isEdit ? recojoForm.getAttribute('data-edit-id') : formattedDocId;
+        const docId = isEdit ? recojoForm.getAttribute('data-edit-id') : generateUniqueId();
     
         // Obtener el valor de comisionTarifa (puede ser automático o manual)
         const comisionTarifa = parseFloat(document.getElementById('comisionTarifa').value);
@@ -164,7 +163,6 @@ document.addEventListener("DOMContentLoaded", function () {
             pedidoDireccionLink: formData.get('clienteUbicacion'),
             pedidoDetalle: formData.get('pedidoDetalle'),
             pedidoObservaciones: formData.get('observaciones'),
-            fechaCreacionPedido: dateValue,
             fechaEntregaPedido: formattedFechaEntrega,
             pedidoCantidadCobrar: cantidadCobrarFormatted,
             pedidoSeCobra: pedidoSeCobraValor,
@@ -182,6 +180,11 @@ document.addEventListener("DOMContentLoaded", function () {
             supera30x30: document.getElementById('supera30x30').checked ? 1 : 0,
             pedidoFotoRecojo: null
         };
+    
+        // Si es una edición, no incluir fechaCreacionPedido
+        if (!isEdit) {
+            newRecojo.fechaCreacionPedido = new Date().toISOString();
+        }
     
         const url = isEdit ? `${API_URL}/${docId}` : API_URL;
         const method = isEdit ? 'PUT' : 'POST';

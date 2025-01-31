@@ -526,8 +526,8 @@ function loadDataToModal(data) {
     document.getElementById('comisionTarifa').value = data.comisionTarifa || '';
     document.getElementById('supera30x30').checked = data.supera30x30 === 1;
 
-    // No calcular la comisión automáticamente al cargar los datos
-    // El valor se muestra tal como está en la base de datos
+    // Agregar un campo oculto para fechaCreacionPedido
+    document.getElementById('fechaCreacionPedido').value = data.fechaCreacionPedido;
 
     // Agregar un data attribute al formulario para identificar que es una edición
     document.getElementById('recojoForm').setAttribute('data-edit-id', data.id);
