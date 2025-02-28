@@ -483,6 +483,7 @@ function loadDataToModal(data) {
     document.getElementById('fechaEntrega').value = formatDate(data.fechaEntregaPedido);
     document.getElementById('proveedorName').value = data.proveedorNombre || '';
     document.getElementById('proveedorTelefono').value = data.proveedorTelefono || '';
+    document.getElementById('proveedorDireccionLink').value = data.proveedorDireccionLink || '';
     
     // Asignar valor al select de proveedorDistrito y actualizar select2
     const proveedorDistritoSelect = document.getElementById('proveedorDistrito');
@@ -498,7 +499,7 @@ function loadDataToModal(data) {
     clienteDistritoSelect.value = data.clienteDistrito || '';
     $(clienteDistritoSelect).trigger('change'); // Actualizar select2
     
-    document.getElementById('clienteUbicacion').value = data.pedidoDireccionFormulario || '';
+    document.getElementById('pedidoDireccionLink').value = data.pedidoDireccionLink || '';
 
     // Detalles del pedido
     document.getElementById('pedidoDetalle').value = data.pedidoDetalle || '';
@@ -541,6 +542,7 @@ document.addEventListener('click', function(e) {
     if (e.target.closest('.item-edit')) {
         const row = o.row(e.target.closest('tr')).data();
         loadDataToModal(row);
+        console.log(row); // Verifica si los datos ocultos siguen en el objeto
         const modal = new bootstrap.Modal(document.getElementById('backDropModal'));
         modal.show();
     }

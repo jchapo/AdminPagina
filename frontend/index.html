@@ -28,24 +28,7 @@
     <meta property="og:site_name" content="ThemeSelection" />
     <link rel="canonical" href="https://themeselection.com/item/sneat-dashboard-pro-bootstrap/" />
 
-    <!-- ? PROD Only: Google Tag Manager (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
-    <script>
-        (function (w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-5DDHKGP');
-    </script>
-    <!-- End Google Tag Manager -->
-
+   
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="../../assets/img/favicon/favicon.ico" />
 
@@ -110,11 +93,6 @@
 </head>
 
 <body>
-
-    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
 
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar  ">
@@ -562,38 +540,31 @@
                                                             pattern="^\d{9}$" maxlength="9" required />
                                                     </div>
                                                     <div class="col-md-6 form-control-validation">
-                                                        <label for="proveedorDistrito" class="form-label">Punto de
-                                                            Recojo</label>
-                                                        <select class="form-select select2" name="proveedorDistrito"
-                                                            id="proveedorDistrito" required>
+                                                        <label for="proveedorDistrito" class="form-label">Punto de Recojo</label>
+                                                        <select class="form-select select2" name="proveedorDistrito" id="proveedorDistrito" required>
                                                             <option value="" disabled selected>Seleccione un distrito</option>
                                                             <option value="Ate (Lima)">Ate (Lima)</option>
                                                             <option value="Barranco (Lima)">Barranco (Lima)</option>
-                                                            <option value="Bellavista (Callao)">Bellavista (Callao)</option>
                                                             <option value="Breña (Lima)">Breña (Lima)</option>
-                                                            <option value="Callao (Callao)">Callao (Callao)</option>
                                                             <option value="Carabayllo (Lima)">Carabayllo (Lima)</option>
-                                                            <option value="Carmen de la Legua (Callao)">Carmen de la Legua (Callao)</option>
-                                                            <option value="Cercado de Lima (Lima)">Cercado de Lima (Lima)</option>
+                                                            <option value="Chaclacayo (Lima)">Chaclacayo (Lima)</option>
                                                             <option value="Chorrillos (Lima)">Chorrillos (Lima)</option>
                                                             <option value="Comas (Lima)">Comas (Lima)</option>
+                                                            <option value="Cercado de Lima (Lima)">Cercado de Lima (Lima)</option>
                                                             <option value="El Agustino (Lima)">El Agustino (Lima)</option>
                                                             <option value="Huachipa (Ate, Lima)">Huachipa (Ate, Lima)</option>
                                                             <option value="Independencia (Lima)">Independencia (Lima)</option>
                                                             <option value="Jesús María (Lima)">Jesús María (Lima)</option>
                                                             <option value="La Molina (Lima)">La Molina (Lima)</option>
-                                                            <option value="La Perla (Callao)">La Perla (Callao)</option>
-                                                            <option value="La Punta (Callao)">La Punta (Callao)</option>
                                                             <option value="La Victoria (Lima)">La Victoria (Lima)</option>
                                                             <option value="Lince (Lima)">Lince (Lima)</option>
                                                             <option value="Los Olivos (Lima)">Los Olivos (Lima)</option>
                                                             <option value="Lurín (Lima)">Lurín (Lima)</option>
                                                             <option value="Magdalena del Mar (Lima)">Magdalena del Mar (Lima)</option>
                                                             <option value="Mi Perú (Callao)">Mi Perú (Callao)</option>
-                                                            <option value="Miraflores (Lima)">Miraflores (Lima)</option>
                                                             <option value="Oquendo (Callao)">Oquendo (Callao)</option>
-                                                            <option value="Puente Piedra (Lima)">Puente Piedra (Lima)</option>
                                                             <option value="Pueblo Libre (Lima)">Pueblo Libre (Lima)</option>
+                                                            <option value="Puente Piedra (Lima)">Puente Piedra (Lima)</option>
                                                             <option value="Rímac (Lima)">Rímac (Lima)</option>
                                                             <option value="San Borja (Lima)">San Borja (Lima)</option>
                                                             <option value="San Isidro (Lima)">San Isidro (Lima)</option>
@@ -608,11 +579,21 @@
                                                             <option value="Santiago de Surco (Lima)">Santiago de Surco (Lima)</option>
                                                             <option value="Surco (Santiago de Surco, Lima)">Surco (Santiago de Surco, Lima)</option>
                                                             <option value="Surquillo (Lima)">Surquillo (Lima)</option>
-                                                            <option value="Ventanilla (Callao)">Ventanilla (Callao) </option>
                                                             <option value="Villa El Salvador (Lima)">Villa El Salvador (Lima)</option>
                                                             <option value="Villa María del Triunfo (Lima)">Villa María del Triunfo (Lima)</option>
-
+                                                            <option value="Bellavista (Callao)">Bellavista (Callao)</option>
+                                                            <option value="Callao (Callao)">Callao (Callao)</option>
+                                                            <option value="Carmen de la Legua (Callao)">Carmen de la Legua (Callao)</option>
+                                                            <option value="La Perla (Callao)">La Perla (Callao)</option>
+                                                            <option value="La Punta (Callao)">La Punta (Callao)</option>
+                                                            <option value="Ventanilla (Callao)">Ventanilla (Callao)</option>
                                                         </select>
+                                                        
+                                                    </div>
+                                                    <div class="col-md-6 form-control-validation">
+                                                        <label for="proveedorDireccionLink" class="form-label">Ubicación de Proveedor</label>
+                                                        <input type="text" class="form-control" name="proveedorDireccionLink"
+                                                            id="proveedorDireccionLink" placeholder="Link o Dirección" required />
                                                     </div>
                                                 </div>
 
@@ -632,8 +613,7 @@
                                                             pattern="^\d{9}$" maxlength="9" required />
                                                     </div>
                                                     <div class="col-md-6 form-control-validation">
-                                                        <label for="clienteDistrito" class="form-label">Punto de
-                                                            Entrega</label>
+                                                        <label for="clienteDistrito" class="form-label">Punto de Entrega</label>
                                                         <select class="form-select select2" name="clienteDistrito"
                                                             id="clienteDistrito" required>
                                                             <option value="" disabled selected>Seleccione un distrito</option>
@@ -685,11 +665,9 @@
                                                         </select>
                                                     </div>
                                                     <div class="col-md-6 form-control-validation">
-                                                        <label for="clienteUbicacion" class="form-label">Ubicación de
-                                                            Cliente</label>
-                                                        <input type="text" class="form-control" name="clienteUbicacion"
-                                                            id="clienteUbicacion" placeholder="Dirección de entrega"
-                                                            required />
+                                                        <label for="pedidoDireccionLink" class="form-label">Ubicación de Cliente</label>
+                                                        <input type="text" class="form-control" name="pedidoDireccionLink"
+                                                            id="pedidoDireccionLink" placeholder="Link o Dirección" required />
                                                     </div>
                                                 </div>
                                             </div>
