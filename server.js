@@ -13,12 +13,13 @@ app.use(express.static(path.join(__dirname, 'frontend')));  // Sirve todo lo que
 
 // Inicializar Firebase Admin SDK
 const serviceAccount = require('./nanpi-courier-firebase.json');
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://<tu-proyecto>.firebaseio.com"
 });
 
 const db = admin.firestore();
+
 
 // Servir el archivo index.html en la raíz
 app.get('/', (req, res) => {
@@ -51,6 +52,11 @@ function generateUniqueId() {
 
 app.post('/api/recojos', async (req, res) => {
   const nuevoRecojo = req.body;
+
+  if (!nuevoRecojo || Object.keys(nuevoRecojo).length === 0) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+}
+
 
   // Validate and convert fechaCreacionPedido
   if (nuevoRecojo.fechaCreacionPedido) {
@@ -86,7 +92,7 @@ app.post('/api/recojos', async (req, res) => {
   };
 
   // Add the new recojo with the manually generated ID
-  await db.collection('recojos').doc(uniqueId).set(recojoConId);
+  await db.collection('recojos').doc(uniqueId).set(nuevoRecojo);
 
   res.json({ id: uniqueId });
 });
@@ -95,6 +101,12 @@ app.post('/api/recojos', async (req, res) => {
 app.put('/api/recojos/:id', async (req, res) => {
   const { id } = req.params;
   const datosActualizados = req.body;
+
+  if (!datosActualizados || Object.keys(datosActualizados).length === 0) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+}
+
+  
 
   try {
       // Obtener el documento existente de Firestore
@@ -134,9 +146,15 @@ app.put('/api/recojos/:id', async (req, res) => {
 
 app.delete('/api/recojos/:id', async (req, res) => {
   const { id } = req.params;
-  await db.collection('recojos').doc(id).delete();
-  res.json({ id });
+  try {
+    await db.collection('recojos').doc(id).delete();
+    res.json({ message: 'Recojo eliminado', id });
+  } catch (error) {
+    console.error('Error al eliminar el recojo:', error);
+    res.status(500).json({ error: 'Error al eliminar el recojo' });
+  }
 });
+
 
 app.get('/api/recojos/:id', async (req, res) => {
     const { id } = req.params;

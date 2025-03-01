@@ -543,7 +543,7 @@
                                                     </div>
                                                     <div class="col">
                                                         <div class="d-flex align-items-center">
-                                                            <div class="badge bg-success rounded-circle p-3 me-3">
+                                                            <div class="badge bg-warning rounded-circle p-3 me-3">
                                                                 <i class="fas fa-hand-holding-usd"></i>
                                                             </div>
                                                             <div>
@@ -577,41 +577,46 @@
                                                             <i class="fas fa-truck-loading me-2"></i>Información del Recojo
                                                         </h6>
                                                     </div>
-                                                    <div class="card-body">
-                                                        <div class="mb-4 text-center">
-                                                            <div class="position-relative">
-                                                                <img id="viewFotoRecojo" src="" alt="Foto del Recojo" class="img-thumbnail" style="max-height: 200px; width: auto;">
-                                                                    <i class="fas fa-camera"></i>
-                                                                </span>
+                                                    <div class="card-body d-flex flex-wrap">
+                                                        <!-- Contenedor de la foto (2/3 del ancho total) -->
+                                                        <div class="me-3" style="flex: 2; max-width: 66.66%;">
+                                                            <div class="position-relative text-center">
+                                                                <img id="viewFotoRecojo" src="" alt="Foto del Recojo" class="img-thumbnail" 
+                                                                     style="width: 100%; aspect-ratio: 3/4; object-fit: contain; max-height: 400px;">
+                                                                <i class="fas fa-camera position-absolute bottom-0 end-0 p-2"></i>
                                                             </div>
                                                         </div>
-                                                        
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-muted small">Proveedor</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text"><i class="fas fa-store"></i></span>
-                                                                <div class="form-control bg-light" id="viewProveedorNombre"></div>
+                                                    
+                                                        <!-- Contenedor de la información (1/3 del ancho total) -->
+                                                        <div style="flex: 1; max-width: 33.33%; min-width: 250px;">
+                                                            <div class="mb-3">
+                                                                <label class="form-label text-muted small">Proveedor</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text"><i class="fas fa-store"></i></span>
+                                                                    <div class="form-control bg-light" id="viewProveedorNombre"></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-muted small">Teléfono</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                                                <div class="form-control bg-light" id="viewProveedorTelefono"></div>
+                                                    
+                                                            <div class="mb-3">
+                                                                <label class="form-label text-muted small">Teléfono</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                                                    <div class="form-control bg-light" id="viewProveedorTelefono"></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-muted small">Distrito</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                                                <div class="form-control bg-light" id="viewProveedorDistrito"></div>
+                                                    
+                                                            <div class="mb-3">
+                                                                <label class="form-label text-muted small">Distrito</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                                                    <div class="form-control bg-light" id="viewProveedorDistrito"></div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            
                         
                                             <!-- Columna Derecha: Información de la Entrega -->
                                             <div class="col-md-6">
@@ -621,36 +626,40 @@
                                                             <i class="fas fa-shipping-fast me-2"></i>Información de la Entrega
                                                         </h6>
                                                     </div>
-                                                    <div class="card-body">
-                                                        <div class="mb-4 text-center">
-                                                            <div class="position-relative">
-                                                                <img id="viewFotoEntrega" src="" alt="Foto de la Entrega" class="img-thumbnail" style="max-height: 200px; width: auto;">
-                                                                    <i class="fas fa-camera"></i>
-                                                                </span>
+                                                    <div class="card-body d-flex flex-wrap">
+                                                        <!-- Contenedor de la foto (2/3 del ancho total) -->
+                                                        <div class="me-3" style="flex: 2; max-width: 66.66%;">
+                                                            <div class="position-relative text-center">
+                                                                <img id="viewFotoEntrega" src="" alt="Foto de la Entrega" class="img-thumbnail" 
+                                                                     style="width: 100%; aspect-ratio: 3/4; object-fit: contain; max-height: 400px;">
+                                                                <i class="fas fa-camera position-absolute bottom-0 end-0 p-2"></i>
                                                             </div>
                                                         </div>
                                                         
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-muted small">Cliente</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                                                <div class="form-control bg-light" id="viewClienteNombre"></div>
+                                                        <!-- Contenedor de la información (1/3 del ancho total) -->
+                                                        <div style="flex: 1; max-width: 33.33%; min-width: 250px;">
+                                                            <div class="mb-3">
+                                                                <label class="form-label text-muted small">Cliente</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                                                    <div class="form-control bg-light" id="viewClienteNombre"></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-muted small">Teléfono</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                                                <div class="form-control bg-light" id="viewClienteTelefono"></div>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label class="form-label text-muted small">Teléfono</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                                                    <div class="form-control bg-light" id="viewClienteTelefono"></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-muted small">Distrito</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                                                <div class="form-control bg-light" id="viewClienteDistrito"></div>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label class="form-label text-muted small">Distrito</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                                                    <div class="form-control bg-light" id="viewClienteDistrito"></div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

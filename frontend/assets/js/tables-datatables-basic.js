@@ -188,9 +188,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 selector: "td:nth-child(2)"
             },
             rowCallback: function (row, data) {
-                if (data.fechaAnulacionPedido && data.fechaAnulacionPedido !== "0") {
-                    $(row).css('background-color', '#ffcccc'); // Color rojo claro
+                if (data.fechaAnulacionPedido !== null) {
+                    $(row).css('background-color', '#ffcccc'); // Rojo claro si el pedido fue anulado
+                } else if (data.fechaEntregaPedidoMotorizado !== null && data.fechaRecojoPedidoMotorizado !== null) {
+                    $(row).css('background-color', '#ccffcc'); // Verde claro si el pedido fue entregado
+                } else if (data.fechaRecojoPedidoMotorizado !== null) {
+                    $(row).css('background-color', '#ffffcc'); // Verde claro si el pedido fue entregado
                 }
+                
+                
             },
             order: [[3, "desc"]],
             displayLength: 7,
@@ -399,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         document.addEventListener('click', function(e) {
             if (e.target.closest('.item-view')) {
                 const row = o.row(e.target.closest('tr')).data();
-                loadDataToModal(row); // Llenar el modal con datos
+                loadDataToModal2(row); // Llenar el modal con datos
                 //console.log(row); // Verifica si los datos se están obteniendo correctamente
                 const modal = new bootstrap.Modal(document.getElementById('viewDetailsModal')); // Abrir el modal correcto
                 modal.show();
@@ -474,6 +480,27 @@ document.addEventListener("DOMContentLoaded", function (e) {
     }
         , 100)
 });
+
+// Asegúrate de inicializar Firebase antes de usar Firestore
+const db = firebase.firestore(); // Si no has inicializado Firebase, hazlo antes
+
+// Referencia a la colección en Firestore
+const recojosRef = db.collection("recojos"); 
+
+// Escuchar cambios en tiempo real
+recojosRef.onSnapshot((snapshot) => {
+    let datosActualizados = [];
+    
+    snapshot.forEach((doc) => {
+        datosActualizados.push(doc.data());
+    });
+
+    // Actualizar la DataTable con los nuevos datos
+    o.clear().rows.add(datosActualizados).draw();
+});
+
+
+
 
 // Función auxiliar para formatear la fecha
 function formatDate(timestamp) {
@@ -715,18 +742,18 @@ document.getElementById('supera30x30').addEventListener('change', function () {
 });
 
 
-function loadDataToModal(data) {
+function loadDataToModal2(data) {
     // Información del proveedor
     document.getElementById('viewProveedorNombre').textContent = data.proveedorNombre || 'N/A';
     document.getElementById('viewProveedorTelefono').textContent = data.proveedorTelefono || 'N/A';
     document.getElementById('viewProveedorDistrito').textContent = data.proveedorDistrito || 'N/A';
-    document.getElementById('viewFotoRecojo').src = data.fotoRecojo || '../../assets/img/avatars/1.png'; // Imagen por defecto si no hay foto
+    document.getElementById('viewFotoRecojo').src = data.thumbnailFotoRecojo ? data.thumbnailFotoRecojo : '../../assets/img/avatars/1.png';
 
     // Información del cliente
     document.getElementById('viewClienteNombre').textContent = data.clienteNombre || 'N/A';
     document.getElementById('viewClienteTelefono').textContent = data.clienteTelefono || 'N/A';
     document.getElementById('viewClienteDistrito').textContent = data.clienteDistrito || 'N/A';
-    document.getElementById('viewFotoEntrega').src = data.fotoEntrega || '../../assets/img/avatars/1.png';
+    document.getElementById('viewFotoEntrega').src = data.thumbnailFotoEntrega ? data.thumbnailFotoEntrega : '../../assets/img/avatars/1.png';
 
     // Detalles adicionales
     document.getElementById('viewMetodoPago').textContent = data.pedidoMetodoPago || 'N/A';
@@ -734,6 +761,8 @@ function loadDataToModal(data) {
     document.getElementById('viewComisionTarifa').textContent = data.comisionTarifa || 'N/A';
     document.getElementById('viewObservaciones').textContent = data.pedidoObservaciones || 'N/A';
 }
+
+
 
 
 
