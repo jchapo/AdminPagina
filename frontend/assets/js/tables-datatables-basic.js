@@ -96,19 +96,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     data: null,
                     title: "Acciones",
                     orderable: false,
-                    searchable: false,
-                    render: function (data, type, row) {
-                        return `
-                            <div class="d-inline-block">
-                                <a href="javascript:;" class="btn btn-icon item-edit" data-id="${row.id}">
-                                    <i class="icon-base bx bx-edit icon-sm"></i>
-                                </a>
-                                <a href="javascript:;" class="btn btn-icon text-danger delete-record" data-id="${row.id}">
-                                    <i class="icon-base bx bx-trash icon-sm"></i>
-                                </a>
-                            </div>`;
-                    }
-                }
+                    searchable: false
+                },
+                { data: 'pedidoDetalle'}
             ],
             columnDefs: [{
                 className: "control",
@@ -138,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }, {
                 targets: 3,
                 responsivePriority: 4,
-                render: function (e, t, a, s) {
+                /*render: function (e, t, a, s) {
                     var n = a.avatar
                         , r = a.full_name
                         , a = a.post;
@@ -164,55 +154,43 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 </div>
               </div>
             `
-                }
+                }*/
             }, {
                 responsivePriority: 1,
                 targets: 4
             }, {
-                targets: -2,
-                render: function (e, t, a, s) {
-                    var a = a.status
-                        , n = {
-                            1: {
-                                title: "Current",
-                                class: "bg-label-primary"
-                            },
-                            2: {
-                                title: "Professional",
-                                class: "bg-label-success"
-                            },
-                            3: {
-                                title: "Rejected",
-                                class: "bg-label-danger"
-                            },
-                            4: {
-                                title: "Resigned",
-                                class: "bg-label-warning"
-                            },
-                            5: {
-                                title: "Applied",
-                                class: "bg-label-info"
-                            }
-                        };
-                    return void 0 === n[a] ? e : `
-              <span class="badge ${n[a].class}">
-                ${n[a].title}
-              </span>
-            `
-                }
-            }, {
                 targets: -1,
+                searchable: !1,
+                visible: !1
+            }, {
+                targets: -2,
                 title: "Actions",
                 orderable: !1,
                 searchable: !1,
                 className: "d-flex align-items-center",
-                render: function (e, t, a, s) {
-                    return '<div class="d-inline-block"><a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="icon-base bx bx-dots-vertical-rounded"></i></a><ul class="dropdown-menu dropdown-menu-end m-0"><li><a href="javascript:;" class="dropdown-item">Details</a></li><li><a href="javascript:;" class="dropdown-item">Archive</a></li><div class="dropdown-divider"></div><li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li></ul></div><a href="javascript:;" class="btn btn-icon item-edit"><i class="icon-base bx bx-edit icon-sm"></i></a>'
+                render: function (data, type, row) {
+                    return `
+                        <div class="d-inline-block">
+                            <a href="javascript:;" class="btn btn-icon item-view" data-id="${row.id}">
+                                <i class="icon-base bx bx-show icon-sm"></i> <!-- Icono de ojo -->
+                            </a>
+                            <a href="javascript:;" class="btn btn-icon item-edit" data-id="${row.id}">
+                                <i class="icon-base bx bx-edit icon-sm"></i> <!-- Icono de editar -->
+                            </a>
+                            <a href="javascript:;" class="btn btn-icon text-danger delete-record" data-id="${row.id}">
+                                <i class="icon-base bx bx-trash icon-sm"></i> <!-- Icono de eliminar -->
+                            </a>
+                        </div>`;
                 }
             }],
             select: {
                 style: "multi",
                 selector: "td:nth-child(2)"
+            },
+            rowCallback: function (row, data) {
+                if (data.fechaAnulacionPedido && data.fechaAnulacionPedido !== "0") {
+                    $(row).css('background-color', '#ffcccc'); // Color rojo claro
+                }
             },
             order: [[3, "desc"]],
             displayLength: 7,
@@ -232,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bx-printer me-1"></i>Print</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 8, 9], // Incluye la columna de comisionTarifa
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -264,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bx-file me-1"></i>Csv</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7],
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -286,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bxs-file-export me-1"></i>Excel</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7],
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -308,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bxs-file-pdf me-1"></i>Pdf</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7],
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -330,7 +308,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<i class="icon-base bx bx-copy me-1"></i>Copy',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7],
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -417,11 +395,46 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
         }),
         r = 101,
+        // Event listener para el botón de visualizar detalles
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.item-view')) {
+                const row = o.row(e.target.closest('tr')).data();
+                loadDataToModal(row); // Llenar el modal con datos
+                //console.log(row); // Verifica si los datos se están obteniendo correctamente
+                const modal = new bootstrap.Modal(document.getElementById('viewDetailsModal')); // Abrir el modal correcto
+                modal.show();
+            }
+        }),
 
-        document.addEventListener("click", function (e) {
-            e.target.classList.contains("delete-record") && (o.row(e.target.closest("tr")).remove().draw(),
-                e = document.querySelector(".dtr-bs-modal")) && e.classList.contains("show") && bootstrap.Modal.getInstance(e)?.hide()
-        }));
+        // Event listener para el botón de editar
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.item-edit')) {
+                const row = o.row(e.target.closest('tr')).data();
+                loadDataToModal(row);
+                //console.log(row); // Verifica si los datos ocultos siguen en el objeto
+                const modal = new bootstrap.Modal(document.getElementById('backDropModal'));
+                modal.show();
+            }
+        }),
+
+        // Event listener para el botón de eliminar
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.delete-record')) {
+                // Obtener el ID del registro a eliminar
+                const recordId = e.target.closest('.delete-record').getAttribute('data-id');
+        
+                // Mostrar el modal de confirmación
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+                deleteModal.show();
+        
+                // Asignar el ID al botón de confirmar eliminación
+                document.getElementById('confirmDeleteButton').setAttribute('data-id', recordId);
+            }
+        })
+
+        
+        
+    );
 
 
     setTimeout(() => {
@@ -538,7 +551,7 @@ function loadDataToModal(data) {
 }
 
 // Event listener para el botón de editar
-document.addEventListener('click', function(e) {
+/*document.addEventListener('click', function(e) {
     if (e.target.closest('.item-edit')) {
         const row = o.row(e.target.closest('tr')).data();
         loadDataToModal(row);
@@ -546,10 +559,10 @@ document.addEventListener('click', function(e) {
         const modal = new bootstrap.Modal(document.getElementById('backDropModal'));
         modal.show();
     }
-});
+});*/
 
 // Event listener para el botón de eliminar
-document.addEventListener('click', function (e) {
+/*document.addEventListener('click', function (e) {
     if (e.target.closest('.delete-record')) {
         // Obtener el ID del registro a eliminar
         const recordId = e.target.closest('.delete-record').getAttribute('data-id');
@@ -561,7 +574,7 @@ document.addEventListener('click', function (e) {
         // Asignar el ID al botón de confirmar eliminación
         document.getElementById('confirmDeleteButton').setAttribute('data-id', recordId);
     }
-});
+});*/
 
 document.addEventListener('DOMContentLoaded', function () {
     const modalElement = document.getElementById('recojoForm'); // Tu formulario
@@ -700,6 +713,28 @@ document.getElementById('supera30x30').addEventListener('change', function () {
     delete comisionTarifaInput.dataset.manual; // Reiniciar la edición manual
     calcularComision(); // Recalcular la comisión
 });
+
+
+function loadDataToModal(data) {
+    // Información del proveedor
+    document.getElementById('viewProveedorNombre').textContent = data.proveedorNombre || 'N/A';
+    document.getElementById('viewProveedorTelefono').textContent = data.proveedorTelefono || 'N/A';
+    document.getElementById('viewProveedorDistrito').textContent = data.proveedorDistrito || 'N/A';
+    document.getElementById('viewFotoRecojo').src = data.fotoRecojo || '../../assets/img/avatars/1.png'; // Imagen por defecto si no hay foto
+
+    // Información del cliente
+    document.getElementById('viewClienteNombre').textContent = data.clienteNombre || 'N/A';
+    document.getElementById('viewClienteTelefono').textContent = data.clienteTelefono || 'N/A';
+    document.getElementById('viewClienteDistrito').textContent = data.clienteDistrito || 'N/A';
+    document.getElementById('viewFotoEntrega').src = data.fotoEntrega || '../../assets/img/avatars/1.png';
+
+    // Detalles adicionales
+    document.getElementById('viewMetodoPago').textContent = data.pedidoMetodoPago || 'N/A';
+    document.getElementById('viewCantidadCobrar').textContent = data.pedidoCantidadCobrar || 'N/A';
+    document.getElementById('viewComisionTarifa').textContent = data.comisionTarifa || 'N/A';
+    document.getElementById('viewObservaciones').textContent = data.pedidoObservaciones || 'N/A';
+}
+
 
 
 

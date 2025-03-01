@@ -483,7 +483,7 @@
                         <!-- DataTable with Buttons -->
                         <div class="card">
                             <div class="card-datatable">
-                                <table class="datatables-basic table border-top table-responsive">
+                                <table class="datatables-basic table border-top table-responsive table-hover">
                                     <thead>
                                         <tr>
                                             <th></th>
@@ -498,9 +498,172 @@
                                             <th>Cobro</th>
                                             <th>Pago</th>
                                             <th>Acciones</th>
+                                            <th>Detalle</th>
                                         </tr>
                                     </thead>
                                 </table>
+                            </div>
+                        </div>
+                        <!-- Modal para visualizar detalles -->
+                        <div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="viewDetailsModalLabel">
+                                            <i class="fas fa-info-circle me-2"></i>Detalles del Pedido
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <!-- Panel de Resumen -->
+                                        <div class="modal-body mb-4 border-0">
+                                            <div class="card-body">
+                                                <div class="row row-cols-1 row-cols-md-4 g-3">
+                                                    <div class="col">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="badge bg-primary rounded-circle p-3 me-3">
+                                                                <i class="fas fa-money-bill"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0">Método de Pago</h6>
+                                                                <p id="viewMetodoPago" class="mb-0 fw-bold">Plin</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="badge bg-success rounded-circle p-3 me-3">
+                                                                <i class="fas fa-hand-holding-usd"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0">A Cobrar</h6>
+                                                                <p id="viewCantidadCobrar" class="mb-0 fw-bold">20.00</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="badge bg-success rounded-circle p-3 me-3">
+                                                                <i class="fas fa-hand-holding-usd"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0">Comisión</h6>
+                                                                <p id="viewComisionTarifa" class="mb-0 fw-bold">15</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="badge bg-info rounded-circle p-3 me-3">
+                                                                <i class="fas fa-percentage"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0">Observaciones</h6>
+                                                                <p id="viewObservaciones" class="mb-0 fw-bold">N/A</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                        
+                                        <div class="row">
+                                            <!-- Columna Izquierda: Información del Recojo -->
+                                            <div class="col-md-6">
+                                                <div class="card h-100 border-0 shadow-sm">
+                                                    <div class="card-header">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-truck-loading me-2"></i>Información del Recojo
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-4 text-center">
+                                                            <div class="position-relative">
+                                                                <img id="viewFotoRecojo" src="" alt="Foto del Recojo" class="img-thumbnail" style="max-height: 200px; width: auto;">
+                                                                    <i class="fas fa-camera"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted small">Proveedor</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text"><i class="fas fa-store"></i></span>
+                                                                <div class="form-control bg-light" id="viewProveedorNombre"></div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted small">Teléfono</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                                                <div class="form-control bg-light" id="viewProveedorTelefono"></div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted small">Distrito</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                                                <div class="form-control bg-light" id="viewProveedorDistrito"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                        
+                                            <!-- Columna Derecha: Información de la Entrega -->
+                                            <div class="col-md-6">
+                                                <div class="card h-100 border-0 shadow-sm">
+                                                    <div class="card-header">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-shipping-fast me-2"></i>Información de la Entrega
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-4 text-center">
+                                                            <div class="position-relative">
+                                                                <img id="viewFotoEntrega" src="" alt="Foto de la Entrega" class="img-thumbnail" style="max-height: 200px; width: auto;">
+                                                                    <i class="fas fa-camera"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted small">Cliente</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                                                <div class="form-control bg-light" id="viewClienteNombre"></div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted small">Teléfono</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                                                <div class="form-control bg-light" id="viewClienteTelefono"></div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted small">Distrito</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                                                <div class="form-control bg-light" id="viewClienteDistrito"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                            <i class="fas fa-times me-1"></i>Cerrar
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <!-- Modal to add new record -->
@@ -775,20 +938,19 @@
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmar Eliminación
+                                        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmar Anulación
                                         </h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        ¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede
-                                        deshacer.
+                                        ¿Estás seguro de que deseas anular este pedido?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Cancelar</button>
                                         <button type="button" class="btn btn-danger"
-                                            id="confirmDeleteButton">Eliminar</button>
+                                            id="confirmDeleteButton">Anular</button>
                                     </div>
                                 </div>
                             </div>

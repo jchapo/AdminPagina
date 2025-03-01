@@ -267,31 +267,36 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteModal.hide();
     });
 
-    // Función para eliminar el registro
+    // Función para anular el registro
     function deleteRecord(recordId) {
-        fetch(`${API_URL}/${recordId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                //console.log('Registro eliminado:', data);
-
-                // Recargar la lista de recojos si es necesario
-                if (typeof loadRecojos === 'function') {
-                    loadRecojos();
-                }
-
-                // Mostrar un mensaje de éxito (opcional)
-                //alert('Registro eliminado correctamente');
-            })
-            .catch(error => {
-                console.error('Error al eliminar el registro:', error);
-                alert('Hubo un problema al eliminar el registro');
-            });
+      fetch(`${API_URL}/${recordId}`, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              // Use new Date() object directly instead of ISO string
+              fechaAnulacionPedido: new Date()
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          console.log('Pedido anulado:', data);
+    
+          // Recargar la lista de recojos si es necesario
+          if (typeof loadRecojos === 'function') {
+              loadRecojos();
+          }
+    
+          // Mostrar un mensaje de éxito (opcional)
+          alert('Pedido anulado correctamente');
+      })
+      .catch(error => {
+          console.error('Error al anular el pedido:', error);
+          alert('Hubo un problema al anular el pedido');
+      });
     }
+  
 
     function esURL(texto) {
         // Verificar si el texto comienza con http:// o https:// o www.
