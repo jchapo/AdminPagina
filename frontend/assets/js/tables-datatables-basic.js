@@ -486,27 +486,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         , 100)
 });
 
-// Asegúrate de inicializar Firebase antes de usar Firestore
-const db = firebase.firestore(); // Si no has inicializado Firebase, hazlo antes
-
-// Referencia a la colección en Firestore
-const recojosRef = db.collection("recojos"); 
-
-// Escuchar cambios en tiempo real
-recojosRef.onSnapshot((snapshot) => {
-    let datosActualizados = [];
-    
-    snapshot.forEach((doc) => {
-        datosActualizados.push(doc.data());
-    });
-
-    // Actualizar la DataTable con los nuevos datos
-    o.clear().rows.add(datosActualizados).draw();
-});
-
-
-
-
 // Función auxiliar para formatear la fecha
 function formatDate(timestamp) {
     if (!timestamp || !timestamp._seconds) return '';
@@ -741,6 +720,7 @@ $(document).ready(function () {
 });
 
 document.getElementById('supera30x30').addEventListener('change', function () {
+    console.log("Evento change en supera30x30 disparado.");
     const comisionTarifaInput = document.getElementById('comisionTarifa');
     delete comisionTarifaInput.dataset.manual; // Reiniciar la edición manual
     calcularComision(); // Recalcular la comisión
