@@ -188,15 +188,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 selector: "td:nth-child(2)"
             },
             rowCallback: function (row, data) {
-                if (data.fechaAnulacionPedido !== null) {
+                if (data.fechaAnulacionPedido == null) {
+                    if (data.fechaEntregaPedidoMotorizado !== null) {
+                        $(row).css('background-color', '#ccffcc'); // Verde claro si el pedido fue entregado
+                    } else if (data.fechaRecojoPedidoMotorizado !== null) {
+                        $(row).css('background-color', '#cce5ff'); // Azul claro si el pedido fue recogido pero aún no entregado
+                    } else if (data.fechaAnulacionPedido !== null) {
+                        $(row).css('background-color', '#ffcccc'); // Rojo claro si el pedido fue anulado
+                    } else {
+                        $(row).css('background-color', '#ffffcc'); // Amarillo claro si el pedido aún no ha sido recogido
+                    }
+                } else {
                     $(row).css('background-color', '#ffcccc'); // Rojo claro si el pedido fue anulado
-                } else if (data.fechaEntregaPedidoMotorizado !== null && data.fechaRecojoPedidoMotorizado !== null) {
-                    $(row).css('background-color', '#ccffcc'); // Verde claro si el pedido fue entregado
-                } else if (data.fechaRecojoPedidoMotorizado !== null) {
-                    $(row).css('background-color', '#ffffcc'); // Verde claro si el pedido fue entregado
+
                 }
-                
-                
             },
             order: [[3, "desc"]],
             displayLength: 7,
@@ -747,19 +752,19 @@ function loadDataToModal2(data) {
     document.getElementById('viewProveedorNombre').textContent = data.proveedorNombre || 'N/A';
     document.getElementById('viewProveedorTelefono').textContent = data.proveedorTelefono || 'N/A';
     document.getElementById('viewProveedorDistrito').textContent = data.proveedorDistrito || 'N/A';
-    document.getElementById('viewFotoRecojo').src = data.thumbnailFotoRecojo ? data.thumbnailFotoRecojo : '../../assets/img/avatars/1.png';
+    document.getElementById('viewFotoRecojo').src = data.thumbnailFotoRecojo ? data.thumbnailFotoRecojo : '../../assets/img/avatars/fondo_nanpi_75.png';
 
     // Información del cliente
     document.getElementById('viewClienteNombre').textContent = data.clienteNombre || 'N/A';
     document.getElementById('viewClienteTelefono').textContent = data.clienteTelefono || 'N/A';
     document.getElementById('viewClienteDistrito').textContent = data.clienteDistrito || 'N/A';
-    document.getElementById('viewFotoEntrega').src = data.thumbnailFotoEntrega ? data.thumbnailFotoEntrega : '../../assets/img/avatars/1.png';
+    document.getElementById('viewFotoEntrega').src = data.thumbnailFotoEntrega ? data.thumbnailFotoEntrega : '../../assets/img/avatars/fondo_nanpi_75.png';
 
     // Detalles adicionales
     document.getElementById('viewMetodoPago').textContent = data.pedidoMetodoPago || 'N/A';
     document.getElementById('viewCantidadCobrar').textContent = data.pedidoCantidadCobrar || 'N/A';
     document.getElementById('viewComisionTarifa').textContent = data.comisionTarifa || 'N/A';
-    document.getElementById('viewObservaciones').textContent = data.pedidoObservaciones || 'N/A';
+    document.getElementById('viewObservaciones').textContent = data.pedidoDetalle || 'N/A';
 }
 
 
