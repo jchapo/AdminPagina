@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
     var r, t = document.querySelector(".datatables-basic");
     t && ((s = document.createElement("h5")).classList.add("card-title", "mb-0", "text-md-start", "text-center"),
-        s.innerHTML = "Tabla de Entregas",
+        s.innerHTML = "Tabla Pedidos",
         o = new DataTable(t, {
             ajax: {
                 url: 'http://localhost:3000/api/recojos',
