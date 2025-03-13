@@ -48,54 +48,52 @@ function generateUniqueId() {
   return `${day}-${month}-${year}-${hours}${minutes}${seconds}-${randomId}`;
 }
 
+// Función para validar y convertir fechas a Timestamp de Firebase
+function convertirFechaFirebase(objeto, camposFecha) {
+  camposFecha.forEach(campo => {
+      if (objeto[campo]) {
+          const fecha = new Date(objeto[campo]);
+          if (!isNaN(fecha.getTime())) {
+              objeto[campo] = admin.firestore.Timestamp.fromDate(fecha);
+          } else {
+              console.error(`Fecha inválida en el campo: ${campo}`, objeto[campo]);
+              delete objeto[campo]; // Eliminar la fecha inválida para evitar errores
+          }
+      }
+  });
+}
   
 
 app.post('/api/recojos', async (req, res) => {
   const nuevoRecojo = req.body;
 
   if (!nuevoRecojo || Object.keys(nuevoRecojo).length === 0) {
-    return res.status(400).json({ error: 'Datos inválidos' });
-}
-
-
-  // Validate and convert fechaCreacionPedido
-  if (nuevoRecojo.fechaCreacionPedido) {
-    const fechaCreacionLocal = new Date(nuevoRecojo.fechaCreacionPedido);
-    if (!isNaN(fechaCreacionLocal.getTime())) { // Check if the date is valid
-      nuevoRecojo.fechaCreacionPedido = admin.firestore.Timestamp.fromDate(fechaCreacionLocal);
-    } else {
-      console.error('Invalid fechaCreacionPedido:', nuevoRecojo.fechaCreacionPedido);
-      return res.status(400).json({ error: 'Invalid fechaCreacionPedido' });
-    }
+      return res.status(400).json({ error: 'Datos inválidos' });
   }
 
-  // Validate and convert fechaEntregaPedido
-  if (nuevoRecojo.fechaEntregaPedido) {
-    const fechaEntregaLocal = new Date(nuevoRecojo.fechaEntregaPedido);
-    if (!isNaN(fechaEntregaLocal.getTime())) { // Check if the date is valid
-      fechaEntregaLocal.setHours(fechaEntregaLocal.getHours() + 5);
-      nuevoRecojo.fechaEntregaPedido = admin.firestore.Timestamp.fromDate(fechaEntregaLocal);
-    } else {
-      console.error('Invalid fechaEntregaPedido:', nuevoRecojo.fechaEntregaPedido);
-      return res.status(400).json({ error: 'Invalid fechaEntregaPedido' });
-    }
+  try {
+      // Convertir fechas a Timestamp si existen
+      convertirFechaFirebase(nuevoRecojo, [
+          'fechaEntregaPedidoMotorizado',
+          'fechaCreacionPedido',
+          'fechaAnulacionPedido',
+          'fechaRecojoPedidoMotorizado',
+          'fechaEntregaPedido'
+      ]);
+
+      // Generar un ID único
+      const uniqueId = generateUniqueId();
+      nuevoRecojo.id = uniqueId;
+
+      // Guardar en Firestore
+      await db.collection('recojos').doc(uniqueId).set(nuevoRecojo);
+
+      res.json({ message: 'Recojo guardado exitosamente', id: uniqueId });
+
+  } catch (error) {
+      console.error('Error al guardar el recojo:', error);
+      res.status(500).json({ error: 'Error al guardar el recojo' });
   }
-
-  // Generar el ID único
-const uniqueId = generateUniqueId();
-console.log('Server Unique ID:', uniqueId); // Verificación
-
-// Asignar el ID dentro del objeto
-nuevoRecojo.id = uniqueId;
-
-// Guardar en Firestore con el ID como clave y dentro del documento
-await db.collection('recojos').doc(uniqueId).set(nuevoRecojo);
-
-// Responder al cliente con el ID generado y un mensaje de éxito
-res.json({ 
-    message: "Recojo guardado exitosamente", 
-    id: uniqueId 
-});
 });
 
 
@@ -108,7 +106,6 @@ app.put('/api/recojos/:id', async (req, res) => {
   }
 
   try {
-      // Obtener el documento existente de Firestore
       const recojoRef = db.collection('recojos').doc(id);
       const recojoDoc = await recojoRef.get();
 
@@ -116,16 +113,18 @@ app.put('/api/recojos/:id', async (req, res) => {
           return res.status(404).json({ error: 'Recojo no encontrado' });
       }
 
-      // Combinar datos existentes con los datos actualizados
-      const datosCompletos = {
-          ...recojoDoc.data(), // Campos existentes
-          ...datosActualizados, // Campos actualizados (sobrescriben los existentes si hay coincidencias)
-      };
+      // Convertir fechas a Timestamp si existen
+      convertirFechaFirebase(datosActualizados, [
+          'fechaEntregaPedidoMotorizado',
+          'fechaCreacionPedido',
+          'fechaAnulacionPedido',
+          'fechaRecojoPedidoMotorizado',
+          'fechaEntregaPedido'
+      ]);
 
-      // Actualizar el documento en Firestore
-      await recojoRef.update(datosCompletos);
+      await recojoRef.update(datosActualizados);
+      res.json({ id, message: 'Recojo actualizado exitosamente' });
 
-      res.json({ id });
   } catch (error) {
       console.error('Error al actualizar el recojo:', error);
       res.status(500).json({ error: 'Error al actualizar el recojo' });
