@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bxs-file-pdf me-1"></i>Pdf</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
+                                    columns: [3, 4, 5, 6, 7, 9, 10, 12], 
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -503,6 +503,7 @@ function formatDate(timestamp) {
 }
 
 function loadDataToModal(data) {
+    document.getElementById('recojoModalLabel').textContent = 'Editar Entrega';
     // Cargar datos básicos
     document.getElementById('fechaEntrega').value = formatDate(data.fechaEntregaPedido);
     document.getElementById('proveedorName').value = data.proveedorNombre || '';
@@ -561,31 +562,6 @@ function loadDataToModal(data) {
     document.querySelector('#recojoForm button[type="submit"]').textContent = 'Actualizar';
 }
 
-// Event listener para el botón de editar
-/*document.addEventListener('click', function(e) {
-    if (e.target.closest('.item-edit')) {
-        const row = o.row(e.target.closest('tr')).data();
-        loadDataToModal(row);
-        console.log(row); // Verifica si los datos ocultos siguen en el objeto
-        const modal = new bootstrap.Modal(document.getElementById('backDropModal'));
-        modal.show();
-    }
-});*/
-
-// Event listener para el botón de eliminar
-/*document.addEventListener('click', function (e) {
-    if (e.target.closest('.delete-record')) {
-        // Obtener el ID del registro a eliminar
-        const recordId = e.target.closest('.delete-record').getAttribute('data-id');
-
-        // Mostrar el modal de confirmación
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-        deleteModal.show();
-
-        // Asignar el ID al botón de confirmar eliminación
-        document.getElementById('confirmDeleteButton').setAttribute('data-id', recordId);
-    }
-});*/
 
 document.addEventListener('DOMContentLoaded', function () {
     const modalElement = document.getElementById('recojoForm'); // Tu formulario
@@ -596,18 +572,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Función para limpiar el formulario
     function clearForm() {
-        // Limpiar todos los campos del formulario
         modalElement.reset();
-    
-        // Limpiar campos de Select2
-        $('#clienteDistrito').val(null).trigger('change'); // Limpiar Select2 de clienteDistrito
-        $('#proveedorDistrito').val(null).trigger('change'); // Limpiar Select2 de proveedorDistrito (si existe)
-        $('#metodoPago').val(null).trigger('change'); // Limpiar Select2 de metodoPago (si existe)
-    
-        // Eliminar el atributo de edición
+        $('#clienteDistrito').val(null).trigger('change');
+        $('#proveedorDistrito').val(null).trigger('change');
+        $('#metodoPago').val(null).trigger('change');
         modalElement.removeAttribute('data-edit-id');
-    
-        // Restaurar título y texto del botón
         modalLabel.textContent = 'Nueva Entrega';
         submitButton.textContent = 'Guardar';
     }
@@ -727,6 +696,18 @@ document.getElementById('supera30x30').addEventListener('change', function () {
 });
 
 
+function setUbicacion(elementId, direccion) {
+    const element = document.getElementById(elementId);
+    
+    if (!direccion || direccion.trim() === '') {
+        element.innerHTML = 'N/A';
+    } else if (direccion.startsWith('http')) {
+        element.innerHTML = `<a href="${direccion}" target="_blank" class="text-primary text-decoration-underline">Ver ubicación</a>`;
+    } else {
+        element.textContent = direccion;
+    }
+}
+
 function loadDataToModal2(data) {
     // Información del proveedor
     document.getElementById('viewProveedorNombre').textContent = data.proveedorNombre || 'N/A';
@@ -745,7 +726,12 @@ function loadDataToModal2(data) {
     document.getElementById('viewCantidadCobrar').textContent = data.pedidoCantidadCobrar || 'N/A';
     document.getElementById('viewComisionTarifa').textContent = data.comisionTarifa || 'N/A';
     document.getElementById('viewObservaciones').textContent = data.pedidoDetalle || 'N/A';
+
+    // Asignar ubicaciones con detección de URL o texto normal
+    setUbicacion('viewProveedorUbicacion', data.proveedorDireccionLink);
+    setUbicacion('viewClienteUbicacion', data.pedidoDireccionLink);
 }
+
 
 
 

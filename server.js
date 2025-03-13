@@ -81,20 +81,21 @@ app.post('/api/recojos', async (req, res) => {
     }
   }
 
-  // Generate a unique ID
-  const uniqueId = generateUniqueId();
-  console.log('Generated Unique ID:', uniqueId); // Verificación
+  // Generar el ID único
+const uniqueId = generateUniqueId();
+console.log('Server Unique ID:', uniqueId); // Verificación
 
-  // Assign the unique ID to the recojo
-  const recojoConId = { 
-    ...nuevoRecojo, 
+// Asignar el ID dentro del objeto
+nuevoRecojo.id = uniqueId;
+
+// Guardar en Firestore con el ID como clave y dentro del documento
+await db.collection('recojos').doc(uniqueId).set(nuevoRecojo);
+
+// Responder al cliente con el ID generado y un mensaje de éxito
+res.json({ 
+    message: "Recojo guardado exitosamente", 
     id: uniqueId 
-  };
-
-  // Add the new recojo with the manually generated ID
-  await db.collection('recojos').doc(uniqueId).set(nuevoRecojo);
-
-  res.json({ id: uniqueId });
+});
 });
 
 
@@ -103,10 +104,8 @@ app.put('/api/recojos/:id', async (req, res) => {
   const datosActualizados = req.body;
 
   if (!datosActualizados || Object.keys(datosActualizados).length === 0) {
-    return res.status(400).json({ error: 'Datos inválidos' });
-}
-
-  
+      return res.status(400).json({ error: 'Datos inválidos' });
+  }
 
   try {
       // Obtener el documento existente de Firestore
@@ -117,23 +116,14 @@ app.put('/api/recojos/:id', async (req, res) => {
           return res.status(404).json({ error: 'Recojo no encontrado' });
       }
 
-      // Mantener el valor original de fechaCreacionPedido
-      datosActualizados.fechaCreacionPedido = recojoDoc.data().fechaCreacionPedido;
-
-      // Convertir fechaEntregaPedido a Timestamp si está presente
-      if (datosActualizados.fechaEntregaPedido) {
-          const fechaEntregaLocal = new Date(datosActualizados.fechaEntregaPedido);
-          if (!isNaN(fechaEntregaLocal.getTime())) { // Verificar si la fecha es válida
-              fechaEntregaLocal.setHours(fechaEntregaLocal.getHours() + 5); // Ajustar zona horaria
-              datosActualizados.fechaEntregaPedido = admin.firestore.Timestamp.fromDate(fechaEntregaLocal);
-          } else {
-              console.error('Invalid fechaEntregaPedido:', datosActualizados.fechaEntregaPedido);
-              return res.status(400).json({ error: 'Invalid fechaEntregaPedido' });
-          }
-      }
+      // Combinar datos existentes con los datos actualizados
+      const datosCompletos = {
+          ...recojoDoc.data(), // Campos existentes
+          ...datosActualizados, // Campos actualizados (sobrescriben los existentes si hay coincidencias)
+      };
 
       // Actualizar el documento en Firestore
-      await recojoRef.update(datosActualizados);
+      await recojoRef.update(datosCompletos);
 
       res.json({ id });
   } catch (error) {

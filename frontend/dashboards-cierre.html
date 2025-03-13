@@ -46,6 +46,7 @@
 
 
     <link rel="stylesheet" href="../../assets/vendor/libs/pickr/pickr-themes.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="stylesheet" href="../../assets/vendor/css/core.css" />
     <link rel="stylesheet" href="../../assets/css/demo.css" />
@@ -472,6 +473,21 @@
                                 </table>
                             </div>
                         </div>
+                        <!-- Modal para visualizar imagen dinero -->
+                        <div class="modal fade" id="imagenModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Imagen del pedido</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img id="imagenModalSrc" src="" class="img-fluid" alt="Imagen del pedido">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Modal para visualizar detalles -->
                         <div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-xl modal-dialog-centered">

@@ -11,21 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    function generateUniqueId() {
-        const now = new Date();
-        const padToTwoDigits = (num) => num.toString().padStart(2, '0');
-    
-        const day = padToTwoDigits(now.getDate());
-        const month = padToTwoDigits(now.getMonth() + 1);
-        const year = now.getFullYear();
-        const hours = padToTwoDigits(now.getHours());
-        const minutes = padToTwoDigits(now.getMinutes());
-        const seconds = padToTwoDigits(now.getSeconds());
-        const randomId = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    
-        return `${day}-${month}-${year}-${hours}${minutes}${seconds}-${randomId}`;
-    }
-
     function capitalizeWords(str) {
         return str
             .split(' ')
@@ -137,104 +122,111 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector('#recojoForm button[type="submit"]').textContent = 'Guardar'; // Restaurar texto del botón
     }
 
+    let isSubmitting = false;
 
     // Capturar el envío con AJAX en lugar del DefaultSubmit
     formValidation.on('core.form.valid', async function () {
-        const formData = new FormData(recojoForm);
-        const isEdit = recojoForm.hasAttribute('data-edit-id');
-        const docId = isEdit ? recojoForm.getAttribute('data-edit-id') : generateUniqueId();
-    
-        // Obtener el valor de comisionTarifa (puede ser automático o manual)
-        const comisionTarifa = parseFloat(document.getElementById('comisionTarifa').value);
-    
-        // Format data
-        const proveedorNombre = formData.get('proveedorName').toUpperCase();
-        const proveedorDireccionLink = String(formData.get('proveedorDireccionLink') || '').trim();
-        const pedidoDireccionLink = String(formData.get('pedidoDireccionLink') || '').trim();
-        const clienteNombreFormatted = capitalizeWords(formData.get('clienteName'));
-        const cantidadCobrarFormatted = parseFloat(formData.get('cantidadCobrar')).toFixed(2);
-        const pedidoSeCobraValor = (cantidadCobrarFormatted === "0.00" || cantidadCobrarFormatted === "0") ? "No" : "Si";
-        const fechaEntrega = formData.get('fechaEntrega'); // Assuming this is in DD-MM-YYYY format
-        const [day, month, year] = fechaEntrega.split('-');
-        const formattedFechaEntrega = `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
-    
-        try {
-            // Use await to get coordinates
-            const coordenadas = await procesarEntrada(proveedorDireccionLink);
-            console.log("Coordenadas proveedor:", coordenadas);
-            
-            const coordenadas2 = await procesarEntrada(pedidoDireccionLink);
-            console.log("Coordenadas pedido:", coordenadas2);
-            
-            
-            const newRecojo = {
-            id: docId,
-            proveedorNombre: proveedorNombre,
-            proveedorTelefono: formData.get('proveedorTelefono'),
-            proveedorDistrito: formData.get('proveedorDistrito'),
-            proveedorDireccionLink: formData.get('proveedorDireccionLink'),
-            clienteNombre: clienteNombreFormatted,
-            clienteTelefono: formData.get('clienteTelefono'),
-            clienteDistrito: formData.get('clienteDistrito'),
-            pedidoDetalle: formData.get('pedidoDetalle'),
-            fechaEntregaPedido: formattedFechaEntrega,
-            pedidoObservaciones: formData.get('observaciones'),
-            pedidoSeCobra: pedidoSeCobraValor,
-            pedidoMetodoPago: formData.get('metodoPago'),
-            pedidoCantidadCobrar: cantidadCobrarFormatted,
-            pedidoDireccionLink: formData.get('pedidoDireccionLink'),
-            
-            fechaRecojoPedidoMotorizado: null,
-            fechaAnulacionPedido: null,
-            fechaAsignaciónPedido: null,
-            fechaEntregaPedidoMotorizado: null,
-            motorizadoRecojo: formData.get('motorizadoRecojo'),
-            motorizadoEntrega: formData.get('motorizadoEntrega'),
-            pedidoFotoEntrega: null,
-            thumbnailFotoRecojo: null,
-            thumbnailFotoEntrega: null,
-            comisionTarifa: comisionTarifa,
-            supera30x30: document.getElementById('supera30x30').checked ? 1 : 0,
-            
-            pedidoFotoRecojo: coordenadas ? {"lat": parseFloat(coordenadas.latitud),"lng": parseFloat(coordenadas.longitud)} : null,
-            pedidoCoordenadas: coordenadas2 ? {"lat": parseFloat(coordenadas2.latitud),"lng": parseFloat(coordenadas2.longitud)} : null,
-            
-            recojoCoordenadas: null,
-        };
-    
-        // Si es una edición, no incluir fechaCreacionPedido
-        if (!isEdit) {
-            newRecojo.fechaCreacionPedido = new Date().toISOString();
-        }
-    
-        const url = isEdit ? `${API_URL}/${docId}` : API_URL;
-        const method = isEdit ? 'PUT' : 'POST';
-    
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newRecojo)
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Limpiar el formulario y cerrar el modal
-                document.querySelector('.btn-close[data-bs-dismiss="modal"]').click();
-    
-                // Recargar la lista de recojos si es necesario
-                if (typeof loadRecojos === 'function') {
-                    loadRecojos();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Hubo un problema con el envío');
-            });
-        } catch (error) {
-            console.error("Error processing coordinates:", error);
+      if (isSubmitting) return; // Evitar envíos duplicados
+      isSubmitting = true;
+
+      const submitButton = document.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      const formData = new FormData(recojoForm);
+      const isEdit = recojoForm.hasAttribute('data-edit-id');
+      const docId = isEdit ? recojoForm.getAttribute('data-edit-id') : "";
+      console.log("Validation DocId:", docId);
+  
+      try {
+
+          // Obtener el valor de comisionTarifa (puede ser automático o manual)
+          const comisionTarifa = parseFloat(document.getElementById('comisionTarifa').value);
+  
+          // Format data
+          const proveedorNombre = formData.get('proveedorName').toUpperCase();
+          const proveedorDireccionLink = String(formData.get('proveedorDireccionLink') || '').trim();
+          const pedidoDireccionLink = String(formData.get('pedidoDireccionLink') || '').trim();
+          const clienteNombreFormatted = capitalizeWords(formData.get('clienteName'));
+          const cantidadCobrarFormatted = parseFloat(formData.get('cantidadCobrar')).toFixed(2);
+          const pedidoSeCobraValor = (cantidadCobrarFormatted === "0.00" || cantidadCobrarFormatted === "0") ? "No" : "Si";
+          const fechaEntrega = formData.get('fechaEntrega'); // Assuming this is in DD-MM-YYYY format
+          const [day, month, year] = fechaEntrega.split('-');
+          const formattedFechaEntrega = `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
+  
+          // Use await to get coordinates
+          const coordenadas = await procesarEntrada(proveedorDireccionLink);
+          console.log("Coordenadas proveedor:", coordenadas);
+          
+          const coordenadas2 = await procesarEntrada(pedidoDireccionLink);
+          console.log("Coordenadas pedido:", coordenadas2);
+          
+          // Crear el objeto newRecojo combinando datos existentes y nuevos
+          const newRecojo = {
+              id: docId,
+              proveedorNombre: proveedorNombre,
+              proveedorTelefono: formData.get('proveedorTelefono'),
+              proveedorDistrito: formData.get('proveedorDistrito'),
+              proveedorDireccionLink: proveedorDireccionLink,
+              clienteNombre: clienteNombreFormatted,
+              clienteTelefono: formData.get('clienteTelefono'),
+              clienteDistrito: formData.get('clienteDistrito'),
+              pedidoDetalle: formData.get('pedidoDetalle'),
+              pedidoObservaciones: formData.get('observaciones'),
+              pedidoSeCobra: pedidoSeCobraValor,
+              pedidoMetodoPago: formData.get('metodoPago'),
+              pedidoCantidadCobrar: cantidadCobrarFormatted,
+              pedidoDireccionLink: pedidoDireccionLink,
+              motorizadoRecojo: formData.get('motorizadoRecojo'),
+              motorizadoEntrega: formData.get('motorizadoEntrega'),
+              comisionTarifa: comisionTarifa,
+              supera30x30: document.getElementById('supera30x30').checked ? 1 : 0,
+              recojoCoordenadas: coordenadas ? {"lat": parseFloat(coordenadas.latitud), "lng": parseFloat(coordenadas.longitud)} : null,
+              pedidoCoordenadas: coordenadas2 ? {"lat": parseFloat(coordenadas2.latitud), "lng": parseFloat(coordenadas2.longitud)} : null,
+
+          };
+  
+          // Si es una edición, no incluir fechaCreacionPedido
+          if (!isEdit) {
+              newRecojo.fechaCreacionPedido = new Date().toISOString();
+              newRecojo.fechaEntregaPedido = formattedFechaEntrega
           }
-        });
+  
+          const url = isEdit ? `${API_URL}/${docId}` : API_URL;
+          const method = isEdit ? 'PUT' : 'POST';
+  
+          fetch(url, {
+              method: method,
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(newRecojo)
+          })
+          .then(response => response.json())
+          .then(data => {
+              // Limpiar el formulario
+              document.getElementById('recojoForm').reset();
+          
+              // Cerrar el modal
+              const modal = bootstrap.Modal.getInstance(document.getElementById('backDropModal'));
+              modal.hide();
+          
+              // Recargar la lista de recojos si es necesario
+              if (typeof loadRecojos === 'function') {
+                  loadRecojos();
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('Hubo un problema con el envío');
+          })
+          .finally(() => {
+              isSubmitting = false;
+              submitButton.disabled = false;
+          });
+      } catch (error) {
+          console.error("Error processing coordinates:", error);
+          submitButton.disabled = false; // Rehabilitar el botón en caso de error
+      }
+  });
 
     // Función para cargar recojos
     function loadRecojos() {
@@ -275,27 +267,28 @@ document.addEventListener("DOMContentLoaded", function () {
               'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-              // Use new Date() object directly instead of ISO string
-              fechaAnulacionPedido: new Date()
+              fechaAnulacionPedido: { 
+                  _seconds: Math.floor(Date.now() / 1000), 
+                  _nanoseconds: 0 
+              }
           })
       })
       .then(response => response.json())
       .then(data => {
           console.log('Pedido anulado:', data);
-    
-          // Recargar la lista de recojos si es necesario
+  
           if (typeof loadRecojos === 'function') {
               loadRecojos();
           }
-    
-          // Mostrar un mensaje de éxito (opcional)
+  
           alert('Pedido anulado correctamente');
       })
       .catch(error => {
           console.error('Error al anular el pedido:', error);
           alert('Hubo un problema al anular el pedido');
       });
-    }
+  }
+  
   
 
     function esURL(texto) {

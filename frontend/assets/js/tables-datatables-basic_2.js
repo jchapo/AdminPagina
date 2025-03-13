@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { data: 'clienteDistrito' },
             { 
                 data: 'pedidoMetodoPago',
-                render: function (data) {
+                render: function (data, type, row) {
                     const metodoPagoClases = {
                         'Yape': 'bg-label-primary',
                         'Transferencia': 'bg-label-warning',
@@ -37,9 +37,21 @@ document.addEventListener("DOMContentLoaded", function () {
                         'Plin': 'bg-label-info'
                     };
                     const clase = metodoPagoClases[data] || 'bg-label-secondary';
-                    return `<span class="badge ${clase}">${data || 'No especificado'}</span>`;
+                    
+                    // Si hay imagen, agregar el icono antes del badge
+                    let icono = '';
+                    if (row.pedidoFotoDinero) {
+                        icono = `
+                            <a href="#" class="ver-imagen me-2" data-url="${row.pedidoFotoDinero}">
+                                <i class="fas fa-image fa-lg text-primary"></i>
+                            </a>
+                        `;
+                    }
+            
+                    return `${icono}<span class="badge ${clase}">${data || 'No especificado'}</span>`;
                 }
-            },
+            }
+            ,
             { 
                 data: 'comisionTarifa',
                 render: function (data) {
@@ -115,3 +127,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+
+$(document).on('click', '.ver-imagen', function (e) {
+    e.preventDefault(); // Evita que el enlace recargue la página
+
+    let imageUrl = $(this).data('url'); // Obtiene la URL de la imagen
+
+    if (imageUrl) {
+        $('#imagenModalSrc').attr('src', imageUrl); // Cambia la imagen del modal
+        $('#imagenModal').modal('show'); // Muestra el modal
+    } else {
+        alert('No hay imagen disponible.');
+    }
+});
+
