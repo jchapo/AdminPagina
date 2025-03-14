@@ -861,6 +861,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let isSubmitting = false;
 
+    function convertirFechaAUTC(fecha) {
+        if (!fecha) return null;
+    
+        const [day, month, year] = fecha.split('-');
+    
+        // Crear un objeto Date en la zona horaria local
+        const localDate = new Date(`${year}-${month}-${day}T00:00:00`);
+    
+        // Convertir a UTC
+        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+    
+        // Devolver la fecha en formato ISO
+        return utcDate.toISOString();
+    }
+    
+
     formValidation.on('core.form.valid', async function () {
         if (isSubmitting) return;
         isSubmitting = true;
@@ -892,14 +908,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const supera30x30 = document.getElementById('supera30x30').checked ? 1 : 0;
     
             const fechaEntrega = formData.get('fechaEntrega');
-            const [day, month, year] = fechaEntrega.split('-');
-            const formattedFechaEntrega = `${year}-${month}-${day}`;
+            const formattedFechaEntrega = convertirFechaAUTC(fechaEntrega);
     
-            // Crear una copia de rowDataOriginal para actualizar solo los campos editados
-            const updatedRecojo = { ...rowDataOriginal };
+            let updatedRecojo = {};
     
-            // Actualizar solo los valores modificados
             if (isEdit) {
+                            
+                // Actualizar solo los valores modificados
+                updatedRecojo.fechaEntregaPedido = formattedFechaEntrega;
                 if (proveedorNombre !== rowDataOriginal.proveedorNombre) updatedRecojo.proveedorNombre = proveedorNombre;
                 if (proveedorTelefono !== rowDataOriginal.proveedorTelefono) updatedRecojo.proveedorTelefono = proveedorTelefono;
                 if (proveedorDistrito !== rowDataOriginal.proveedorDistrito) updatedRecojo.proveedorDistrito = proveedorDistrito;
@@ -917,10 +933,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (motorizadoEntrega !== rowDataOriginal.motorizadoEntrega) updatedRecojo.motorizadoEntrega = motorizadoEntrega;
                 if (comisionTarifa !== rowDataOriginal.comisionTarifa) updatedRecojo.comisionTarifa = comisionTarifa;
                 if (supera30x30 !== rowDataOriginal.supera30x30) updatedRecojo.supera30x30 = supera30x30;
-            }
-    
-            // Verificar si las direcciones han cambiado para actualizar coordenadas
-            if (isEdit) {
+                
+                // Verificar si las direcciones han cambiado para actualizar coordenadas
                 if (proveedorDireccionLink !== rowDataOriginal.proveedorDireccionLink) {
                     console.log("Proveedor direccion cambiada:", proveedorDireccionLink);
                     const coordenadas = await procesarEntrada(proveedorDireccionLink);
@@ -932,12 +946,55 @@ document.addEventListener("DOMContentLoaded", function () {
                     const coordenadas2 = await procesarEntrada(pedidoDireccionLink);
                     updatedRecojo.pedidoCoordenadas = { "lat": parseFloat(coordenadas2.latitud), "lng": parseFloat(coordenadas2.longitud) };
                 }
-            }
-    
-            // Agregar fecha si es una nueva creación
-            if (!isEdit) {
-                updatedRecojo.fechaCreacionPedido = new Date().toISOString();
-                updatedRecojo.fechaEntregaPedido = formattedFechaEntrega;
+            } else {
+                // Caso de creación: Agregar todos los campos necesarios para un nuevo registro
+                let recojoCoordenadas = null;
+                let pedidoCoordenadas = null;
+                
+                // Obtener coordenadas para ambas direcciones
+                if (proveedorDireccionLink) {
+                    const coordenadas = await procesarEntrada(proveedorDireccionLink);
+                    recojoCoordenadas = { "lat": parseFloat(coordenadas.latitud), "lng": parseFloat(coordenadas.longitud) };
+                }
+                
+                if (pedidoDireccionLink) {
+                    const coordenadas2 = await procesarEntrada(pedidoDireccionLink);
+                    pedidoCoordenadas = { "lat": parseFloat(coordenadas2.latitud), "lng": parseFloat(coordenadas2.longitud) };
+                }
+                
+                // Crear objeto con todos los campos necesarios
+                updatedRecojo = {
+                    proveedorNombre: proveedorNombre,
+                    proveedorTelefono: proveedorTelefono,
+                    proveedorDistrito: proveedorDistrito,
+                    proveedorDireccionLink: proveedorDireccionLink,
+                    recojoCoordenadas: recojoCoordenadas,
+                    clienteNombre: clienteNombreFormatted,
+                    clienteTelefono: clienteTelefono,
+                    clienteDistrito: clienteDistrito,
+                    pedidoDetalle: pedidoDetalle,
+                    pedidoObservaciones: pedidoObservaciones,
+                    pedidoSeCobra: pedidoSeCobraValor,
+                    pedidoMetodoPago: pedidoMetodoPago,
+                    pedidoCantidadCobrar: cantidadCobrarFormatted,
+                    pedidoDireccionLink: pedidoDireccionLink,
+                    pedidoCoordenadas: pedidoCoordenadas,
+                    motorizadoRecojo: motorizadoRecojo,
+                    motorizadoEntrega: motorizadoEntrega,
+                    comisionTarifa: comisionTarifa,
+                    supera30x30: supera30x30,
+                    fechaCreacionPedido: new Date().toISOString(),
+                    fechaEntregaPedido: formattedFechaEntrega,
+                    fechaAnulacionPedido: null,
+                    thumbnailFotoEntrega: null,
+                    pedidoFotoEntrega: null,
+                    pedidoFotoDinero: null,
+                    thumbnailFotoDinero: null,
+                    fechaEntregaPedidoMotorizado: null,
+                    thumbnailFotoRecojo: null,
+                    pedidoFotoRecojo: null,
+                    fechaRecojoPedidoMotorizado: null
+                };
             }
     
             // Enviar `updatedRecojo` al servidor
@@ -968,6 +1025,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
             console.error("Error processing form:", error);
             submitButton.disabled = false;
+            isSubmitting = false;
         }
     });
     
@@ -1006,33 +1064,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Función para anular el registro
     function deleteRecord(recordId) {
-      fetch(`${API_URL}/${recordId}`, {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              fechaAnulacionPedido: { 
-                  _seconds: Math.floor(Date.now() / 1000), 
-                  _nanoseconds: 0 
-              }
-          })
-      })
-      .then(response => response.json())
-      .then(data => {
-          console.log('Pedido anulado:', data);
-  
-          if (typeof loadRecojos === 'function') {
-              loadRecojos();
-          }
-  
-          alert('Pedido anulado correctamente');
-      })
-      .catch(error => {
-          console.error('Error al anular el pedido:', error);
-          alert('Hubo un problema al anular el pedido');
-      });
-  }
+        const fechaAnulacionISO = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+    
+        fetch(`${API_URL}/${recordId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fechaAnulacionPedido: fechaAnulacionISO // Asignar la fecha en formato ISO
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Pedido anulado:', data);
+    
+            if (typeof loadRecojos === 'function') {
+                loadRecojos();
+            }
+    
+            alert('Pedido anulado correctamente');
+        })
+        .catch(error => {
+            console.error('Error al anular el pedido:', error);
+            alert('Hubo un problema al anular el pedido');
+        });
+    }
+    
   
   
 

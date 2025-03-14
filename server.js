@@ -74,10 +74,7 @@ app.post('/api/recojos', async (req, res) => {
   try {
       // Convertir fechas a Timestamp si existen
       convertirFechaFirebase(nuevoRecojo, [
-          'fechaEntregaPedidoMotorizado',
           'fechaCreacionPedido',
-          'fechaAnulacionPedido',
-          'fechaRecojoPedidoMotorizado',
           'fechaEntregaPedido'
       ]);
 
@@ -113,12 +110,10 @@ app.put('/api/recojos/:id', async (req, res) => {
           return res.status(404).json({ error: 'Recojo no encontrado' });
       }
 
+      delete datosActualizados.fechaCreacionPedido;
+
       // Convertir fechas a Timestamp si existen
       convertirFechaFirebase(datosActualizados, [
-          'fechaEntregaPedidoMotorizado',
-          'fechaCreacionPedido',
-          'fechaAnulacionPedido',
-          'fechaRecojoPedidoMotorizado',
           'fechaEntregaPedido'
       ]);
 
