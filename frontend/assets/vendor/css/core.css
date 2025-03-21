@@ -30493,7 +30493,23 @@ body:not(.modal-open) .layout-content-navbar .layout-navbar {
 
 /* Style for subtotal rows */
 table.table.dataTable > tbody > tr.subtotal-row {
-    background-color: var(--bs-primary);
+    background-color: #a2a2a2;
     font-weight: bold; /* Bold text */
     color: #e7e7e7;
+}
+
+.imagen-preview {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 9999;
+    display: none;
+    max-width: 300px;
+}
+.imagen-preview img {
+    max-width: 100%;
+    height: auto;
 }
