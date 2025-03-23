@@ -16,6 +16,7 @@ const serviceAccount = require('./nanpi-courier-firebase.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  
 });
 
 const db = admin.firestore();
@@ -32,6 +33,32 @@ app.get('/api/recojos', async (req, res) => {
   const recojos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   res.json(recojos);
 });
+
+app.get('/api/proveedores', async (req, res) => {
+  try {
+      // Obtener solo los usuarios cuyo rol sea "Proveedor"
+      const snapshot = await db.collection('usuarios').where('rol', '==', 'Proveedor').get();
+
+      if (snapshot.empty) {
+          return res.status(404).json({ error: 'No se encontraron proveedores' });
+      }
+
+      // Mapear los documentos a un array de objetos con la información de cada proveedor
+      const proveedores = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+      }));
+
+      res.json(proveedores); // Enviar la lista completa de proveedores
+
+  } catch (error) {
+      console.error('Error obteniendo los proveedores:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+
+
 
 function generateUniqueId() {
   const now = new Date();
@@ -114,7 +141,9 @@ app.put('/api/recojos/:id', async (req, res) => {
 
       // Convertir fechas a Timestamp si existen
       convertirFechaFirebase(datosActualizados, [
-          'fechaEntregaPedido'
+          'fechaAnulacionPedido',
+          'fechaEntregaPedidoMotorizado',
+
       ]);
 
       await recojoRef.update(datosActualizados);

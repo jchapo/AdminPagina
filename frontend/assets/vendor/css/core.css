@@ -26827,8 +26827,8 @@ li:not(:first-child) .dropdown-item,
     --bs-menu-horizontal-active-bg: var(--bs-menu-bg);
     --bs-menu-box-shadow: 0 0.125rem 0.375rem 0 rgba(34, 48, 62, 0.08);
     --bs-menu-divider-color: var(--bs-white);
-    --bs-menu-width: 16.25rem;
-    --bs-menu-collapsed-width: 5.25rem;
+    --bs-menu-width: 0rem;
+    --bs-menu-collapsed-width: 0rem;
     --bs-menu-item-spacer: 0.125rem;
     --bs-menu-vertical-link-padding-y: 0.3125rem;
     --bs-menu-vertical-link-padding-x: 0.9375rem;
@@ -27947,9 +27947,7 @@ li:not(:first-child) .dropdown-item,
     max-inline-size: calc(1640px - 1.625rem*2)
 }
 
-.layout-navbar-fixed .layout-navbar.navbar-detached {
-    inline-size: calc(100% - 1.625rem*2 - 16.25rem)
-}
+
 
 @media(max-width: 1199.98px) {
     .layout-navbar-fixed .layout-navbar.navbar-detached {
@@ -27963,9 +27961,7 @@ li:not(:first-child) .dropdown-item,
     }
 }
 
-.layout-navbar-fixed.layout-menu-collapsed .layout-navbar.navbar-detached {
-    inline-size: calc(100% - 1.625rem*2 - 5.25rem)
-}
+
 
 .layout-menu-collapsed .layout-navbar.navbar-detached,
 .layout-without-menu .layout-navbar.navbar-detached {
@@ -28379,9 +28375,7 @@ li:not(:first-child) .dropdown-item,
     .layout-menu-fixed-offcanvas:not(.layout-menu-collapsed) .layout-page {
         padding-inline-start: var(--bs-menu-width)
     }
-    .layout-menu-fixed.layout-menu-collapsed .layout-page {
-        padding-inline-start: var(--bs-menu-collapsed-width)
-    }
+    
 }
 
 html:not(.layout-navbar-fixed,

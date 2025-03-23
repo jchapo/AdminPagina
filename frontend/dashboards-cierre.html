@@ -89,6 +89,9 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 
 
 </head>
@@ -104,189 +107,7 @@
 
 
 
-            <!-- Menu -->
-
-            <aside id="layout-menu" class="layout-menu menu-vertical menu">
-
-                <div class="app-brand demo ">
-                    <a href="index.html" class="app-brand-link">
-                        <span class="app-brand-logo demo">
-                            <span class="text-primary">
-
-                                <img src="../../assets/img/avatars/motito.png" alt="Ñanpi Courier" width="25">
-
-                            </span>
-                        </span>
-                        <span class="app-brand-text demo menu-text fw-bold ms-2">
-                            <img src="../../assets/img/avatars/letras_nanpi.png" alt="Ñanpi Courier" width="120">
-                        </span>
-                        
-                    </a>
-
-                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
-                        <i class="icon-base bx bx-chevron-left"></i>
-                    </a>
-                </div>
-
-                <div class="menu-inner-shadow"></div>
-
-
-
-                <ul class="menu-inner py-1">
-                    <!-- Dashboards -->
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon icon-base bx bx-home-smile"></i>
-                            <div data-i18n="Dashboards">Dashboards</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="index.html" class="menu-link">
-                                    <div>Pedidos</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="dashboards-cierre.html" class="menu-link">
-                                    <div>Cierre</div>
-                                </a>
-                            </li>
-
-                            <!--
-                            <li class="menu-item">
-                                <a href="app-ecommerce-dashboard.html" class="menu-link">
-                                    <div data-i18n="eCommerce">eCommerce</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="app-logistics-dashboard.html" class="menu-link">
-                                    <div data-i18n="Logistics">Logistics</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="app-academy-dashboard.html" class="menu-link">
-                                    <div data-i18n="Academy">Academy</div>
-                                </a>
-                            </li>
-                            -->
-                        </ul>
-                    </li>
-
-                    <!-- Layouts -->
-                     <!--
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon icon-base bx bx-layout"></i>
-                            <div data-i18n="Layouts">Layouts</div>
-                        </a>
-
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="layouts-collapsed-menu.html" class="menu-link">
-                                    <div data-i18n="Collapsed menu">Collapsed menu</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-content-navbar.html" class="menu-link">
-                                    <div data-i18n="Content navbar">Content navbar</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-content-navbar-with-sidebar.html" class="menu-link">
-                                    <div data-i18n="Content nav + Sidebar">Content nav + Sidebar</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="../horizontal-menu-template/" class="menu-link" target="_blank">
-                                    <div data-i18n="Horizontal">Horizontal</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-without-menu.html" class="menu-link">
-                                    <div data-i18n="Without menu">Without menu</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-without-navbar.html" class="menu-link">
-                                    <div data-i18n="Without navbar">Without navbar</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-fluid.html" class="menu-link">
-                                    <div data-i18n="Fluid">Fluid</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-container.html" class="menu-link">
-                                    <div data-i18n="Container">Container</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="layouts-blank.html" class="menu-link">
-                                    <div data-i18n="Blank">Blank</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    -->
-
-                    <!-- Front Pages 
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon icon-base bx bx-store"></i>
-                            <div data-i18n="Front Pages">Front Pages</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="../front-pages/landing-page.html" class="menu-link" target="_blank">
-                                    <div data-i18n="Landing">Landing</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
-                                    <div data-i18n="Pricing">Pricing</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="../front-pages/payment-page.html" class="menu-link" target="_blank">
-                                    <div data-i18n="Payment">Payment</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="../front-pages/checkout-page.html" class="menu-link" target="_blank">
-                                    <div data-i18n="Checkout">Checkout</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="../front-pages/help-center-landing.html" class="menu-link" target="_blank">
-                                    <div data-i18n="Help Center">Help Center</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    -->
-
-                    <!-- Apps & Pages 
-                    <li class="menu-header small">
-                        <span class="menu-header-text" data-i18n="Apps & Pages">Apps &amp; Pages</span>
-                    </li>
-
-                    -->
-
-                </ul>
-
-
-            </aside>
-
-            <div class="menu-mobile-toggler d-xl-none rounded-1">
-                <a href="javascript:void(0);"
-                    class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
-                    <i class="bx bx-menu icon-base"></i>
-                    <i class="bx bx-chevron-right icon-base"></i>
-                </a>
-            </div>
-            <!-- / Menu -->
+        
 
 
 
@@ -315,16 +136,8 @@
 
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
 
-                        <!-- Search -->
-                        <div class="navbar-nav align-items-center">
-                            <div class="nav-item navbar-search-wrapper mb-0">
-                                <a class="nav-item nav-link search-toggler px-0" href="javascript:void(0);">
-                                    <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- /Search -->
+                        <a href="index.html" class="btn btn-secondary me-2">Pedidos General</a>
+                        <a href="dashboards-cierre.html" class="btn btn-primary me-3">Cierre</a>
 
 
 
@@ -366,7 +179,18 @@
                             </li>
                             <!-- / Style Switcher-->
 
-                            <!-- User -->
+                            <span class="app-brand-logo demo">
+                                <span class="text-primary">
+    
+                                    <img src="../../assets/img/avatars/motito.png" alt="Ñanpi Courier" width="25">
+    
+                                </span>
+                            </span>
+                            <span class="app-brand-text demo menu-text fw-bold ms-2">
+                                <img src="../../assets/img/avatars/letras_nanpi.png" alt="Ñanpi Courier" width="80">
+                            </span>
+
+                            <!-- User
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
                                     data-bs-toggle="dropdown">
@@ -436,7 +260,7 @@
                                     </li>
                                 </ul>
                             </li>
-                            <!--/ User -->
+                            / User -->
 
                         </ul>
                     </div>
@@ -454,7 +278,10 @@
                         <!-- DataTable with Buttons -->
                         <div class="card">
                             <div class="card-datatable m-5">
-                                <table class="datatables-basic table border-top table-responsive table-hover" id="example">
+                                <div class="text-end">
+                                    <a href="#" id="btnCerrarReportar" class="btn btn-outline-success me-2">Cerrar y Reportar</a>
+                                </div>
+                                                                <table class="datatables-basic table border-top table-responsive table-hover" id="example">
                                     <thead>
                                         <tr>
                                             <th>Proveedor</th>
@@ -1047,6 +874,9 @@
 
 
     <script src="../../assets/js/juan.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
 
 </body>
 

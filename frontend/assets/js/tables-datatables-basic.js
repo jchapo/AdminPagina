@@ -1050,46 +1050,62 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Event listener para el botón de confirmar eliminación
-    document.getElementById('confirmDeleteButton').addEventListener('click', function () {
-        // Obtener el ID del registro a eliminar
-        const recordId = this.getAttribute('data-id');
-
-        // Llamar a la función para eliminar el registro
-        deleteRecord(recordId);
-
-        // Cerrar el modal de confirmación
-        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
-        deleteModal.hide();
-    });
-
-    // Función para anular el registro
-    function deleteRecord(recordId) {
-        const fechaAnulacionISO = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+document.getElementById('confirmDeleteButton').addEventListener('click', function () {
+    // Obtener el ID del registro a eliminar
+    const recordId = this.getAttribute('data-id');
     
-        fetch(`${API_URL}/${recordId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fechaAnulacionPedido: fechaAnulacionISO // Asignar la fecha en formato ISO
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Pedido anulado:', data);
+    // Determinar el tipo de anulación
+    const tipoAnulacion = document.querySelector('input[name="tipoAnulacion"]:checked').value;
+
+    // Llamar a la función para anular el registro
+    anularPedido(recordId, tipoAnulacion);
+
+    // Cerrar el modal de confirmación
+    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+    deleteModal.hide();
+});
+
+// Función para anular el pedido
+function anularPedido(recordId, tipoAnulacion) {
+    const fechaActualISO = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+    let datosPedido = {};
     
-            if (typeof loadRecojos === 'function') {
-                loadRecojos();
-            }
-    
-            alert('Pedido anulado correctamente');
-        })
-        .catch(error => {
-            console.error('Error al anular el pedido:', error);
-            alert('Hubo un problema al anular el pedido');
-        });
+    if (tipoAnulacion === 'sinCobro') {
+        // Anulación sin cobro: se asigna fecha a fechaAnulacionPedido
+        datosPedido = {
+            fechaAnulacionPedido: fechaActualISO,
+            fechaEntregaPedidoMotorizado: null,
+            anuladoCobrado: false
+        };
+    } else if (tipoAnulacion === 'conCobro') {
+        // Anulación con cobro: se asigna fecha a fechaEntregaPedidoMotorizado y anuladoCobrado = true
+        datosPedido = {
+            fechaAnulacionPedido: null,
+            fechaEntregaPedidoMotorizado: fechaActualISO,
+            anuladoCobrado: true
+        };
     }
+
+    fetch(`${API_URL}/${recordId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datosPedido)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Pedido anulado:', data);
+
+        if (typeof loadRecojos === 'function') {
+            loadRecojos();
+        }
+    })
+    .catch(error => {
+        console.error('Error al anular el pedido:', error);
+        alert('Hubo un problema al anular el pedido');
+    });
+}
     
   
   
