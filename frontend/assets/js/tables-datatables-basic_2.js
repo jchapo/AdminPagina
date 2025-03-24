@@ -323,7 +323,7 @@ async function generarPDFs() {
         const recojosProveedor = recojosFiltrados.filter(r => r.proveedorNombre === nombreProveedor);
 
         // Crear el PDF
-        const doc = new jsPDF({ orientation: "landscape" });
+        const doc = new jsPDF({ orientation: "portrait" });
         
         // Definir márgenes
         const margenX = 10;
@@ -387,8 +387,9 @@ async function generarPDFs() {
             const promesas = [];
             
             if (recojo.thumbnailFotoRecojo) {
+                const proxyUrl = `http://localhost:3000/get-image?url=${encodeURIComponent(recojo.thumbnailFotoRecojo)}`;
                 promesas.push(
-                    loadImage(recojo.thumbnailFotoRecojo)
+                    loadImage(proxyUrl)
                         .then(data => { imagenesRecojo.fotoRecojo = data; })
                         .catch(err => { 
                             console.error("Error cargando foto de recojo:", err);
@@ -398,8 +399,9 @@ async function generarPDFs() {
             }
             
             if (recojo.thumbnailFotoEntrega) {
+                const proxyUrl = `http://localhost:3000/get-image?url=${encodeURIComponent(recojo.thumbnailFotoEntrega)}`;
                 promesas.push(
-                    loadImage(recojo.thumbnailFotoEntrega)
+                    loadImage(proxyUrl)
                         .then(data => { imagenesRecojo.fotoEntrega = data; })
                         .catch(err => { 
                             console.error("Error cargando foto de entrega:", err);
@@ -409,8 +411,9 @@ async function generarPDFs() {
             }
             
             if (recojo.thumbnailFotoDinero) {
+                const proxyUrl = `http://localhost:3000/get-image?url=${encodeURIComponent(recojo.thumbnailFotoDinero)}`;
                 promesas.push(
-                    loadImage(recojo.thumbnailFotoDinero)
+                    loadImage(proxyUrl)
                         .then(data => { imagenesRecojo.fotoDinero = data; })
                         .catch(err => { 
                             console.error("Error cargando foto de dinero:", err);
@@ -439,21 +442,32 @@ async function generarPDFs() {
                 2: { cellWidth: anchosColumna[2], valign: "middle" },
                 3: { cellWidth: anchosColumna[3], valign: "middle" }
             },
+            styles: {
+                lineWidth: 0.5, // Grosor de los bordes
+                lineColor: [0, 0, 0], // Color de los bordes (negro)
+            },
+            alternateRowStyles: false, // Desactiva el estilo "zebra"
             willDrawCell: function(data) {
                 // Aumentar la altura de las celdas para las imágenes
                 if (data.column.index > 0 && data.section === 'body') {
                     data.row.height = Math.max(data.row.height, altoImagen);
                 }
             },
-            didDrawCell: function(data) {
+            willDrawCell: function(data) {
+                // Aumentar la altura de las celdas para las imágenes
+                if (data.column.index > 0 && data.section === 'body') {
+                    data.row.height = Math.max(data.row.height, altoImagen);
+                }
+            },
+            didDrawCell: function (data) {
                 // Solo procesamos celdas de imágenes (columnas 1, 2 y 3)
                 if (data.column.index > 0 && data.section === 'body') {
                     const rowIndex = data.row.index;
                     const colIndex = data.column.index;
-                    
+            
                     // Si tenemos la imagen cargada para esta celda
                     let imageData = null;
-                    
+            
                     if (colIndex === 1 && imagenesDataUrl[rowIndex]?.fotoRecojo) {
                         imageData = imagenesDataUrl[rowIndex].fotoRecojo;
                     } else if (colIndex === 2 && imagenesDataUrl[rowIndex]?.fotoEntrega) {
@@ -461,19 +475,24 @@ async function generarPDFs() {
                     } else if (colIndex === 3 && imagenesDataUrl[rowIndex]?.fotoDinero) {
                         imageData = imagenesDataUrl[rowIndex].fotoDinero;
                     }
-                    
+            
                     if (imageData) {
-                        // Calcular dimensiones para la imagen dentro de la celda
-                        const cellWidth = data.cell.width - 6; // Margen interno
-                        const cellHeight = data.cell.height - 6; // Margen interno
-                        
-                        // Posición de la imagen en la celda
-                        const x = data.cell.x + 3; // Centrado en X
-                        const y = data.cell.y + 3; // Centrado en Y
-                        
+                        // Obtener las dimensiones originales de la imagen
+                        const img = new Image();
+                        img.src = imageData;
+            
+                        // Calcular las dimensiones proporcionales
+                        const aspectRatio = img.width / img.height; // Relación de aspecto (ancho/alto)
+                        const maxHeight = data.cell.height - 6; // Altura máxima de la celda (con margen interno)
+                        const newWidth = maxHeight * aspectRatio; // Nuevo ancho proporcional
+            
+                        // Calcular la posición para centrar la imagen horizontalmente
+                        const x = data.cell.x + (data.cell.width - newWidth) / 2; // Centrado en X
+                        const y = data.cell.y + 3; // Margen interno en Y
+            
                         try {
-                            // Añadir la imagen al PDF
-                            doc.addImage(imageData, 'JPEG', x, y, cellWidth, cellHeight);
+                            // Añadir la imagen al PDF con las dimensiones proporcionales
+                            doc.addImage(imageData, 'JPEG', x, y, newWidth, maxHeight);
                         } catch (error) {
                             console.error("Error al añadir la imagen al PDF:", error);
                         }

@@ -16,10 +16,54 @@ const serviceAccount = require('./nanpi-courier-firebase.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  
+  storageBucket: "nanpi-courier.appspot.com"
 });
 
 const db = admin.firestore();
+const bucket = admin.storage().bucket();
+
+
+// Endpoint para obtener la imagen desde Firebase Storage
+app.get("/get-image", async (req, res) => {
+  try {
+      const { url } = req.query;
+      if (!url) return res.status(400).send("Falta la URL");
+
+      // Extraer el path de la imagen desde la URL
+      const match = url.match(/\/o\/([^?]*)/);
+      if (!match) return res.status(400).send("URL no válida");
+
+      const filePath = decodeURIComponent(match[1]); // Decodificar el path
+
+      console.log("Obteniendo la imagen desde Firebase Storage:", filePath);
+
+      // Obtener la imagen desde Firebase Storage
+      const file = bucket.file(filePath);
+      const [exists] = await file.exists();
+
+      if (!exists) return res.status(404).send("Imagen no encontrada");
+
+      res.setHeader("Content-Type", "image/jpeg"); // Ajusta el tipo MIME según el tipo de archivo
+      file.createReadStream().pipe(res);
+  } catch (error) {
+      console.error("Error obteniendo la imagen:", error);
+      res.status(500).send("Error en el servidor");
+  }
+});
+
+
+const axios = require('axios');
+
+app.get('/proxy-image', async (req, res) => {
+    try {
+        const imageUrl = req.query.url;
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        res.set('Content-Type', 'image/jpeg');
+        res.send(response.data);
+    } catch (error) {
+        res.status(500).send("Error al cargar la imagen");
+    }
+});
 
 
 // Servir el archivo index.html en la raíz
