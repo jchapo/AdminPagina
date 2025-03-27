@@ -254,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Deshabilitar el botón para evitar múltiples clics
         const btn = this;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Preparando generación...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Preparando generación...';
         
         try {
             // Obtener proveedores de la API
@@ -282,12 +282,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 switch (type) {
                     case 'STARTED':
                         //console.log(`Iniciando generación de ${data.total} PDFs`);
-                        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 0/${data.total} PDFs generados`;
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>  0/${data.total} PDFs generados`;
                         break;
                         
                     case 'PROVIDER_START':
                         //console.log(`Iniciando PDF ${data.current}/${data.total}: ${data.nombre}`);
-                        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombre}`;
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombre}`;
                         break;
                         
                     case 'PROGRESS':

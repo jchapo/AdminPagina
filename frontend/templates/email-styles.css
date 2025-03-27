@@ -4,12 +4,56 @@
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #e1e1e1;
+    background-color: #ffffff;
 }
+
 h1 {
     color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
 }
+
+.details {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-left: 4px solid #2c3e50;
+}
+
 .footer {
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.footer-text {
+    flex: 1;
+}
+
+.footer-logo {
+    text-align: right;
+    margin-left: 20px;
+}
+
+.logo-image {
+    max-height: 100px;
+    width: auto;
+    max-width: 150px;
+}
+
+/* Estilos responsivos */
+@media only screen and (max-width: 480px) {
+    .footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .footer-logo {
+        margin-left: 0;
+        margin-top: 15px;
+        text-align: left;
+    }
 }

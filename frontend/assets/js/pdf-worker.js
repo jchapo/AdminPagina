@@ -1,7 +1,7 @@
 // pdf-worker.js
 
 // Flag de depuración - cambiar a true para ver logs detallados
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 function debugLog(...messages) {
   if (DEBUG_MODE) {
@@ -100,13 +100,51 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             const margenX = 10;
             const margenY = 10;
             const anchoUtil = doc.internal.pageSize.width - (margenX * 2);
+
+            // 1. Cargar el logo (ajusta la ruta según tu estructura de archivos)
+            const logoUrl = '../../assets/img/avatars/1.png';
+            let logoData;
             
-            // Encabezado
+            try {
+                logoData = await loadImageWithRetry(logoUrl);
+                
+                // 2. Posicionar el logo en esquina superior derecha
+                const logoWidth = 30; // Ancho deseado del logo en mm
+                const logoHeight = 30; // Alto deseado del logo en mm
+                const logoX = doc.internal.pageSize.width - margenX - logoWidth;
+                const logoY = margenY;
+                
+                doc.addImage(logoData, 'PNG', logoX, logoY, logoWidth, logoHeight);
+                
+            } catch (error) {
+                console.warn('No se pudo cargar el logo:', error);
+                // Continuar sin logo si hay error
+            }
+
+            // Obtener fecha actual formateada
+            const fechaEmision = new Date();
+            const opcionesFecha = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const fechaFormateada = fechaEmision.toLocaleDateString('es-ES', opcionesFecha);
+
+            // 3. Ajustar posición del título para no solaparse con el logo
             doc.setFontSize(16);
-            doc.text("Reporte de Proveedor", margenX, margenY + 5);
+            const titulo = "Reporte de Proveedor";
+            const textoAncho = doc.getStringUnitWidth(titulo) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+            const xCentrado = (doc.internal.pageSize.width - textoAncho) / 2;
+            
+            doc.text(titulo, xCentrado, margenY + 10); // Bajar más si hay logo
+            
             doc.setFontSize(12);
-            doc.text(`Nombre: ${proveedor}`, margenX, margenY + 15);
-            doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 25);
+            doc.text(`Nombre de la empresa: ${proveedor}`, margenX, margenY + 20);
+            doc.text(`Cantidad de pedidos: ${recojosProveedor.length}`, margenX, margenY + 25);
+            doc.text(`Fecha de emisión: ${fechaFormateada}`, margenX, margenY + 30);
+            //doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 25);
             
             // Preparar datos para la tabla
             const data = [];
@@ -134,7 +172,7 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
                 
                 // Agregar fila de datos
                 data.push([
-                    `${recojo.clienteNombre}\n${recojo.clienteTelefono}\n${recojo.clienteDistrito}\n\n${pagosInfo}\n\nComisión: ${recojo.comisionTarifa}\nCobrar: ${recojo.pedidoCantidadCobrar}`,
+                    `Nombre: ${recojo.clienteNombre}\nTeléfono: ${recojo.clienteTelefono}\nDistrito: ${recojo.clienteDistrito}\n\n${pagosInfo}\n\nTarifa Ñanpí: ${recojo.comisionTarifa}\nCobro Cliente: ${recojo.pedidoCantidadCobrar}`,
                     "", "", ""
                 ]);
                 
@@ -198,101 +236,118 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             
             // Configurar tabla con manejo mejorado de imágenes
             // Configuración de la tabla con altura fija de filas y manejo proporcional de imágenes
-doc.autoTable({
-    startY: margenY + 35,
-    margin: { left: margenX, right: margenX },
-    head: [["Datos del Cliente", "Foto de Recojo", "Foto de Entrega", "Foto de Dinero"]],
-    body: data,
-    
-    // Altura fija para todas las filas del cuerpo (en mm)
-    bodyStyles: { 
-        minCellHeight: 40 // Altura mínima de 40mm para cada fila
-    },
-    
-    // Estilos para las celdas
-    columnStyles: {
-        0: { 
-            cellWidth: anchoUtil * 0.25,
-            valign: 'middle' // Alineación vertical al centro
-        },
-        1: { 
-            cellWidth: anchoUtil * 0.25,
-            valign: 'middle'
-        },
-        2: { 
-            cellWidth: anchoUtil * 0.25,
-            valign: 'middle'
-        },
-        3: { 
-            cellWidth: anchoUtil * 0.25,
-            valign: 'middle'
-        }
-    },
-    
-    // Ajustar altura de filas basado en el contenido
-    didParseCell: function(data) {
-        // Fuerza una altura fija para todas las celdas
-        data.cell.height = 40; // 40mm de altura
-    },
-    
-    // Dibujado de celdas con manejo proporcional de imágenes
-    didDrawCell: function(data) {
-        if (data.column.index > 0 && data.section === 'body') {
-            const rowIndex = data.row.index;
-            const colIndex = data.column.index;
-            
-            let imageData = null;
-            if (colIndex === 1) imageData = imagenesDataUrl[rowIndex]?.fotoRecojo;
-            else if (colIndex === 2) imageData = imagenesDataUrl[rowIndex]?.fotoEntrega;
-            else if (colIndex === 3) imageData = imagenesDataUrl[rowIndex]?.fotoDinero;
-            
-            if (imageData) {
-                try {
-                    // Margen interno dentro de la celda (en mm)
-                    const padding = 2;
-                    
-                    // Altura disponible para la imagen (altura de celda - padding)
-                    const availableHeight = data.cell.height - (padding * 2);
-                    
-                    // Calcular ancho proporcional manteniendo relación de aspecto
-                    const imgProps = doc.getImageProperties(imageData);
-                    const aspectRatio = imgProps.width / imgProps.height;
-                    const imgWidth = availableHeight * aspectRatio;
-                    
-                    // Máximo ancho disponible (ancho de celda - padding)
-                    const maxWidth = data.cell.width - (padding * 2);
-                    
-                    // Si el ancho calculado excede el disponible, reajustar
-                    const finalWidth = Math.min(imgWidth, maxWidth);
-                    const finalHeight = finalWidth / aspectRatio;
-                    
-                    // Centrar la imagen en la celda
-                    const x = data.cell.x + (data.cell.width - finalWidth) / 2;
-                    const y = data.cell.y + (data.cell.height - finalHeight) / 2;
-                    
-                    // Agregar la imagen manteniendo proporciones
-                    doc.addImage({
-                        imageData: imageData,
-                        x: x,
-                        y: y,
-                        width: finalWidth,
-                        height: finalHeight
-                    });
-                    
-                } catch (error) {
-                    console.error("Error al agregar imagen:", error);
-                    doc.text("Imagen no disponible", 
-                            data.cell.x + 5, 
-                            data.cell.y + data.cell.height / 2);
+            doc.autoTable({
+                startY: margenY + 35,
+                margin: { left: margenX, right: margenX },
+                head: [["Datos del Cliente", "Foto de Recojo", "Foto de Entrega", "Foto de Dinero"]],
+                body: data,
+                
+                // Estilos generales
+                styles: {
+                    fillColor: [255, 255, 255], // Fondo blanco
+                    textColor: [0, 0, 0], // Texto negro
+                    lineColor: [0, 0, 0], // Líneas negras
+                    lineWidth: 0.2, // Grosor de las líneas
+                    cellPadding: 4 // Espaciado interno
+                },
+                
+                // Estilos específicos para el encabezado
+                headStyles: {
+                    fillColor: [255, 255, 255], // Fondo blanco
+                    textColor: [0, 0, 0],       // Texto negro
+                    fontStyle: 'bold',          // Texto en negrita
+                    fontSize: 12,               // Tamaño mayor que el cuerpo
+                    halign: 'center',           // Centrado horizontal
+                    valign: 'middle',           // Centrado vertical
+                    lineColor: [0, 0, 0],       // Líneas negras
+                    lineWidth: 0.5,             // Líneas más gruesas
+                    renderCell: function(cell, data) {
+                        if (data.section === 'head') {
+                            cell.text = cell.text.toUpperCase();
+                        }
+                        return cell;
+                    }
+                },
+                
+                // Altura fija para todas las filas del cuerpo
+                bodyStyles: { 
+                    minCellHeight: 40, // Altura mínima de 40mm
+                    fillColor: [255, 255, 255], // Fondo blanco
+                    textColor: [0, 0, 0], // Texto negro
+                    lineColor: [0, 0, 0], // Líneas negras
+                    lineWidth: 0.2 // Grosor de las líneas
+                },
+                
+                // Estilos para las celdas
+                columnStyles: {
+                    0: { 
+                        cellWidth: anchoUtil * 0.25,
+                        valign: 'middle'
+                    },
+                    1: { 
+                        cellWidth: anchoUtil * 0.25,
+                        valign: 'middle'
+                    },
+                    2: { 
+                        cellWidth: anchoUtil * 0.25,
+                        valign: 'middle'
+                    },
+                    3: { 
+                        cellWidth: anchoUtil * 0.25,
+                        valign: 'middle'
+                    }
+                },
+                
+                // Ajustar altura de filas
+                didParseCell: function(data) {
+                    data.cell.height = 40; // 40mm de altura
+                },
+                
+                // Dibujado de celdas con manejo de imágenes
+                didDrawCell: function(data) {
+                    if (data.column.index > 0 && data.section === 'body') {
+                        const rowIndex = data.row.index;
+                        const colIndex = data.column.index;
+                        
+                        let imageData = null;
+                        if (colIndex === 1) imageData = imagenesDataUrl[rowIndex]?.fotoRecojo;
+                        else if (colIndex === 2) imageData = imagenesDataUrl[rowIndex]?.fotoEntrega;
+                        else if (colIndex === 3) imageData = imagenesDataUrl[rowIndex]?.fotoDinero;
+                        
+                        if (imageData) {
+                            try {
+                                const padding = 2;
+                                const availableHeight = data.cell.height - (padding * 2);
+                                const imgProps = doc.getImageProperties(imageData);
+                                const aspectRatio = imgProps.width / imgProps.height;
+                                const imgWidth = availableHeight * aspectRatio;
+                                const maxWidth = data.cell.width - (padding * 2);
+                                const finalWidth = Math.min(imgWidth, maxWidth);
+                                const finalHeight = finalWidth / aspectRatio;
+                                const x = data.cell.x + (data.cell.width - finalWidth) / 2;
+                                const y = data.cell.y + (data.cell.height - finalHeight) / 2;
+                                
+                                doc.addImage({
+                                    imageData: imageData,
+                                    x: x,
+                                    y: y,
+                                    width: finalWidth,
+                                    height: finalHeight
+                                });
+                                
+                            } catch (error) {
+                                doc.text("Imagen no disponible", 
+                                        data.cell.x + 5, 
+                                        data.cell.y + data.cell.height / 2);
+                            }
+                        } else {
+                            doc.text("Sin imagen", 
+                                    data.cell.x + 5, 
+                                    data.cell.y + data.cell.height / 2);
+                        }
+                    }
                 }
-            } else {
-                doc.text("Sin imagen", 
-                        data.cell.x + 5, 
-                        data.cell.y + data.cell.height / 2);
-            }
-        }
-    }
-});
+            });
             
             // Generar el PDF como Blob
             const pdfBlob = doc.output('blob');

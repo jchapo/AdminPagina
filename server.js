@@ -10,7 +10,20 @@ const handlebars = require('handlebars');
 
 
 const app = express();
-app.use(cors());
+// Aumentar límites para JSON y datos de formulario
+app.use(bodyParser.json({ 
+    limit: '50mb',
+    type: 'application/json'
+  }));
+  
+  app.use(bodyParser.urlencoded({ 
+    limit: '50mb',
+    extended: true,
+    parameterLimit: 100000  // Aumenta el número de parámetros permitidos
+  }));
+  
+  // Configurar CORS después de body-parser
+  app.use(cors());
 app.use(bodyParser.json());
 
 
