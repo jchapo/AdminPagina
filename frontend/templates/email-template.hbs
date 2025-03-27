@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        {{> email-styles }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reporte de Entregas - {{proveedor}}</h1>
+        <p>Estimado {{proveedor}},</p>
+        <p>Adjunto encontrará el reporte de entregas correspondiente al período solicitado.</p>
+        
+        <div class="details">
+            <p><strong>Detalles:</strong></p>
+            <ul>
+                <li>Fecha de generación: {{fecha}}</li>
+                <li>Total de pedidos: {{totalPedidos}}</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Atentamente,</p>
+            <p>El equipo de {{empresa}}</p>
+        </div>
+    </div>
+</body>
+</html>

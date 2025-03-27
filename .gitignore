@@ -7,6 +7,7 @@ bin-release/
 # Other files and folders
 .settings/
 nanpi-courier-firebase.json
+.env
 
 # Executables
 *.swf

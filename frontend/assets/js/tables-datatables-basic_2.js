@@ -1,6 +1,6 @@
 let recojosFiltrados = []; // Variable global
 let proveedores = []; // Variable global para almacenar los proveedores
-
+let pdfWorker = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     function addCell(tr, content, colSpan = 1) {
@@ -249,21 +249,116 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document.getElementById("btnCerrarReportar").addEventListener("click", async function (event) {
-        event.preventDefault(); // Evita que el enlace recargue la página
-
+        event.preventDefault();
+        
+        // Deshabilitar el botón para evitar múltiples clics
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Preparando generación...';
+        
         try {
             // Obtener proveedores de la API
             const response = await fetch("http://localhost:3000/api/proveedores");
             if (!response.ok) throw new Error("Error al obtener los proveedores");
+    
+            const proveedores = await response.json();
+            
+            // Crear un Web Worker para la generación de PDFs
+            pdfWorker = new Worker('/js/pdf-worker.js');
+            
+            // Configurar el mensaje para el worker
+            pdfWorker.postMessage({
+                type: 'GENERATE_PDFS',
+                data: {
+                    recojosFiltrados: recojosFiltrados,
+                    proveedores: proveedores
+                }
+            });
+            
+            // Manejar la respuesta del worker
+            pdfWorker.onmessage = function(e) {
+                const { type, data } = e.data;
+                
+                switch (type) {
+                    case 'STARTED':
+                        //console.log(`Iniciando generación de ${data.total} PDFs`);
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 0/${data.total} PDFs generados`;
+                        break;
+                        
+                    case 'PROVIDER_START':
+                        //console.log(`Iniciando PDF ${data.current}/${data.total}: ${data.nombre}`);
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombre}`;
+                        break;
+                        
+                    case 'PROGRESS':
+                        // Actualizar progreso para el proveedor actual
+                        //console.log(`Progreso: ${data.providerProgress}% - ${data.message}`);
+                        break;
+                        
+                    case 'PDF_READY':
+                        // Descargar el PDF
+                        downloadPDF(data);
+                        
+                        // Notificar al worker que puede continuar
+                        //pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                        //break;
 
-            proveedores = await response.json(); // Guardar los proveedores en la variable global
-            //console.log("Proveedores obtenidos:", proveedores);
-
-            // Generar un PDF por cada proveedor en recojosFiltrados
-            generarPDFs();
-
+                        // En lugar de descargar, enviar por correo
+                        sendPDFByEmail(data).then(() => {
+                            // Notificar al worker que puede continuar
+                            pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                        }).catch(error => {
+                            console.error('Error enviando email:', error);
+                            // Notificar al worker para continuar de todos modos
+                            pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                        });
+                        break;
+                        
+                    case 'PROVIDER_ERROR':
+                        console.error(`Error con ${data.nombre}: ${data.error}`);
+                        // Puedes decidir continuar con los siguientes o detener todo
+                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' }); // Continuar
+                        break;
+                        
+                    case 'COMPLETE':
+                        // Restaurar el botón
+                        btn.disabled = false;
+                        btn.textContent = "Cerrar y Reportar";
+                        
+                        // Notificar al usuario
+                        alert("Todos los PDFs han sido generados exitosamente");
+                        
+                        // Terminar el worker
+                        pdfWorker.terminate();
+                        pdfWorker = null;
+                        break;
+                        
+                    case 'ERROR':
+                        console.error("Error en el worker:", data.error);
+                        
+                        // Restaurar el botón
+                        btn.disabled = false;
+                        btn.textContent = "Cerrar y Reportar";
+                        
+                        alert("Ocurrió un error al generar los PDFs. Ver consola para detalles.");
+                        
+                        // Terminar el worker
+                        if (pdfWorker) {
+                            pdfWorker.terminate();
+                            pdfWorker = null;
+                        }
+                        break;
+                }
+            };
+            
         } catch (error) {
             console.error("Error:", error);
+            
+            // Restaurar el botón en caso de error
+            btn.disabled = false;
+            btn.textContent = "Cerrar y Reportar";
+            
+            alert("Ocurrió un error al iniciar la generación de PDFs");
         }
     });
 });
@@ -505,7 +600,7 @@ async function generarPDFs() {
         doc.save(`Proveedor_${nombreProveedor}.pdf`);
     }
 
-    console.log("PDFs generados correctamente");
+    //console.log("PDFs generados correctamente");
 }
 
 // Función mejorada para cargar una imagen como base64
@@ -552,5 +647,94 @@ function loadImage(url) {
                 reject(new Error(`Timeout al cargar la imagen: ${url}`));
             }
         }, 15000); // 15 segundos de timeout
+    });
+}
+
+
+// Función para descargar el PDF
+function downloadPDF(data) {
+    try {
+        // Crear URL para el blob del PDF
+        const pdfUrl = URL.createObjectURL(data.blob);
+        
+        // Crear enlace de descarga invisible
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = `Proveedor_${data.nombre}.pdf`;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        
+        // Trigger de la descarga
+        a.click();
+        
+        // Limpieza
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(pdfUrl); // Liberar memoria
+        }, 100);
+        
+        //console.log(`PDF descargado: ${data.nombre} (${data.current}/${data.total})`);
+    } catch (error) {
+        console.error("Error al descargar PDF:", error);
+    }
+}
+
+async function sendPDFByEmail(pdfData) {
+    const statusElement = document.getElementById('email-status');
+    //console.log(pdfData);
+    try {
+        statusElement.textContent = `Enviando reporte a ${pdfData.nombre}...`;
+        statusElement.style.color = 'blue';
+
+        // Extraer el email del proveedor del nombre del PDF (asumiendo formato "Proveedor_Nombre")
+        const proveedorNombre = pdfData.nombre;
+        //console.log(proveedorNombre);
+        
+        // Obtener el email del proveedor desde tus datos
+        const proveedorEmail = pdfData.email;
+        
+        // Convertir Blob a base64 para enviarlo
+        const base64Pdf = await blobToBase64(pdfData.blob);
+        
+        // Enviar a tu API backend
+        const response = await fetch('http://localhost:3000/api/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: proveedorEmail,
+                subject: `Reporte de entregas - ${proveedorNombre}`,
+                text: 'Adjunto encontrará el reporte de entregas correspondiente.',
+                pdf: base64Pdf,
+                filename: `Reporte_${proveedorNombre}.pdf`,
+                proveedor: proveedorNombre,
+                totalPedidos: pdfData.totalPedidos
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+        
+        //console.log(`PDF enviado por email a ${proveedorEmail}`);
+
+        statusElement.textContent = `Reporte enviado a ${proveedor.email}`;
+        statusElement.style.color = 'green';
+    } catch (error) {
+        console.error('Error en sendPDFByEmail:', error);
+        statusElement.textContent = `Error enviando a ${pdfData.nombre}: ${error.message}`;
+        statusElement.style.color = 'red';
+        throw error;
+    }
+}
+
+// Función auxiliar para convertir Blob a base64
+function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
     });
 }
