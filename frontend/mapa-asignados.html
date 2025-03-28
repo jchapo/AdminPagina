@@ -46,6 +46,7 @@
 
 
     <link rel="stylesheet" href="../../assets/vendor/libs/pickr/pickr-themes.css" />
+    <link rel="stylesheet" href="../../assets/css/notifylix.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="stylesheet" href="../../assets/vendor/css/core.css" />
@@ -185,29 +186,31 @@
                     <!-- Content -->
                     <div class="container-xxl flex-grow-1 container-p-y">
 
-                        <div class="card">
-                            <div class="card-datatable m-5">
-                                <h5>Mapa de Puntos de Recojo</h5>
-                                <div id="map" style="height: 600px;"></div>
-                            </div>
-                            
-                        </div>
-                        
-                        <!-- Modal para visualizar imagen dinero -->
-                        <div class="modal fade" id="imagenModal" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Imagen del método de pago</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        <div class="row g-6">
+    
+    
+                            <div class="col-lg-8 order-lg-3 col-12 align-self-end order-4">
+                                <div class="card">
+                                    <div class="card-datatable m-5">
+                                        <h5>Mapa de Puntos de Recojo</h5>
+                                        <div id="map" style="height: 600px;"></div>
                                     </div>
-                                    <div class="modal-body text-center">
-                                        <img id="imagenModalSrc" src="" class="img-fluid" alt="Imagen del pedido">
-                                    </div>
+                                    
                                 </div>
                             </div>
-                        </div>
+                            <div class="col-md-6 col-lg-4 order-lg-4 order-3">
+                                <div class="card">
+                                  <div class="card-header d-flex align-items-center justify-content-between">
+                                    <h5 class="card-title m-0 me-2">Lista de Recojos</h5>
+                                  </div>
+                                  <div class="card-body pt-4">
+                                    <ul id="recojoList" class="list-unstyled"></ul>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
 
+                        
                     
                         <!--/ DataTable with Buttons -->
 
@@ -308,6 +311,9 @@
     <script src="../../assets/js/juan.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="../../assets/js/notifylix.js"></script>
+    <script src="../../assets/js/extended-ui-blockui.js"></script>
+
     <script src="../../assets/js/maps.js"></script>
 
 

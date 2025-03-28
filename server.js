@@ -261,8 +261,7 @@ app.get('/api/recojos', async (req, res) => {
 });
 
 app.get('/api/google-maps-key', (req, res) => {
-    res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY });
-});
+    res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY, mapId: process.env.MAP_ID });});
 
 app.get('/api/proveedores', async (req, res) => {
   try {
