@@ -144,7 +144,8 @@
                         /Search -->
 
                         <a href="index.html" class="btn btn-primary me-2">Pedidos General</a>
-                        <a href="mapa-asignados.html" class="btn btn-secondary me-3">Mapa Asignados</a>
+                        <a href="mapa-asignados.html" class="btn btn-secondary me-3">Mapa Recojos</a>
+                        <a href="mapa-asignados_2.html" class="btn btn-secondary me-3">Mapa Entregas</a>
                         <a href="dashboards-cierre.html" class="btn btn-secondary me-3">Cierre</a>
                         
 
@@ -302,6 +303,7 @@
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="viewDetailsModalLabel">
                                             <i class="fas fa-info-circle me-2"></i>Detalles del Pedido
+                                            <div id="modalTitleVariable" class="d-inline"></div>
                                         </h5>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
@@ -309,7 +311,7 @@
                                         <!-- Panel de Resumen -->
                                         <div class="modal-body mb-4 border-0">
                                             <div class="card-body">
-                                                <div class="row row-cols-1 row-cols-md-4 g-3">
+                                                <div class="row row-cols-1 row-cols-md-5 g-3">
                                                     <div class="col">
                                                         <div class="d-flex align-items-center">
                                                             <div class="badge bg-primary rounded-circle p-3 me-3">
@@ -340,6 +342,17 @@
                                                             <div>
                                                                 <h6 class="mb-0">Comisión</h6>
                                                                 <p id="viewComisionTarifa" class="mb-0 fw-bold">15</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="badge bg-light rounded-circle p-3 me-3">
+                                                                <i class="fas fa-percentage"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0">Detalle</h6>
+                                                                <p id="viewDetalle" class="mb-0 fw-bold">N/A</p>
                                                             </div>
                                                         </div>
                                                     </div>

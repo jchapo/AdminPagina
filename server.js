@@ -366,12 +366,12 @@ app.put('/api/recojos/:id', async (req, res) => {
           return res.status(404).json({ error: 'Recojo no encontrado' });
       }
 
-      delete datosActualizados.fechaCreacionPedido;
+      //delete datosActualizados.fechaCreacionPedido;
 
       // Convertir fechas a Timestamp si existen
       convertirFechaFirebase(datosActualizados, [
           'fechaAnulacionPedido',
-          'fechaEntregaPedidoMotorizado',
+          'fechaEntregaPedido'
 
       ]);
 

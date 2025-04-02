@@ -144,7 +144,7 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             doc.text(`Nombre de la empresa: ${proveedor}`, margenX, margenY + 20);
             doc.text(`Cantidad de pedidos: ${recojosProveedor.length}`, margenX, margenY + 25);
             doc.text(`Fecha de emisión: ${fechaFormateada}`, margenX, margenY + 30);
-            //doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 25);
+            doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 25);
             
             // Preparar datos para la tabla
             const data = [];

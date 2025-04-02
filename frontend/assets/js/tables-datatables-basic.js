@@ -96,11 +96,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 },
                 {
                     data: null,
-                    title: "Acciones",
                     orderable: false,
                     searchable: false
                 },
-                { data: 'pedidoDetalle'}
+                { data: 'pedidoDetalle'},
+                { data: 'proveedorTelefono'},
+                
             ],
             columnDefs: [{
                 className: "control",
@@ -162,11 +163,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 targets: 4
             }, {
                 targets: -1,
-                searchable: !1,
                 visible: !1
             }, {
                 targets: -2,
-                title: "Actions",
+                visible: !1
+            }, {
+                targets: -3,
+                title: "Acciones",
                 orderable: !1,
                 searchable: !1,
                 className: "d-flex align-items-center",
@@ -205,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 }
             },
-            order: [[3, "desc"]],
+            order: [[3, "desc"],[4, "asc"]],
             displayLength: 7,
             layout: {
                 top2Start: {
@@ -405,7 +408,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
                             s)
                     }
                 }
-            }
+            },
+            autoWidth: false
         }),
         r = 101,
         
@@ -699,7 +703,7 @@ document.getElementById('supera30x30').addEventListener('change', function () {
 });
 
 
-function setUbicacion(elementId, direccion) {
+function setUbicacion(elementId, direccion, pedidoCoordenadas, recojoCoordenadas) {
     const element = document.getElementById(elementId);
     
     if (!direccion || direccion.trim() === '') {
@@ -707,11 +711,28 @@ function setUbicacion(elementId, direccion) {
     } else if (direccion.startsWith('http')) {
         element.innerHTML = `<a href="${direccion}" target="_blank" class="text-primary text-decoration-underline">Ver ubicación</a>`;
     } else {
-        element.textContent = direccion;
+        let coords = null;
+
+        if (elementId === "viewClienteUbicacion") {
+            coords = pedidoCoordenadas;
+        } else {
+            coords = recojoCoordenadas;
+        }
+
+        if (coords && coords.lat && coords.lng) {
+            const mapsUrl = `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
+            element.innerHTML = `<a href="${mapsUrl}" target="_blank" class="text-primary text-decoration-underline">${direccion}</a>`;
+        } else {
+            element.textContent = direccion;
+        }
     }
 }
 
+
 function loadDataToModal2(data) {
+
+    document.getElementById('modalTitleVariable').textContent = data.id || 'N/A';
+   
     // Información del proveedor
     document.getElementById('viewProveedorNombre').textContent = data.proveedorNombre || 'N/A';
     document.getElementById('viewProveedorTelefono').textContent = data.proveedorTelefono || 'N/A';
@@ -728,11 +749,12 @@ function loadDataToModal2(data) {
     document.getElementById('viewMetodoPago').textContent = data.pedidoMetodoPago || 'N/A';
     document.getElementById('viewCantidadCobrar').textContent = data.pedidoCantidadCobrar || 'N/A';
     document.getElementById('viewComisionTarifa').textContent = data.comisionTarifa || 'N/A';
-    document.getElementById('viewObservaciones').textContent = data.pedidoDetalle || 'N/A';
+    document.getElementById('viewObservaciones').textContent = data.pedidoObservaciones || 'N/A';
+    document.getElementById('viewDetalle').textContent = data.pedidoDetalle || 'N/A';
 
     // Asignar ubicaciones con detección de URL o texto normal
-    setUbicacion('viewProveedorUbicacion', data.proveedorDireccionLink);
-    setUbicacion('viewClienteUbicacion', data.pedidoDireccionLink);
+    setUbicacion('viewProveedorUbicacion', data.proveedorDireccionLink, data.pedidoCoordenadas, data.recojoCoordenadas);
+    setUbicacion('viewClienteUbicacion', data.pedidoDireccionLink, data.pedidoCoordenadas, data.recojoCoordenadas);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -909,6 +931,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
             const fechaEntrega = formData.get('fechaEntrega');
             const formattedFechaEntrega = convertirFechaAUTC(fechaEntrega);
+            console.log(formattedFechaEntrega);
     
             let updatedRecojo = {};
     
@@ -983,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     motorizadoEntrega: motorizadoEntrega,
                     comisionTarifa: comisionTarifa,
                     supera30x30: supera30x30,
-                    fechaCreacionPedido: new Date().toISOString(),
+                    //fechaCreacionPedido: new Date().toISOString(),
                     fechaEntregaPedido: formattedFechaEntrega,
                     fechaAnulacionPedido: null,
                     thumbnailFotoEntrega: null,

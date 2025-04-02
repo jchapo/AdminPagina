@@ -2,8 +2,8 @@ let map;
 let mapIdGlobal = null;
 let markersMap = {};
 let markers = [];
-let recojosFiltrados = [];
-let recojosLista = [];
+let entregasFiltradas = [];
+let entregasLista = [];
 let globalInfoWindow;
 let colorAssignments = {};
 const availableColors = [
@@ -43,7 +43,7 @@ function loadGoogleMapsApi() {
 }
 
 function initMap() {
-    map = new google.maps.Map(document.getElementById("map"), {
+    map = new google.maps.Map(document.getElementById("map2"), {
         center: { lat: -12.0464, lng: -77.0428 },
         zoom: 12,
         mapId: mapIdGlobal
@@ -55,8 +55,8 @@ function initMap() {
 
 
 function getColorForMotorizado(motorizadoName) {
-    if (!motorizadoName || motorizadoName === "Asignar Recojo") {
-        return { background: "#ffffff", text: "#333333", border: "#ff0000" };
+    if (!motorizadoName || motorizadoName === "Asignar Entrega") {
+        return { background: "#f5f5f5", text: "#333333", border: "#ff0000" };
     }
     
     if (!colorAssignments[motorizadoName]) {
@@ -106,21 +106,21 @@ function createCustomMarkerIcon(colorConfig, initial) {
 }
 
 
-async function obtenerListaRecojos() {
+async function obtenerListaEntregas() {
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
         
-        recojosFiltrados = data.filter(row => row.fechaAnulacionPedido === null);
+        entregasFiltradas = data.filter(row => row.fechaAnulacionPedido === null);
         
-        if (recojosFiltrados) {
-            return recojosFiltrados.map(recojo => ({
-                id: recojo.id,  
-                proveedorNombre: recojo.proveedorNombre || "Proveedor Desconocido",
-                clienteNombre: recojo.clienteNombre || "Cliente Desconocido",
-                motorizadoRecojo: recojo.motorizadoRecojo || "Asignar Recojo",
-                proveedorDistrito: recojo.proveedorDistrito || "Cliente Desconocido",
-                proveedorDireccionLink: recojo.proveedorDireccionLink || "Direccion Desconocida"
+        if (entregasFiltradas) {
+            return entregasFiltradas.map(entrega => ({
+                id: entrega.id,  
+                proveedorNombre: entrega.proveedorNombre || "Proveedor Desconocido",
+                clienteNombre: entrega.clienteNombre || "Cliente Desconocido",
+                motorizadoEntrega: entrega.motorizadoEntrega || "Asignar Entrega",
+                clienteDistrito: entrega.clienteDistrito || "Cliente Desconocido",
+                pedidoDireccionLink: entrega.pedidoDireccionLink || "Direccion Desconocida"
 
             }));
         }
@@ -133,9 +133,9 @@ async function obtenerListaRecojos() {
 }
 
 async function cargarMarcadores() {
-    recojosLista = await obtenerListaRecojos();
+    entregasLista = await obtenerListaEntregas();
     
-    renderizarListaRecojos();
+    renderizarListaEntregas();
 
     markers.forEach(marker => marker.setMap(null));
     markers = [];
@@ -144,18 +144,18 @@ async function cargarMarcadores() {
 
     const bounds = new google.maps.LatLngBounds();
 
-    recojosFiltrados.forEach(row => {
-        if (row.recojoCoordenadas?.lat && row.recojoCoordenadas?.lng) {
-            const markerColor = getColorForMotorizado(row.motorizadoRecojo);
-            const initial = getMotorizadoInitial(row.motorizadoRecojo);
+    entregasFiltradas.forEach(row => {
+        if (row.pedidoCoordenadas?.lat && row.pedidoCoordenadas?.lng) {
+            const markerColor = getColorForMotorizado(row.motorizadoEntrega);
+            const initial = getMotorizadoInitial(row.motorizadoEntrega);
             
-            const position = new google.maps.LatLng(row.recojoCoordenadas.lat, row.recojoCoordenadas.lng);
+            const position = new google.maps.LatLng(row.pedidoCoordenadas.lat, row.pedidoCoordenadas.lng);
             bounds.extend(position); // Expandir los límites con cada marcador
             
             const marker = new google.maps.marker.AdvancedMarkerElement({
                 map: map,
                 position: position,
-                title: `Motorizado: ${row.motorizadoRecojo || 'No asignado'}\nProveedor: ${row.proveedorNombre}\nCliente: ${row.clienteNombre}`,
+                title: `Motorizado: ${row.motorizadoEntrega || 'No asignado'}\nProveedor: ${row.proveedorNombre}\nCliente: ${row.clienteNombre}`,
                 content: (() => {
                     const img = document.createElement("img");
                     img.src = createCustomMarkerIcon(markerColor, initial).url;
@@ -169,8 +169,8 @@ async function cargarMarcadores() {
                 const infoWindowContent = `
                     <strong>Proveedor:</strong> ${row.proveedorNombre}<br>
                     <strong>Cliente:</strong> ${row.clienteNombre}<br>
-                    <strong>Distrito:</strong> ${row.proveedorDistrito}<br>
-                    <strong>Dirección:</strong> <a href="${row.proveedorDireccionLink}" target="_blank">${row.proveedorDireccionLink}</a><br>
+                    <strong>Distrito:</strong> ${row.clienteDistrito}<br>
+                    <strong>Dirección:</strong> <a href="${row.pedidoDireccionLink}" target="_blank">${row.pedidoDireccionLink}</a>
                 `;
             
                 globalInfoWindow.setContent(infoWindowContent);
@@ -181,7 +181,7 @@ async function cargarMarcadores() {
                     const titleContainer = document.querySelector('.gm-style-iw-ch');
                     if (titleContainer) {
                         titleContainer.innerHTML = `<strong style="color: ${markerColor.background === 'ffffff' ? '#333' : markerColor.border}; font-size: 1.5em;">
-                        ${row.motorizadoRecojo || 'No asignado'}
+                        ${row.motorizadoEntrega || 'No asignado'}
                     </strong>`;
                         titleContainer.style.fontSize = "1.2em";
                         titleContainer.style.padding = "10px";
@@ -190,8 +190,6 @@ async function cargarMarcadores() {
                 }, 100);
             });
             
-            
-
             markers.push(marker);
             markersMap[row.id] = marker;
         }
@@ -200,6 +198,7 @@ async function cargarMarcadores() {
     if (markers.length > 0) {
         globalInfoWindow.close();
         //map.fitBounds(bounds); // Ajustar el mapa a los límites de los marcadores
+        map.setZoom(12);
     } else {
         map.setCenter({ lat: -12.0464, lng: -77.0428 }); // Fallback si no hay marcadores
         map.setZoom(12);
@@ -238,7 +237,7 @@ function getMotorizadoInitial(motorizadoName) {
     "motorizadoNorte": "bg-label-success",
     "motorizadoOeste": "bg-label-info",
     "motorizadoSJL": "bg-label-warning",
-    "Asignar Recojo": "bg-label-light"
+    "Asignar Entrega": "bg-label-light"
   };
 
   function getMotorizadoInitial(motorizado) {
@@ -252,7 +251,7 @@ function getMotorizadoInitial(motorizadoName) {
   async function actualizarMotorizadoEnFirebase(id, nuevoMotorizado) {
     const url = `${API_URL}/${id}`;
 
-    const updatedRecojo = { motorizadoRecojo: nuevoMotorizado };
+    const updatedEntrega = { motorizadoEntrega: nuevoMotorizado };
 
     try {
         // Mostrar loader
@@ -261,7 +260,7 @@ function getMotorizadoInitial(motorizadoName) {
       const response = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedRecojo)
+        body: JSON.stringify(updatedEntrega)
       });
 
       if (!response.ok) throw new Error("Error en la actualización en el servidor.");
@@ -285,25 +284,34 @@ function getMotorizadoInitial(motorizadoName) {
   }
 
 
-  function renderizarListaRecojos() {
+  function renderizarListaEntregas() {
     
-    recojosLista.sort((a, b) => {
-        if (a.motorizadoRecojo === "Asignar Recojo" && b.motorizadoRecojo !== "Asignar Recojo") {
-            return -1; // a va primero
+    entregasLista.sort((a, b) => {
+        // 1. "Asignar Entrega" siempre primero
+        if (a.motorizadoEntrega === "Asignar Entrega" && b.motorizadoEntrega !== "Asignar Entrega") {
+            return -1;
         }
-        if (b.motorizadoRecojo === "Asignar Recojo" && a.motorizadoRecojo !== "Asignar Recojo") {
-            return 1; // b va primero
+        if (b.motorizadoEntrega === "Asignar Entrega" && a.motorizadoEntrega !== "Asignar Entrega") {
+            return 1;
         }
-        return a.motorizadoRecojo.localeCompare(b.motorizadoRecojo); // Ordenar alfabéticamente por motorizado
+    
+        // 2. Ordenar por grupo de motorizadoEntrega (si no son "Asignar Entrega")
+        const motorizadoComparison = a.motorizadoEntrega.localeCompare(b.motorizadoEntrega);
+        if (motorizadoComparison !== 0) {
+            return motorizadoComparison;
+        }
+    
+        // 3. Dentro del mismo grupo, ordenar alfabéticamente por proveedorNombre
+        return a.proveedorNombre.localeCompare(b.proveedorNombre);
     });
     
-    const recojoList = document.getElementById("recojoList");
-    recojoList.innerHTML = "";
-    recojosLista.forEach(recojo => {
-        const initial = getMotorizadoInitial(recojo.motorizadoRecojo);
-        const colorConfig = getColorForMotorizado(recojo.motorizadoRecojo);
+    const entregaList = document.getElementById("entregaList");
+    entregaList.innerHTML = "";
+    entregasLista.forEach(entrega => {
+        const initial = getMotorizadoInitial(entrega.motorizadoEntrega);
+        const colorConfig = getColorForMotorizado(entrega.motorizadoEntrega);
 
-        const isUnassigned = !recojo.motorizadoRecojo || recojo.motorizadoRecojo === "Asignar Recojo";
+        const isUnassigned = !entrega.motorizadoEntrega || entrega.motorizadoEntrega === "Asignar Entrega";
 
         const btnClass = isUnassigned ? "btn-warning" : "btn-primary";
 
@@ -322,18 +330,18 @@ function getMotorizadoInitial(motorizadoName) {
                 </span>
             </div>
             <div class="flex-grow-1">
-                <h6 class="mb-0 fw-normal">${recojo.proveedorNombre}</h6>
-                <small class="motorizadoText">${recojo.proveedorDistrito || "Sin asignar"}</small>
+                <h6 class="mb-0 fw-normal">${entrega.proveedorNombre}</h6>
+                <small class="motorizadoText">${entrega.clienteDistrito || "Sin asignar"}</small>
             </div>
         </div>
         <div class="d-flex align-items-center gap-2">
             <select class="form-select form-select-sm motorizadoSelect" style="width: 160px;">
-            <option value="" ${isUnassigned ? "selected" : ""}>Asignar Recojo</option>
-            <option value="motorizadoNorte" ${recojo.motorizadoRecojo === "motorizadoNorte" ? "selected" : ""}>M. Norte</option>
-            <option value="motorizadoSur" ${recojo.motorizadoRecojo === "motorizadoSur" ? "selected" : ""}>M. Sur</option>
-            <option value="motorizadoEste" ${recojo.motorizadoRecojo === "motorizadoEste" ? "selected" : ""}>M. Este</option>
-            <option value="motorizadoOeste" ${recojo.motorizadoRecojo === "motorizadoOeste" ? "selected" : ""}>M. Oeste</option>
-            <option value="motorizadoSJL" ${recojo.motorizadoRecojo === "motorizadoSJL" ? "selected" : ""}>M. SJL</option>
+            <option value="" ${isUnassigned ? "selected" : ""}>Asignar Entrega</option>
+            <option value="motorizadoNorte" ${entrega.motorizadoEntrega === "motorizadoNorte" ? "selected" : ""}>M. Norte</option>
+            <option value="motorizadoSur" ${entrega.motorizadoEntrega === "motorizadoSur" ? "selected" : ""}>M. Sur</option>
+            <option value="motorizadoEste" ${entrega.motorizadoEntrega === "motorizadoEste" ? "selected" : ""}>M. Este</option>
+            <option value="motorizadoOeste" ${entrega.motorizadoEntrega === "motorizadoOeste" ? "selected" : ""}>M. Oeste</option>
+            <option value="motorizadoSJL" ${entrega.motorizadoEntrega === "motorizadoSJL" ? "selected" : ""}>M. SJL</option>
             </select>
             <button class="btn btn-sm ${btnClass} actualizarMotorizadoBtn">Actualizar</button>
         </div>
@@ -343,14 +351,14 @@ function getMotorizadoInitial(motorizadoName) {
         avatar.addEventListener("click", (event) => {
             event.stopPropagation(); // Evitar propagación del clic a otros elementos
     
-            const marker = markersMap[recojo.id]; // Buscar el marcador por ID
+            const marker = markersMap[entrega.id]; // Buscar el marcador por ID
             if (marker) {
                 map.panTo(marker.position); // Centrar el mapa en el marcador
-                mostrarInfoWindow(marker, recojo); // Mostrar la información
+                mostrarInfoWindow(marker, entrega); // Mostrar la información
             }
         });
 
-        recojoList.appendChild(listItem);
+        entregaList.appendChild(listItem);
 
         const select = listItem.querySelector(".motorizadoSelect");
         const actualizarBtn = listItem.querySelector(".actualizarMotorizadoBtn");
@@ -360,7 +368,7 @@ function getMotorizadoInitial(motorizadoName) {
         const nuevoMotorizado = select.value;
         
         try {
-            await actualizarMotorizadoEnFirebase(recojo.id, nuevoMotorizado);
+            await actualizarMotorizadoEnFirebase(entrega.id, nuevoMotorizado);
 
         } catch (error) {
             console.error("Error al actualizar motorizado:", error);
@@ -371,9 +379,9 @@ function getMotorizadoInitial(motorizadoName) {
 }
 
 function mostrarInfoWindow(marker, row) {
-    const colorConfig = getColorForMotorizado(row.motorizadoRecojo);
+    const colorConfig = getColorForMotorizado(row.motorizadoEntrega);
     const infoWindowContent = `
-        <strong style="color: ${colorConfig.text};">${row.motorizadoRecojo}</strong><br>
+        <strong style="color: ${colorConfig.text};">${row.motorizadoEntrega}</strong><br>
         <strong>Proveedor:</strong> ${row.proveedorNombre}<br>
         <strong>Cliente:</strong> ${row.clienteNombre}
     `;
@@ -439,6 +447,7 @@ const Loader = {
         }
     }
 };
+
 // Inicializar perfect-scrollbar después de cargar el contenido
 const container = document.querySelector('.card-body');
 new PerfectScrollbar(container);
