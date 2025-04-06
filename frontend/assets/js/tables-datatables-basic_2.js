@@ -280,6 +280,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 const { type, data } = e.data;
                 
                 switch (type) {
+                    case 'REGISTER_PROVIDER':
+                        console.log('Iniciando registro de proveedor...');
+                        registerProvider(data).then(newProvider => {
+                                //console.log('Proveedor registrado, enviando respuesta al worker...');
+                                pdfWorker.postMessage({type: 'PROVIDER_REGISTERED'});
+                                //console.log('Mensaje enviado PROVIDER_REGISTERED al worker');
+                            })
+                            .catch(error => {
+                                console.error('Error en registro:', error);
+                            });
+                        break;
                     case 'STARTED':
                         //console.log(`Iniciando generación de ${data.total} PDFs`);
                         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>  0/${data.total} PDFs generados`;
@@ -287,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         
                     case 'PROVIDER_START':
                         //console.log(`Iniciando PDF ${data.current}/${data.total}: ${data.nombre}`);
-                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombre}`;
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombreEmpresa}`;
                         break;
                         
                     case 'PROGRESS':
@@ -315,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         break;
                         
                     case 'PROVIDER_ERROR':
-                        console.error(`Error con ${data.nombre}: ${data.error}`);
+                        console.error(`Error con ${data.nombreEmpresa}: ${data.error}`);
                         // Puedes decidir continuar con los siguientes o detener todo
                         pdfWorker.postMessage({ type: 'PDF_CONFIRMED' }); // Continuar
                         break;
@@ -660,7 +671,7 @@ function downloadPDF(data) {
         // Crear enlace de descarga invisible
         const a = document.createElement('a');
         a.href = pdfUrl;
-        a.download = `Proveedor_${data.nombre}.pdf`;
+        a.download = `Proveedor_${data.nombreEmpresa}.pdf`;
         a.style.display = 'none';
         document.body.appendChild(a);
         
@@ -673,7 +684,7 @@ function downloadPDF(data) {
             URL.revokeObjectURL(pdfUrl); // Liberar memoria
         }, 100);
         
-        //console.log(`PDF descargado: ${data.nombre} (${data.current}/${data.total})`);
+        //console.log(`PDF descargado: ${data.nombreEmpresa} (${data.current}/${data.total})`);
     } catch (error) {
         console.error("Error al descargar PDF:", error);
     }
@@ -683,12 +694,12 @@ async function sendPDFByEmail(pdfData) {
     const statusElement = document.getElementById('email-status');
     //console.log(pdfData);
     try {
-        statusElement.textContent = `Enviando reporte a ${pdfData.nombre}...`;
+        statusElement.textContent = `Enviando reporte a ${pdfData.nombreEmpresa}...`;
         statusElement.style.color = 'blue';
 
         // Extraer el email del proveedor del nombre del PDF (asumiendo formato "Proveedor_Nombre")
-        const proveedorNombre = pdfData.nombre;
-        //console.log(proveedorNombre);
+        const proveedorNombre = pdfData.nombreEmpresa;
+        console.log(proveedorNombre);
         
         // Obtener el email del proveedor desde tus datos
         const proveedorEmail = pdfData.email;
@@ -719,11 +730,11 @@ async function sendPDFByEmail(pdfData) {
         
         //console.log(`PDF enviado por email a ${proveedorEmail}`);
 
-        statusElement.textContent = `Reporte enviado a ${proveedor.email}`;
+        statusElement.textContent = `Reporte enviado a ${proveedorEmail}`;
         statusElement.style.color = 'green';
     } catch (error) {
         console.error('Error en sendPDFByEmail:', error);
-        statusElement.textContent = `Error enviando a ${pdfData.nombre}: ${error.message}`;
+        statusElement.textContent = `Error enviando a ${pdfData.nombreEmpresa}: ${error.message}`;
         statusElement.style.color = 'red';
         throw error;
     }
@@ -737,4 +748,30 @@ function blobToBase64(blob) {
         reader.onerror = reject;
         reader.readAsDataURL(blob);
     });
+}
+
+async function registerProvider(providerData) {
+    try {
+        const response = await fetch('http://localhost:3000/api/proveedores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                phone: providerData.phone,
+                nombreEmpresa: providerData.nombreEmpresa,
+                email: providerData.email,
+                rol: 'Proveedor' // Asegurar que tenga el rol correcto
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error registrando proveedor:', error);
+        throw error;
+    }
 }

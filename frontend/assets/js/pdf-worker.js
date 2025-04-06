@@ -144,7 +144,7 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             doc.text(`Nombre de la empresa: ${proveedor}`, margenX, margenY + 20);
             doc.text(`Cantidad de pedidos: ${recojosProveedor.length}`, margenX, margenY + 25);
             doc.text(`Fecha de emisión: ${fechaFormateada}`, margenX, margenY + 30);
-            doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 25);
+            doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 35);
             
             // Preparar datos para la tabla
             const data = [];
@@ -352,7 +352,7 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             // Generar el PDF como Blob
             const pdfBlob = doc.output('blob');
             console.log(`PDF generado exitosamente para ${proveedor}`);
-            resolve({ nombre: proveedor, blob: pdfBlob });
+            resolve({ nombreEmpresa: proveedorInfo.nombreEmpresa, blob: pdfBlob });
             
         } catch (error) {
             console.error(`Error generando PDF para ${proveedor}:`, error);
@@ -373,7 +373,7 @@ self.onmessage = async function(e) {
         
         try {
             const { recojosFiltrados, proveedores } = data;
-            const proveedoresUnicos = [...new Set(recojosFiltrados.map(r => r.proveedorNombre))];
+            const proveedoresUnicos = [...new Set(recojosFiltrados.map(r => r.proveedorTelefono))];
             const totalProveedores = proveedoresUnicos.length;
             
             // Notificar inicio del proceso
@@ -385,9 +385,60 @@ self.onmessage = async function(e) {
             // Generar PDFs para cada proveedor en serie
             for (let i = 0; i < totalProveedores; i++) {
                 const proveedor = proveedoresUnicos[i];
-                const recojosProveedor = recojosFiltrados.filter(r => r.proveedorNombre === proveedor);
-                const proveedorInfo = proveedores.find(p => p.nombreEmpresa === proveedor);
+                const recojosProveedor = recojosFiltrados.filter(r => r.proveedorTelefono === proveedor);
+                const proveedorInfo = proveedores.find(p => p.phone === proveedor);
+                // Si no se encuentra el proveedor, intentar obtener info de los recojos
+                const primerRecojo = recojosProveedor[0];
                 
+                if (!proveedorInfo && recojosProveedor.length > 0) {
+                    console.log(`[Worker] Proveedor no encontrado (${proveedor}), buscando en recojos...`);
+                    
+                    const primerRecojo = recojosProveedor[0];
+                    console.log(`[Worker] Primer recojo encontrado para el proveedor:`, {
+                        id: primerRecojo.id,
+                        nombreEmpresa: primerRecojo.proveedorNombre,
+                        email: primerRecojo.proveedorCorreo
+                    });
+                
+                    // Crear objeto con la información básica del proveedor
+                    const nuevoProveedorData = {
+                        phone: proveedor,
+                        nombreEmpresa: primerRecojo.proveedorNombre,
+                        email: primerRecojo.proveedorCorreo,
+                        current: i + 1,
+                        total: totalProveedores
+                    };
+                    
+                    console.log('[Worker] Preparando datos para nuevo proveedor:', nuevoProveedorData);
+                    
+                    try {
+                        console.log('[Worker] Enviando REGISTER_PROVIDER para proveedor:', proveedor);
+                        
+                        const waitForConfirmation = new Promise(resolve => {
+                            const handler = function(e) {
+                                if (e.data.type === 'PROVIDER_REGISTERED') {
+                                    self.removeEventListener('message', handler);
+                                    resolve();
+                                }
+                            };
+                            self.addEventListener('message', handler);
+                            
+                            self.postMessage({
+                                type: 'REGISTER_PROVIDER',
+                                data: nuevoProveedorData,
+                                traceId: `prov-${proveedor}-${Date.now()}` // ID único para tracking
+                            });
+                        });
+                        await waitForConfirmation;
+                        
+                    } catch (error) {
+                        console.error('[Worker] Error en registro:', error);                    
+                        console.warn('[Worker] Usando datos de fallback:', proveedorInfo);
+                    }
+                } else if (!proveedorInfo) {
+                    console.warn(`[Worker] No se encontró información para el proveedor ${proveedor} y no hay recojos asociados`);
+                }
+
                 try {
                     // Notificar inicio de generación para este proveedor
                     self.postMessage({
@@ -395,7 +446,7 @@ self.onmessage = async function(e) {
                         data: {
                             current: i + 1,
                             total: totalProveedores,
-                            nombre: proveedor
+                            nombreEmpresa: proveedorInfo?.nombreEmpresa || primerRecojo.proveedorNombre
                         }
                     });
                     
@@ -432,7 +483,7 @@ self.onmessage = async function(e) {
                     self.postMessage({
                         type: 'PROVIDER_ERROR',
                         data: { 
-                            nombre: proveedor,
+                            nombreEmpresa: proveedor,
                             error: error.message,
                             current: i + 1,
                             total: totalProveedores

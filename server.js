@@ -82,7 +82,7 @@ app.post('/api/send-email', async (req, res) => {
               // Solo en desarrollo permitimos certificados no autorizados
               rejectUnauthorized: process.env.NODE_ENV === 'production'
           },
-          logger: true, // Habilita logging interno
+          logger: false, // Habilita logging interno
           debug: process.env.NODE_ENV !== 'production' // Habilita debug en desarrollo
       };
 
@@ -427,3 +427,64 @@ app.get('/js/pdf-worker.js', (req, res) => {
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+
+
+app.post('/api/proveedores', async (req, res) => {
+    try {
+        const { phone, nombreEmpresa, email, rol = 'Proveedor' } = req.body;
+
+        // Validaciones básicas
+        if (!phone || !nombreEmpresa) {
+            return res.status(400).json({ 
+                success: false,
+                status: 'validation_error',
+                message: 'Teléfono y nombre son requeridos',
+                data: null
+            });
+        }
+
+        // Verificar si el proveedor ya existe usando el phone como ID
+        const docRef = db.collection('usuarios').doc(phone);
+        const docSnapshot = await docRef.get();
+
+        if (docSnapshot.exists) {
+            return res.status(409).json({ 
+                success: false,
+                status: 'already_exists',
+                message: 'El proveedor ya existe',
+                data: docSnapshot.data()
+            });
+        }
+
+        // Crear nuevo proveedor
+        const newProvider = {
+            phone: phone,
+            nombreEmpresa: nombreEmpresa,
+            email: email,
+            rol: rol
+        };
+
+        // Guardar en Firestore usando el phone como ID
+        await docRef.set(newProvider);
+
+        res.json({
+            success: true,
+            status: 'created',
+            message: 'Proveedor registrado exitosamente',
+            data: {
+                id: phone,
+                ...newProvider
+            }
+        });
+
+    } catch (error) {
+        console.error('Error registrando proveedor:', error);
+        res.status(500).json({ 
+            success: false,
+            status: 'server_error',
+            message: 'Error al registrar el proveedor',
+            error: error.message || 'Error desconocido',
+            data: null
+        });
+    }
+});
