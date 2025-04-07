@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tr.appendChild(td);
     }
 
-    new DataTable('#example', {
+    let tableRecojos = new DataTable('#example', {
         ajax: {
             url: 'http://localhost:3000/api/recojos',
             dataSrc: function (data) {
@@ -341,14 +341,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         // Restaurar el botón
                         btn.disabled = false;
                         btn.textContent = "Cerrar y Reportar";
-                        
                         // Notificar al usuario
                         alert("Todos los PDFs han sido generados exitosamente");
-                        
                         // Terminar el worker
                         pdfWorker.terminate();
                         pdfWorker = null;
+                        // Recargar la tabla
+                        tableRecojos.ajax.reload(null, false); // El segundo parámetro evita que cambie de página
                         break;
+                        
                     case 'MOVE_RECOJO':
                         console.log('Iniciando mover entrega...');
                         registerProvider(data).then(() => {

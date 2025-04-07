@@ -141,7 +141,7 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             doc.text(titulo, xCentrado, margenY + 10); // Bajar más si hay logo
             
             doc.setFontSize(12);
-            doc.text(`Nombre de la empresa: ${proveedor}`, margenX, margenY + 20);
+            doc.text(`Nombre de la empresa: ${proveedorInfo.nombreEmpresa}`, margenX, margenY + 20);
             doc.text(`Cantidad de pedidos: ${recojosProveedor.length}`, margenX, margenY + 25);
             doc.text(`Fecha de emisión: ${fechaFormateada}`, margenX, margenY + 30);
             doc.text(`Correo: ${proveedorInfo ? proveedorInfo.email : "No disponible"}`, margenX, margenY + 35);
@@ -237,7 +237,7 @@ async function generateProviderPDF(proveedor, recojosProveedor, proveedorInfo) {
             // Configurar tabla con manejo mejorado de imágenes
             // Configuración de la tabla con altura fija de filas y manejo proporcional de imágenes
             doc.autoTable({
-                startY: margenY + 35,
+                startY: margenY + 45,
                 margin: { left: margenX, right: margenX },
                 head: [["Datos del Cliente", "Foto de Recojo", "Foto de Entrega", "Foto de Dinero"]],
                 body: data,

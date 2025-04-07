@@ -491,33 +491,44 @@ app.post('/api/proveedores', async (req, res) => {
 
 app.post('/api/mover-a-historial', async (req, res) => {
     try {
-      const recojosSnapshot = await db.collection('recojos').get();
+      const documentos = req.body.documentos;
   
-      if (recojosSnapshot.empty) {
-        return res.status(404).json({ message: 'No hay documentos en recojos para mover' });
+      if (!Array.isArray(documentos) || documentos.length === 0) {
+        return res.status(400).json({ message: 'No se proporcionaron documentos válidos' });
       }
   
-      const batch = db.batch(); // Batch para operaciones múltiples
+      const batch = db.batch();
+      let cantidadMovidos = 0;
   
-      recojosSnapshot.docs.forEach(doc => {
-        const data = doc.data();
-        const id = doc.id || data.id; // Usar ID del doc o el campo 'id' si existe
+      for (const doc of documentos) {
+        const id = doc.id;
   
-        // Copiar a historial
-        const historialRef = db.collection('historial').doc(id);
-        batch.set(historialRef, data);
-  
-        // Eliminar de recojos
+        // Verificamos si el documento realmente existe en 'recojos'
         const recojoRef = db.collection('recojos').doc(id);
-        batch.delete(recojoRef);
-      });
+        const recojoDoc = await recojoRef.get();
+  
+        if (recojoDoc.exists) {
+          const data = recojoDoc.data();
+  
+          // Copiar a historial
+          const historialRef = db.collection('historial').doc(id);
+          batch.set(historialRef, data);
+  
+          // Eliminar de recojos
+          batch.delete(recojoRef);
+  
+          cantidadMovidos++;
+        } else {
+          console.warn(`Documento con ID ${id} no encontrado en recojos`);
+        }
+      }
   
       await batch.commit();
   
       res.json({
         success: true,
-        message: 'Todos los documentos fueron movidos a historial exitosamente',
-        cantidadMovidos: recojosSnapshot.size
+        message: `${cantidadMovidos} documentos fueron movidos a historial exitosamente`,
+        cantidadMovidos
       });
   
     } catch (error) {
@@ -529,4 +540,6 @@ app.post('/api/mover-a-historial', async (req, res) => {
       });
     }
   });
+  
+  
   

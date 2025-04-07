@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                             'Pago Link': 'bg-label-dark',
                             'Plin': 'bg-label-info'
                         };
-        
+
                         const clase = metodoPagoClases[data] || 'bg-label-secondary';
                         return `<span class="badge ${clase}">${data || 'No especificado'}</span>`;
                     }
@@ -99,9 +99,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     orderable: false,
                     searchable: false
                 },
-                { data: 'pedidoDetalle'},
-                { data: 'proveedorTelefono'},
-                
+                { data: 'pedidoDetalle' },
+                { data: 'proveedorTelefono' },
+
             ],
             columnDefs: [{
                 className: "control",
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 }
             },
-            order: [[3, "desc"],[4, "asc"]],
+            order: [[3, "desc"], [4, "asc"]],
             displayLength: 7,
             layout: {
                 top2Start: {
@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bx-printer me-1"></i>Print</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12],
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bx-file me-1"></i>Csv</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12],
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bxs-file-export me-1"></i>Excel</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12],
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<span class="d-flex align-items-center"><i class="icon-base bx bxs-file-pdf me-1"></i>Pdf</span>',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 9, 10, 12], 
+                                    columns: [3, 4, 5, 6, 7, 9, 10, 12],
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                 text: '<i class="icon-base bx bx-copy me-1"></i>Copy',
                                 className: "dropdown-item",
                                 exportOptions: {
-                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12], 
+                                    columns: [3, 4, 5, 6, 7, 8, 9, 10, 12],
                                     format: {
                                         body: function (e, t, a) {
                                             if (e.length <= 0)
@@ -412,9 +412,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             autoWidth: false
         }),
         r = 101,
-        
+
         // Event listener para el botón de visualizar detalles
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.closest('.item-view')) {
                 const row = o.row(e.target.closest('tr')).data();
                 loadDataToModal2(row); // Llenar el modal con datos
@@ -425,7 +425,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }),
 
         // Event listener para el botón de editar
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.closest('.item-edit')) {
                 rowDataOriginal = o.row(e.target.closest('tr')).data();
                 loadDataToModal(rowDataOriginal);
@@ -440,18 +440,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
             if (e.target.closest('.delete-record')) {
                 // Obtener el ID del registro a eliminar
                 const recordId = e.target.closest('.delete-record').getAttribute('data-id');
-        
+
                 // Mostrar el modal de confirmación
                 const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
                 deleteModal.show();
-        
+
                 // Asignar el ID al botón de confirmar eliminación
                 document.getElementById('confirmDeleteButton').setAttribute('data-id', recordId);
             }
         })
 
-        
-        
+
+
     );
 
 
@@ -516,7 +516,7 @@ function loadDataToModal(data) {
     document.getElementById('proveedorName').value = data.proveedorNombre || '';
     document.getElementById('proveedorTelefono').value = data.proveedorTelefono || '';
     document.getElementById('proveedorDireccionLink').value = data.proveedorDireccionLink || '';
-    
+
     // Asignar valor al select de proveedorDistrito y actualizar select2
     const proveedorDistritoSelect = document.getElementById('proveedorDistrito');
     proveedorDistritoSelect.value = data.proveedorDistrito || '';
@@ -525,12 +525,12 @@ function loadDataToModal(data) {
     // Información del cliente
     document.getElementById('clienteName').value = data.clienteNombre || '';
     document.getElementById('clienteTelefono').value = data.clienteTelefono || '';
-    
+
     // Asignar valor al select de clienteDistrito y actualizar select2
     const clienteDistritoSelect = document.getElementById('clienteDistrito');
     clienteDistritoSelect.value = data.clienteDistrito || '';
     $(clienteDistritoSelect).trigger('change'); // Actualizar select2
-    
+
     document.getElementById('pedidoDireccionLink').value = data.pedidoDireccionLink || '';
 
     // Detalles del pedido
@@ -551,7 +551,7 @@ function loadDataToModal(data) {
     const motorizadoRecojoSelect = document.getElementById('motorizadoRecojo');
     motorizadoRecojoSelect.value = data.motorizadoRecojo || '';
     $(motorizadoRecojoSelect).trigger('change'); // Actualizar select2
-    
+
     // Observaciones
     document.getElementById('observaciones').value = data.pedidoObservaciones || '';
 
@@ -614,7 +614,7 @@ function calcularComision() {
     } else if (['Comas (Lima)', 'Villa El Salvador (Lima)', 'Villa María del Triunfo (Lima)', 'Oquendo (Callao)', 'Santa Clara (Ate, Lima)'].includes(clienteDistrito)) {
         comisionBase = 13;
     }
-    
+
 
     // Sumar 5 si el checkbox está activado
     const comisionFinal = supera30x30 ? comisionBase + 5 : comisionBase;
@@ -626,22 +626,22 @@ function calcularComision() {
 // Función para determinar el grupo según el distrito
 function determinarGrupo(distrito) {
     const grupos = {
-        norte: ["Carabayllo (Lima)", "Comas (Lima)", "Independencia (Lima)", "Los Olivos (Lima)", 
-               "Puente Piedra (Lima)", "San Martín de Porres (Lima)", "Santa Rosa (Callao)", 
-               "Ventanilla (Callao)", "Mi Perú (Callao)", "Oquendo (Callao)"],
-        sur: ["Chorrillos (Lima)", "Lurín (Lima)", "San Juan de Miraflores (Lima)", 
-             "Santiago de Surco (Lima)", "Surco (Santiago de Surco, Lima)", "Surquillo (Lima)", 
-             "Villa El Salvador (Lima)", "Villa María del Triunfo (Lima)"],
-        este: ["Ate (Lima)", "Chaclacayo (Lima)", "El Agustino (Lima)", "Huachipa (Ate, Lima)", 
-              "San Juan de Lurigancho (Lima)", "Santa Anita (Lima)", "Santa Clara (Ate, Lima)"],
-        oeste: ["Bellavista (Callao)", "Callao (Callao)", "Carmen de la Legua (Callao)", 
-               "La Perla (Callao)", "La Punta (Callao)"],
-        centro: ["Barranco (Lima)", "Breña (Lima)", "Cercado de Lima (Lima)", "Jesús María (Lima)", 
-                "La Molina (Lima)", "La Victoria (Lima)", "Lince (Lima)", "Magdalena del Mar (Lima)", 
-                "Pueblo Libre (Lima)", "Rímac (Lima)", "San Borja (Lima)", "San Isidro (Lima)", 
-                "San Luis (Lima)", "San Miguel (Lima)"]
+        norte: ["Carabayllo (Lima)", "Comas (Lima)", "Independencia (Lima)", "Los Olivos (Lima)",
+            "Puente Piedra (Lima)", "San Martín de Porres (Lima)", "Santa Rosa (Callao)",
+            "Ventanilla (Callao)", "Mi Perú (Callao)", "Oquendo (Callao)"],
+        sur: ["Chorrillos (Lima)", "Lurín (Lima)", "San Juan de Miraflores (Lima)",
+            "Santiago de Surco (Lima)", "Surco (Santiago de Surco, Lima)", "Surquillo (Lima)",
+            "Villa El Salvador (Lima)", "Villa María del Triunfo (Lima)"],
+        este: ["Ate (Lima)", "Chaclacayo (Lima)", "El Agustino (Lima)", "Huachipa (Ate, Lima)",
+            "San Juan de Lurigancho (Lima)", "Santa Anita (Lima)", "Santa Clara (Ate, Lima)"],
+        oeste: ["Bellavista (Callao)", "Callao (Callao)", "Carmen de la Legua (Callao)",
+            "La Perla (Callao)", "La Punta (Callao)"],
+        centro: ["Barranco (Lima)", "Breña (Lima)", "Cercado de Lima (Lima)", "Jesús María (Lima)",
+            "La Molina (Lima)", "La Victoria (Lima)", "Lince (Lima)", "Magdalena del Mar (Lima)",
+            "Pueblo Libre (Lima)", "Rímac (Lima)", "San Borja (Lima)", "San Isidro (Lima)",
+            "San Luis (Lima)", "San Miguel (Lima)"]
     };
-    
+
     for (const grupo in grupos) {
         if (grupos[grupo].includes(distrito)) {
             return grupo;
@@ -663,12 +663,12 @@ $(document).ready(function () {
     //$('#clienteDistrito').select2();
 
     // Event listener para el distrito del proveedor
-    $('#proveedorDistrito').on('select2:select', function(e) {
+    $('#proveedorDistrito').on('select2:select', function (e) {
         const motorizadoValue = asignarMotorizado(e.params.data.text);
-        
+
         // Actualizar Select2 para motorizado recojo
         $('#motorizadoRecojo').val(motorizadoValue).trigger('change');
-        
+
         // Revalidar el campo
         if (typeof formValidation !== 'undefined') {
             formValidation.revalidateField('motorizadoRecojo');
@@ -676,13 +676,13 @@ $(document).ready(function () {
     });
 
     // Event listener para el distrito del cliente
-    $('#clienteDistrito').on('select2:select', function(e) {
+    $('#clienteDistrito').on('select2:select', function (e) {
         // Asignar motorizado de entrega
         const motorizadoValue = asignarMotorizado(e.params.data.text);
-        
+
         // Actualizar Select2 para motorizado entrega
         $('#motorizadoEntrega').val(motorizadoValue).trigger('change');
-        
+
         // Revalidar el campo
         if (typeof formValidation !== 'undefined') {
             formValidation.revalidateField('motorizadoEntrega');
@@ -705,7 +705,7 @@ document.getElementById('supera30x30').addEventListener('change', function () {
 
 function setUbicacion(elementId, direccion, pedidoCoordenadas, recojoCoordenadas) {
     const element = document.getElementById(elementId);
-    
+
     if (!direccion || direccion.trim() === '') {
         element.innerHTML = 'N/A';
     } else if (direccion.startsWith('http')) {
@@ -732,7 +732,7 @@ function setUbicacion(elementId, direccion, pedidoCoordenadas, recojoCoordenadas
 function loadDataToModal2(data) {
 
     document.getElementById('modalTitleVariable').textContent = data.id || 'N/A';
-   
+
     // Información del proveedor
     document.getElementById('viewProveedorNombre').textContent = data.proveedorNombre || 'N/A';
     document.getElementById('viewProveedorTelefono').textContent = data.proveedorTelefono || 'N/A';
@@ -885,30 +885,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function convertirFechaAUTC(fecha) {
         if (!fecha) return null;
-    
+
         const [day, month, year] = fecha.split('-');
-    
+
         // Crear un objeto Date en la zona horaria local
         const localDate = new Date(`${year}-${month}-${day}T00:00:00`);
-    
+
         // Convertir a UTC
         const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-    
+
         // Devolver la fecha en formato ISO
         return utcDate.toISOString();
     }
-    
+
 
     formValidation.on('core.form.valid', async function () {
         if (isSubmitting) return;
         isSubmitting = true;
-    
+
         const submitButton = document.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         const formData = new FormData(recojoForm);
         const isEdit = recojoForm.hasAttribute('data-edit-id');
         const docId = isEdit ? recojoForm.getAttribute('data-edit-id') : "";
-    
+
         try {
             // Obtener valores del formulario
             const proveedorNombre = formData.get('proveedorName').toUpperCase();
@@ -928,15 +928,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const pedidoSeCobraValor = (cantidadCobrarFormatted === "0.00" || cantidadCobrarFormatted === "0") ? "No" : "Si";
             const comisionTarifa = parseFloat(document.getElementById('comisionTarifa').value);
             const supera30x30 = document.getElementById('supera30x30').checked ? 1 : 0;
-    
+
             const fechaEntrega = formData.get('fechaEntrega');
             const formattedFechaEntrega = convertirFechaAUTC(fechaEntrega);
             console.log(formattedFechaEntrega);
-    
+
             let updatedRecojo = {};
-    
+
             if (isEdit) {
-                            
+
                 // Actualizar solo los valores modificados
                 updatedRecojo.fechaEntregaPedido = formattedFechaEntrega;
                 if (proveedorNombre !== rowDataOriginal.proveedorNombre) updatedRecojo.proveedorNombre = proveedorNombre;
@@ -956,14 +956,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (motorizadoEntrega !== rowDataOriginal.motorizadoEntrega) updatedRecojo.motorizadoEntrega = motorizadoEntrega;
                 if (comisionTarifa !== rowDataOriginal.comisionTarifa) updatedRecojo.comisionTarifa = comisionTarifa;
                 if (supera30x30 !== rowDataOriginal.supera30x30) updatedRecojo.supera30x30 = supera30x30;
-                
+
                 // Verificar si las direcciones han cambiado para actualizar coordenadas
                 if (proveedorDireccionLink !== rowDataOriginal.proveedorDireccionLink) {
                     console.log("Proveedor direccion cambiada:", proveedorDireccionLink);
                     const coordenadas = await procesarEntrada(proveedorDireccionLink);
                     updatedRecojo.recojoCoordenadas = { "lat": parseFloat(coordenadas.latitud), "lng": parseFloat(coordenadas.longitud) };
                 }
-    
+
                 if (pedidoDireccionLink !== rowDataOriginal.pedidoDireccionLink) {
                     console.log("Pedido direccion cambiada:", pedidoDireccionLink);
                     const coordenadas2 = await procesarEntrada(pedidoDireccionLink);
@@ -973,18 +973,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Caso de creación: Agregar todos los campos necesarios para un nuevo registro
                 let recojoCoordenadas = null;
                 let pedidoCoordenadas = null;
-                
+
                 // Obtener coordenadas para ambas direcciones
                 if (proveedorDireccionLink) {
                     const coordenadas = await procesarEntrada(proveedorDireccionLink);
                     recojoCoordenadas = { "lat": parseFloat(coordenadas.latitud), "lng": parseFloat(coordenadas.longitud) };
                 }
-                
+
                 if (pedidoDireccionLink) {
                     const coordenadas2 = await procesarEntrada(pedidoDireccionLink);
                     pedidoCoordenadas = { "lat": parseFloat(coordenadas2.latitud), "lng": parseFloat(coordenadas2.longitud) };
                 }
-                
+
                 // Crear objeto con todos los campos necesarios
                 updatedRecojo = {
                     proveedorNombre: proveedorNombre,
@@ -1019,40 +1019,40 @@ document.addEventListener("DOMContentLoaded", function () {
                     fechaRecojoPedidoMotorizado: null
                 };
             }
-    
+
             // Enviar `updatedRecojo` al servidor
             const url = isEdit ? `${API_URL}/${docId}` : API_URL;
             const method = isEdit ? 'PUT' : 'POST';
-    
+
             fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedRecojo)
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('recojoForm').reset();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('backDropModal'));
-                modal.hide();
-                if (typeof loadRecojos === 'function') loadRecojos();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Hubo un problema con el envío');
-            })
-            .finally(() => {
-                isSubmitting = false;
-                submitButton.disabled = false;
-            });
-    
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('recojoForm').reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('backDropModal'));
+                    modal.hide();
+                    if (typeof loadRecojos === 'function') loadRecojos();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Hubo un problema con el envío');
+                })
+                .finally(() => {
+                    isSubmitting = false;
+                    submitButton.disabled = false;
+                });
+
         } catch (error) {
             console.error("Error processing form:", error);
             submitButton.disabled = false;
             isSubmitting = false;
         }
     });
-    
-    
+
+
 
     // Función para cargar recojos
     function loadRecojos() {
@@ -1073,88 +1073,88 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Event listener para el botón de confirmar eliminación
-document.getElementById('confirmDeleteButton').addEventListener('click', function () {
-    // Obtener el ID del registro a eliminar
-    const recordId = this.getAttribute('data-id');
-    
-    // Determinar el tipo de anulación
-    const tipoAnulacion = document.querySelector('input[name="tipoAnulacion"]:checked').value;
+    document.getElementById('confirmDeleteButton').addEventListener('click', function () {
+        // Obtener el ID del registro a eliminar
+        const recordId = this.getAttribute('data-id');
 
-    // Llamar a la función para anular el registro
-    anularPedido(recordId, tipoAnulacion);
+        // Determinar el tipo de anulación
+        const tipoAnulacion = document.querySelector('input[name="tipoAnulacion"]:checked').value;
 
-    // Cerrar el modal de confirmación
-    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
-    deleteModal.hide();
-});
+        // Llamar a la función para anular el registro
+        anularPedido(recordId, tipoAnulacion);
 
-// Función para anular el pedido
-function anularPedido(recordId, tipoAnulacion) {
-    const fechaActualISO = new Date().toISOString(); // Obtener la fecha actual en formato ISO
-    let datosPedido = {};
-    
-    if (tipoAnulacion === 'sinCobro') {
-        // Anulación sin cobro: se asigna fecha a fechaAnulacionPedido
-        datosPedido = {
-            fechaAnulacionPedido: fechaActualISO,
-            fechaEntregaPedidoMotorizado: null,
-            anuladoCobrado: false
-        };
-    } else if (tipoAnulacion === 'conCobro') {
-        // Anulación con cobro: se asigna fecha a fechaEntregaPedidoMotorizado y anuladoCobrado = true
-        datosPedido = {
-            fechaAnulacionPedido: null,
-            fechaEntregaPedidoMotorizado: fechaActualISO,
-            anuladoCobrado: true
-        };
+        // Cerrar el modal de confirmación
+        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+        deleteModal.hide();
+    });
+
+    // Función para anular el pedido
+    function anularPedido(recordId, tipoAnulacion) {
+        const fechaActualISO = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+        let datosPedido = {};
+
+        if (tipoAnulacion === 'sinCobro') {
+            // Anulación sin cobro: se asigna fecha a fechaAnulacionPedido
+            datosPedido = {
+                fechaAnulacionPedido: fechaActualISO,
+                fechaEntregaPedidoMotorizado: null,
+                anuladoCobrado: false
+            };
+        } else if (tipoAnulacion === 'conCobro') {
+            // Anulación con cobro: se asigna fecha a fechaEntregaPedidoMotorizado y anuladoCobrado = true
+            datosPedido = {
+                fechaAnulacionPedido: null,
+                fechaEntregaPedidoMotorizado: fechaActualISO,
+                anuladoCobrado: true
+            };
+        }
+
+        fetch(`${API_URL}/${recordId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datosPedido)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Pedido anulado:', data);
+
+                if (typeof loadRecojos === 'function') {
+                    loadRecojos();
+                }
+            })
+            .catch(error => {
+                console.error('Error al anular el pedido:', error);
+                alert('Hubo un problema al anular el pedido');
+            });
     }
 
-    fetch(`${API_URL}/${recordId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datosPedido)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Pedido anulado:', data);
 
-        if (typeof loadRecojos === 'function') {
-            loadRecojos();
-        }
-    })
-    .catch(error => {
-        console.error('Error al anular el pedido:', error);
-        alert('Hubo un problema al anular el pedido');
-    });
-}
-    
-  
-  
+
 
     function esURL(texto) {
         // Verificar si el texto comienza con http:// o https:// o www.
         if (texto.startsWith('http://') || texto.startsWith('https://') || texto.startsWith('www.')) {
             console.log("esURL");
             return true;
-          
+
         }
-        
+
         // Verificar si tiene un dominio común
         const dominiosComunes = ['.com', '.org', '.net', '.gob', '.edu', '.pe', '.maps'];
         if (dominiosComunes.some(dominio => texto.includes(dominio))) {
-          return true;
+            return true;
         }
-        
+
         return false;
-      }
-      
-      async function expandUrl(url) {
+    }
+
+    async function expandUrl(url) {
         try {
             const response = await fetch(`https://unshorten.me/s/${url}`); // Usar unshorten.me para expandir URLs
             const longUrl = await response.text(); // Retorna un string directamente
-            
+
             console.log("URL expandida:", longUrl);
             return longUrl;
         } catch (error) {
@@ -1162,275 +1162,275 @@ function anularPedido(recordId, tipoAnulacion) {
             return url;
         }
     }
-    
-      
-      function extraerCoordenadasURL(url) {
+
+
+    function extraerCoordenadasURL(url) {
         // Decodificar URL para manejar caracteres especiales
         const decodedUrl = decodeURIComponent(url);
-        
+
         // Método 1: Buscar el patrón @latitud,longitud (común en URLs de Google Maps)
         const regexAt = /@(-1[1-2]\.\d+),(-7[6-7]\.\d+)/;
         const matchAt = decodedUrl.match(regexAt);
         if (matchAt) {
-          return {
-            latitud: matchAt[1],
-            longitud: matchAt[2]
-          };
+            return {
+                latitud: matchAt[1],
+                longitud: matchAt[2]
+            };
         }
-        
+
         // Método 2: Extraer desde parámetros de consulta
         try {
-          const urlObj = new URL(url);
-          const params = new URLSearchParams(urlObj.search);
-          
-          // Opción 1: Parámetro 'q' directo (formato latitud,longitud)
-          if (params.has('q')) {
-            const coords = params.get('q').split(',');
-            if (coords.length === 2) {
-              const lat = parseFloat(coords[0]);
-              const lng = parseFloat(coords[1]);
-              if (lat >= -12.999999 && lat <= -11.000000 && lng >= -77.999999 && lng <= -76.000000) {
-                return {
-                  latitud: lat.toFixed(6),
-                  longitud: lng.toFixed(6)
-                };
-              }
+            const urlObj = new URL(url);
+            const params = new URLSearchParams(urlObj.search);
+
+            // Opción 1: Parámetro 'q' directo (formato latitud,longitud)
+            if (params.has('q')) {
+                const coords = params.get('q').split(',');
+                if (coords.length === 2) {
+                    const lat = parseFloat(coords[0]);
+                    const lng = parseFloat(coords[1]);
+                    if (lat >= -12.999999 && lat <= -11.000000 && lng >= -77.999999 && lng <= -76.000000) {
+                        return {
+                            latitud: lat.toFixed(6),
+                            longitud: lng.toFixed(6)
+                        };
+                    }
+                }
             }
-          }
         } catch (e) {
-          // Si hay un error al parsear la URL, continuamos con otros métodos
+            // Si hay un error al parsear la URL, continuamos con otros métodos
         }
-        
+
         // Método 3: Buscar coordenadas en cualquier parte de la URL
         const regexLat = /(-1[1-2]\.\d+)/g;
         const regexLng = /(-7[6-7]\.\d+)/g;
-        
+
         const latMatches = [...decodedUrl.matchAll(regexLat)].map(m => m[1]);
         const lngMatches = [...decodedUrl.matchAll(regexLng)].map(m => m[1]);
-        
+
         if (latMatches.length > 0 && lngMatches.length > 0) {
-          for (const lat of latMatches) {
-            for (const lng of lngMatches) {
-              // Verificar que las coordenadas estén en el rango apropiado
-              const latFloat = parseFloat(lat);
-              const lngFloat = parseFloat(lng);
-              if (latFloat >= -12.999999 && latFloat <= -11.000000 && 
-                  lngFloat >= -77.999999 && lngFloat <= -76.000000) {
-                return {
-                  latitud: lat,
-                  longitud: lng
-                };
-              }
+            for (const lat of latMatches) {
+                for (const lng of lngMatches) {
+                    // Verificar que las coordenadas estén en el rango apropiado
+                    const latFloat = parseFloat(lat);
+                    const lngFloat = parseFloat(lng);
+                    if (latFloat >= -12.999999 && latFloat <= -11.000000 &&
+                        lngFloat >= -77.999999 && lngFloat <= -76.000000) {
+                        return {
+                            latitud: lat,
+                            longitud: lng
+                        };
+                    }
+                }
             }
-          }
         }
-        
+
         // Método 4: Buscar en fragmentos de URL específicos
         const lat3dMatch = decodedUrl.match(/!3d(-1[1-2]\.\d+)/);
         const lng4dMatch = decodedUrl.match(/!4d(-7[6-7]\.\d+)/);
-        
+
         if (lat3dMatch && lng4dMatch) {
-          return {
-            latitud: lat3dMatch[1],
-            longitud: lng4dMatch[1]
-          };
+            return {
+                latitud: lat3dMatch[1],
+                longitud: lng4dMatch[1]
+            };
         }
-        
+
         return null;
-      }
-      
-      async function obtenerCoordenadasGeocoding(direccion) {
+    }
+
+    async function obtenerCoordenadasGeocoding(direccion) {
         // Añadir contexto "Lima, Perú" si no está especificado
-        if (!direccion.toLowerCase().includes("lima") && 
-            !direccion.toLowerCase().includes("perú") && 
+        if (!direccion.toLowerCase().includes("lima") &&
+            !direccion.toLowerCase().includes("perú") &&
             !direccion.toLowerCase().includes("peru")) {
-          direccion += ", Lima, Perú";
+            direccion += ", Lima, Perú";
         }
-        
+
         // API Key de Geocoding
         const API_KEY = 'AIzaSyCRW58a_3iVfoD1WFCU7UbtZ9dZddw-L9w';
-        
+
         // Codificar la dirección para la URL
         const direccionCodificada = encodeURIComponent(direccion);
-        
+
         // Construir la URL de la API
         const urlGeocoding = `https://maps.googleapis.com/maps/api/geocode/json?address=${direccionCodificada}&key=${API_KEY}`;
-        
+
         try {
-          // Realizar la petición HTTP
-          // Dependiendo del entorno, usa fetch o UrlFetchApp
-          let data;
-          
-          if (typeof UrlFetchApp !== 'undefined') {
-            // Si estamos en Google Apps Script
-            const response = UrlFetchApp.fetch(urlGeocoding);
-            data = JSON.parse(response.getContentText());
-          } else {
-            // Si estamos en un entorno de navegador moderno
-            const response = await fetch(urlGeocoding);
-            data = await response.json();
-          }
-          
-          if (data.status === 'OK') {
-            const lat = data.results[0].geometry.location.lat;
-            const lng = data.results[0].geometry.location.lng;
-            
-            // Verificar que las coordenadas estén en el rango apropiado para Lima
-            if (lat >= -12.999999 && lat <= -11.000000 && lng >= -77.999999 && lng <= -76.000000) {
-              return {
-                latitud: lat.toFixed(6),
-                longitud: lng.toFixed(6)
-              };
+            // Realizar la petición HTTP
+            // Dependiendo del entorno, usa fetch o UrlFetchApp
+            let data;
+
+            if (typeof UrlFetchApp !== 'undefined') {
+                // Si estamos en Google Apps Script
+                const response = UrlFetchApp.fetch(urlGeocoding);
+                data = JSON.parse(response.getContentText());
             } else {
-              // Si están fuera del rango pero parecen válidas, podemos aún devolverlas
-              return {
-                latitud: lat.toFixed(6),
-                longitud: lng.toFixed(6)
-              };
+                // Si estamos en un entorno de navegador moderno
+                const response = await fetch(urlGeocoding);
+                data = await response.json();
             }
-          } else {
-            console.log("Error en Geocoding API: " + data.status);
-            return null;
-          }
+
+            if (data.status === 'OK') {
+                const lat = data.results[0].geometry.location.lat;
+                const lng = data.results[0].geometry.location.lng;
+
+                // Verificar que las coordenadas estén en el rango apropiado para Lima
+                if (lat >= -12.999999 && lat <= -11.000000 && lng >= -77.999999 && lng <= -76.000000) {
+                    return {
+                        latitud: lat.toFixed(6),
+                        longitud: lng.toFixed(6)
+                    };
+                } else {
+                    // Si están fuera del rango pero parecen válidas, podemos aún devolverlas
+                    return {
+                        latitud: lat.toFixed(6),
+                        longitud: lng.toFixed(6)
+                    };
+                }
+            } else {
+                console.log("Error en Geocoding API: " + data.status);
+                return null;
+            }
         } catch (e) {
-          console.error("Error en la petición de geocodificación:", e);
-          return null;
+            console.error("Error en la petición de geocodificación:", e);
+            return null;
         }
-      }
-      
-      function extraerNombreLugar(url) {
+    }
+
+    function extraerNombreLugar(url) {
         const decodedUrl = decodeURIComponent(url);
-        
+
         // Intenta extraer nombre del lugar desde el formato /place/NOMBRE/data=
         const placeMatch = decodedUrl.match(/\/place\/(.*?)(\/data=|\/\@)/);
         if (placeMatch) {
-          let lugar = placeMatch[1];
-          lugar = lugar.replace(/\+/g, ' ').replace(/%20/g, ' ').replace(/%2C/g, ',');
-          return lugar;
+            let lugar = placeMatch[1];
+            lugar = lugar.replace(/\+/g, ' ').replace(/%20/g, ' ').replace(/%2C/g, ',');
+            return lugar;
         }
-        
+
         return null;
-      }
-      
-      function extraerNombreLugar2(url) {
+    }
+
+    function extraerNombreLugar2(url) {
         const decodedUrl = decodeURIComponent(url);
-        
+
         const placeMatch = decodedUrl.match(/\/maps\?q=(.*?)&ftid/);
         if (placeMatch) {
-          let lugar = placeMatch[1];
-          lugar = lugar.replace(/\+/g, ' ').replace(/%20/g, ' ').replace(/%2C/g, ',');
-          return lugar;
+            let lugar = placeMatch[1];
+            lugar = lugar.replace(/\+/g, ' ').replace(/%20/g, ' ').replace(/%2C/g, ',');
+            return lugar;
         }
-        
+
         return null;
-      }
-      
-      async function obtenerCoordenadasDesdeURL(url) {
+    }
+
+    async function obtenerCoordenadasDesdeURL(url) {
         // Verificar si las coordenadas ya están en la URL original
         let coords = extraerCoordenadasURL(url);
         if (coords) {
-          return coords;
+            return coords;
         }
-      
+
         try {
             const expandedUrl = await expandUrl(url);
             console.log(`URL expandida: ${expandedUrl}`);
-      
-          
-          // Si la URL contiene "sorry", es posible que Google esté bloqueando
-          if (expandedUrl.includes("google.com/sorry")) {
-            const continueMatch = expandedUrl.match(/continue=([^&]+)/);
-            if (continueMatch) {
-              const originalContinueUrl = decodeURIComponent(continueMatch[1]);
-              
-              // Intentar extraer coordenadas de esta URL
-              coords = extraerCoordenadasURL(originalContinueUrl);
-              if (coords) {
-                return coords;
-              }
-              
-              // Si no se encontraron coordenadas, intentar extraer el nombre del lugar
-              const lugar = extraerNombreLugar(originalContinueUrl);
-              if (lugar) {
-                // Intentar obtener coordenadas a partir del nombre del lugar
-                coords = obtenerCoordenadasGeocoding(lugar);
-                if (coords) {
-                  return coords;
+
+
+            // Si la URL contiene "sorry", es posible que Google esté bloqueando
+            if (expandedUrl.includes("google.com/sorry")) {
+                const continueMatch = expandedUrl.match(/continue=([^&]+)/);
+                if (continueMatch) {
+                    const originalContinueUrl = decodeURIComponent(continueMatch[1]);
+
+                    // Intentar extraer coordenadas de esta URL
+                    coords = extraerCoordenadasURL(originalContinueUrl);
+                    if (coords) {
+                        return coords;
+                    }
+
+                    // Si no se encontraron coordenadas, intentar extraer el nombre del lugar
+                    const lugar = extraerNombreLugar(originalContinueUrl);
+                    if (lugar) {
+                        // Intentar obtener coordenadas a partir del nombre del lugar
+                        coords = obtenerCoordenadasGeocoding(lugar);
+                        if (coords) {
+                            return coords;
+                        }
+                    }
                 }
-              }
             }
-          }
-      
-          // Intentar extraer coordenadas desde la URL expandida
-          coords = extraerCoordenadasURL(expandedUrl);
-          if (coords) {
-            return coords;
-          }
-      
-          // Verificar si la URL contiene "/place/"
-          if (expandedUrl.includes("/place/")) {
-            const lugar = extraerNombreLugar(expandedUrl);
-            if (lugar) {
-              coords = obtenerCoordenadasGeocoding(lugar);
-              if (coords) {
+
+            // Intentar extraer coordenadas desde la URL expandida
+            coords = extraerCoordenadasURL(expandedUrl);
+            if (coords) {
                 return coords;
-              }
             }
-          }
-      
-          // Verificar si la URL contiene "/place/"
-          if (expandedUrl.includes("maps?q=")) {
-            const lugar = extraerNombreLugar2(expandedUrl);
-            if (lugar) {
-              coords = obtenerCoordenadasGeocoding(lugar);
-              if (coords) {
-                return coords;
-              }
-            }
-          }
-      
-          // Verificar si la URL contiene "%3Fq%3D"
-          else if (expandedUrl.includes("%3Fq%3D")) {
-            const qMatch = expandedUrl.match(/%3Fq%3D(.*?)(%26|\Z)/);
-            if (qMatch) {
-              let texto = decodeURIComponent(qMatch[1]);
-              while (texto.includes('%') && /[0-9a-fA-F]/.test(texto)) {
-                const textoNuevo = decodeURIComponent(texto);
-                if (textoNuevo === texto) {
-                  break;
+
+            // Verificar si la URL contiene "/place/"
+            if (expandedUrl.includes("/place/")) {
+                const lugar = extraerNombreLugar(expandedUrl);
+                if (lugar) {
+                    coords = obtenerCoordenadasGeocoding(lugar);
+                    if (coords) {
+                        return coords;
+                    }
                 }
-                texto = textoNuevo;
-              }
-              coords = obtenerCoordenadasGeocoding(texto);
-              if (coords) {
-                return coords;
-              }
             }
-          }
-      
-          return null;
+
+            // Verificar si la URL contiene "/place/"
+            if (expandedUrl.includes("maps?q=")) {
+                const lugar = extraerNombreLugar2(expandedUrl);
+                if (lugar) {
+                    coords = obtenerCoordenadasGeocoding(lugar);
+                    if (coords) {
+                        return coords;
+                    }
+                }
+            }
+
+            // Verificar si la URL contiene "%3Fq%3D"
+            else if (expandedUrl.includes("%3Fq%3D")) {
+                const qMatch = expandedUrl.match(/%3Fq%3D(.*?)(%26|\Z)/);
+                if (qMatch) {
+                    let texto = decodeURIComponent(qMatch[1]);
+                    while (texto.includes('%') && /[0-9a-fA-F]/.test(texto)) {
+                        const textoNuevo = decodeURIComponent(texto);
+                        if (textoNuevo === texto) {
+                            break;
+                        }
+                        texto = textoNuevo;
+                    }
+                    coords = obtenerCoordenadasGeocoding(texto);
+                    if (coords) {
+                        return coords;
+                    }
+                }
+            }
+
+            return null;
         } catch (error) {
             console.error("Error expanding URL:", error);
             return null;
-          }
         }
-      
-      async function procesarEntrada(entrada) {
+    }
+
+    async function procesarEntrada(entrada) {
         // Convertir a string y eliminar espacios innecesarios
-        const texto = String(entrada || "").trim();  
-        
+        const texto = String(entrada || "").trim();
+
         console.log("Entrada procesada:", texto);
-        
+
         if (esURL(texto)) {
-          return await obtenerCoordenadasDesdeURL(texto);
+            return await obtenerCoordenadasDesdeURL(texto);
         } else {
-          return await obtenerCoordenadasGeocoding(texto);
+            return await obtenerCoordenadasGeocoding(texto);
         }
-      }
-    
-    
-    
-    
+    }
+
+
+
+
 });
 
 
