@@ -282,10 +282,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 switch (type) {
                     case 'REGISTER_PROVIDER':
                         console.log('Iniciando registro de proveedor...');
-                        registerProvider(data).then(newProvider => {
-                                //console.log('Proveedor registrado, enviando respuesta al worker...');
+                        registerProvider(data).then(() => {
                                 pdfWorker.postMessage({type: 'PROVIDER_REGISTERED'});
-                                //console.log('Mensaje enviado PROVIDER_REGISTERED al worker');
                             })
                             .catch(error => {
                                 console.error('Error en registro:', error);
@@ -306,24 +304,32 @@ document.addEventListener("DOMContentLoaded", function () {
                         //console.log(`Progreso: ${data.providerProgress}% - ${data.message}`);
                         break;
                         
-                    case 'PDF_READY':
-                        // Descargar el PDF
-                        downloadPDF(data);
+                        case 'PDF_READY':
+                            // Descargar el PDF si lo necesitas localmente
+                            downloadPDF(data);  // Puedes dejarlo comentado si solo se envía por email
                         
-                        // Notificar al worker que puede continuar
-                        //pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
-                        //break;
-
-                        // En lugar de descargar, enviar por correo
-                        sendPDFByEmail(data).then(() => {
-                            // Notificar al worker que puede continuar
-                            pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
-                        }).catch(error => {
-                            console.error('Error enviando email:', error);
-                            // Notificar al worker para continuar de todos modos
-                            pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
-                        });
-                        break;
+                            // Enviar el correo
+                            sendPDFByEmail(data).then(() => {
+                                // Mover documentos solo si el correo fue enviado exitosamente
+                                moverDocumentosAHistorial(data.recojosProveedor)
+                                    .then(() => {
+                                        // Confirmar al worker después de mover
+                                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                                    })
+                                    .catch(err => {
+                                        console.error('Error al mover documentos:', err);
+                                        // Confirmar igual al worker para que no se quede colgado
+                                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                                    });
+                        
+                            }).catch(error => {
+                                console.error('Error enviando email:', error);
+                                // Notificar al worker para continuar, incluso si falló el correo
+                                pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                            });
+                        
+                            break;
+                        
                         
                     case 'PROVIDER_ERROR':
                         console.error(`Error con ${data.nombreEmpresa}: ${data.error}`);
@@ -343,7 +349,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         pdfWorker.terminate();
                         pdfWorker = null;
                         break;
-                        
+                    case 'MOVE_RECOJO':
+                        console.log('Iniciando mover entrega...');
+                        registerProvider(data).then(() => {
+                                pdfWorker.postMessage({type: 'PROVIDER_REGISTERED'});
+                            })
+                            .catch(error => {
+                                console.error('Error en registro:', error);
+                            });
+                        break;    
                     case 'ERROR':
                         console.error("Error en el worker:", data.error);
                         
@@ -775,3 +789,29 @@ async function registerProvider(providerData) {
         throw error;
     }
 }
+
+async function moverDocumentosAHistorial(listaDeDocumentos) {
+    try {
+      const response = await fetch('http://localhost:3000/api/mover-a-historial', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ documentos: listaDeDocumentos })
+      });
+  
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+  
+      const resultado = await response.json();
+      console.log('Documentos movidos:', resultado);
+      return resultado;
+  
+    } catch (error) {
+      console.error('Error al mover documentos:', error);
+      throw error;
+    }
+  }
+  
+  

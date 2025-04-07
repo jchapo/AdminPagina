@@ -488,3 +488,45 @@ app.post('/api/proveedores', async (req, res) => {
         });
     }
 });
+
+app.post('/api/mover-a-historial', async (req, res) => {
+    try {
+      const recojosSnapshot = await db.collection('recojos').get();
+  
+      if (recojosSnapshot.empty) {
+        return res.status(404).json({ message: 'No hay documentos en recojos para mover' });
+      }
+  
+      const batch = db.batch(); // Batch para operaciones múltiples
+  
+      recojosSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const id = doc.id || data.id; // Usar ID del doc o el campo 'id' si existe
+  
+        // Copiar a historial
+        const historialRef = db.collection('historial').doc(id);
+        batch.set(historialRef, data);
+  
+        // Eliminar de recojos
+        const recojoRef = db.collection('recojos').doc(id);
+        batch.delete(recojoRef);
+      });
+  
+      await batch.commit();
+  
+      res.json({
+        success: true,
+        message: 'Todos los documentos fueron movidos a historial exitosamente',
+        cantidadMovidos: recojosSnapshot.size
+      });
+  
+    } catch (error) {
+      console.error('Error al mover los documentos a historial:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error al mover documentos a historial',
+        error: error.message
+      });
+    }
+  });
+  

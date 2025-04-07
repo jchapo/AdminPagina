@@ -471,7 +471,8 @@ self.onmessage = async function(e) {
                                 current: i + 1,
                                 total: totalProveedores,
                                 email: proveedorInfo?.email,
-                                totalPedidos: recojosProveedor.length
+                                totalPedidos: recojosProveedor.length,
+                                recojosProveedor: recojosProveedor
                             }
                         });
                     });
