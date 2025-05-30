@@ -20,6 +20,9 @@ const availableColors = [
 ];
 
 
+const assignedColors = new Set();
+
+
 const API_URL = 'http://localhost:3000/api/recojos';
 
 
@@ -53,19 +56,34 @@ function initMap() {
     cargarMarcadores();
 }
 
+function generateRandomColorFromName(name) {
+    // Crear un hash a partir del nombre
+    const hash = name.split('').reduce((acc, char) => {
+        return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0);
+
+    // Usar el hash para generar un tono de HSL (Hue-Saturation-Lightness)
+    const hue = Math.abs(hash) % 360;              // Color en el círculo cromático
+    const saturation = 70 + (Math.abs(hash) % 20); // Saturación entre 70-90%
+    const lightness = 50 + (Math.abs(hash) % 10);  // Luminosidad entre 50-60%
+
+    const background = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    const border = `hsl(${hue}, ${saturation}%, ${lightness - 10}%)`;
+    const text = lightness > 60 ? "#222222" : "#ffffff"; // Contraste automático
+
+    return { background, border, text };
+}
+
 
 function getColorForMotorizado(motorizadoName) {
-    if (!motorizadoName || motorizadoName === "Asignar Entrega") {
-        return { background: "#f5f5f5", text: "#333333", border: "#ff0000" };
+    if (!motorizadoName || motorizadoName === "Asignar Recojo") {
+        return { background: "#ffffff", text: "#333333", border: "#ff0000" };
     }
-    
+
     if (!colorAssignments[motorizadoName]) {
-        const hash = motorizadoName.split('').reduce((acc, char) => {
-            return char.charCodeAt(0) + ((acc << 5) - acc);
-        }, 0);
-        colorAssignments[motorizadoName] = availableColors[Math.abs(hash) % availableColors.length];
+        colorAssignments[motorizadoName] = generateRandomColorFromName(motorizadoName);
     }
-    
+
     return colorAssignments[motorizadoName];
 }
 
@@ -132,6 +150,11 @@ async function obtenerListaEntregas() {
     }
 }
 
+function isValidUrl(str) {
+    const pattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
+    return pattern.test(str);
+}
+
 async function cargarMarcadores() {
     entregasLista = await obtenerListaEntregas();
     
@@ -147,7 +170,7 @@ async function cargarMarcadores() {
     entregasFiltradas.forEach(row => {
         if (row.pedidoCoordenadas?.lat && row.pedidoCoordenadas?.lng) {
             const markerColor = getColorForMotorizado(row.motorizadoEntrega);
-            const initial = getMotorizadoInitial(row.motorizadoEntrega);
+            const initial = (row.motorizadoEntrega);
             
             const position = new google.maps.LatLng(row.pedidoCoordenadas.lat, row.pedidoCoordenadas.lng);
             bounds.extend(position); // Expandir los límites con cada marcador
@@ -166,11 +189,20 @@ async function cargarMarcadores() {
             });
 
             marker.addListener('gmp-click', () => {
+
+                let direccionLink = row.pedidoDireccionLink;
+
+
+                // Si pedidoDireccionLink no es una URL válida, usar Google Maps con las coordenadas
+                if (!isValidUrl(direccionLink)) {
+                    direccionLink = `https://www.google.com/maps?q=${row.pedidoCoordenadas.lat},${row.pedidoCoordenadas.lng}`;
+                }
+
                 const infoWindowContent = `
                     <strong>Proveedor:</strong> ${row.proveedorNombre}<br>
                     <strong>Cliente:</strong> ${row.clienteNombre}<br>
                     <strong>Distrito:</strong> ${row.clienteDistrito}<br>
-                    <strong>Dirección:</strong> <a href="${row.pedidoDireccionLink}" target="_blank">${row.pedidoDireccionLink}</a>
+                    <strong>Dirección:</strong> <a href="${direccionLink}" target="_blank">${direccionLink}</a>
                 `;
             
                 globalInfoWindow.setContent(infoWindowContent);
@@ -209,13 +241,13 @@ async function cargarMarcadores() {
 document.addEventListener("DOMContentLoaded", loadGoogleMapsApi);
 
 const zonas = {
-    "motorizadoEste": "ME",
-    "motorizadoSur": "MS",
-    "motorizadoNorte": "MN",
-    "motorizadoOeste": "MO",
-    "motorizadoSJL": "SJL"
+    "EST": "EST",
+    "SUR": "SUR",
+    "NOR": "NOR",
+    "OES": "OES",
+    "SJL": "SJL"
 };
-
+/*
 function getMotorizadoInitial(motorizadoName) {
     if (!motorizadoName) return '?';
 
@@ -230,20 +262,20 @@ function getMotorizadoInitial(motorizadoName) {
     // Si no coincide con ninguna zona, usar la inicial normal
     return motorizadoName.charAt(0).toUpperCase();
 }
-
+*/
   const coloresMotorizados = {
-    "motorizadoEste": "bg-label-primary",
-    "motorizadoSur": "bg-label-danger",
-    "motorizadoNorte": "bg-label-success",
-    "motorizadoOeste": "bg-label-info",
-    "motorizadoSJL": "bg-label-warning",
+    "EST": "bg-label-primary",
+    "SUR": "bg-label-danger",
+    "NOR": "bg-label-success",
+    "OES": "bg-label-info",
+    "SJL": "bg-label-warning",
     "Asignar Entrega": "bg-label-light"
   };
-
+/*
   function getMotorizadoInitial(motorizado) {
     return zonas[motorizado] || "?";
   }
-
+*/
 
   
 
@@ -308,7 +340,7 @@ function getMotorizadoInitial(motorizadoName) {
     const entregaList = document.getElementById("entregaList");
     entregaList.innerHTML = "";
     entregasLista.forEach(entrega => {
-        const initial = getMotorizadoInitial(entrega.motorizadoEntrega);
+        const initial = (entrega.motorizadoEntrega);
         const colorConfig = getColorForMotorizado(entrega.motorizadoEntrega);
 
         const isUnassigned = !entrega.motorizadoEntrega || entrega.motorizadoEntrega === "Asignar Entrega";
@@ -337,11 +369,11 @@ function getMotorizadoInitial(motorizadoName) {
         <div class="d-flex align-items-center gap-2">
             <select class="form-select form-select-sm motorizadoSelect" style="width: 160px;">
             <option value="" ${isUnassigned ? "selected" : ""}>Asignar Entrega</option>
-            <option value="motorizadoNorte" ${entrega.motorizadoEntrega === "motorizadoNorte" ? "selected" : ""}>M. Norte</option>
-            <option value="motorizadoSur" ${entrega.motorizadoEntrega === "motorizadoSur" ? "selected" : ""}>M. Sur</option>
-            <option value="motorizadoEste" ${entrega.motorizadoEntrega === "motorizadoEste" ? "selected" : ""}>M. Este</option>
-            <option value="motorizadoOeste" ${entrega.motorizadoEntrega === "motorizadoOeste" ? "selected" : ""}>M. Oeste</option>
-            <option value="motorizadoSJL" ${entrega.motorizadoEntrega === "motorizadoSJL" ? "selected" : ""}>M. SJL</option>
+            <option value="NOR" ${entrega.motorizadoEntrega === "NOR" ? "selected" : ""}>M. Norte</option>
+            <option value="SUR" ${entrega.motorizadoEntrega === "SUR" ? "selected" : ""}>M. Sur</option>
+            <option value="EST" ${entrega.motorizadoEntrega === "EST" ? "selected" : ""}>M. Este</option>
+            <option value="OES" ${entrega.motorizadoEntrega === "OES" ? "selected" : ""}>M. Oeste</option>
+            <option value="SJL" ${entrega.motorizadoEntrega === "SJL" ? "selected" : ""}>M. SJL</option>
             </select>
             <button class="btn btn-sm ${btnClass} actualizarMotorizadoBtn">Actualizar</button>
         </div>
