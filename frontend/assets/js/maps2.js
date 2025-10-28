@@ -26,23 +26,40 @@ const assignedColors = new Set();
 const API_URL = 'http://localhost:3000/api/recojos';
 
 
-function loadGoogleMapsApi() {
-    fetch('/api/google-maps-key')
-        .then(response => response.json())
-        .then(data => {
-            if (!data.apiKey) {
-                console.error("No se recibió una API Key.");
-                return;
-            }
-            mapIdGlobal = data.mapId;
+async function loadGoogleMapsApi() {
+    // Esperar a que la autenticación esté lista
+    let attempts = 0;
+    while ((!window.authManager || !window.authManager.getCurrentUser()) && attempts < 20) {
+        console.log('Esperando autenticación para cargar mapas...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        attempts++;
+    }
 
-            let script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&map_ids=${data.mapId}&callback=initMap&libraries=marker&loading=async`;
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-        })
-        .catch(error => console.error("Error al obtener la API Key:", error));
+    if (!window.authManager || !window.authManager.getCurrentUser()) {
+        console.error('No se pudo autenticar para cargar mapas');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/google-maps-key');
+        const data = await response.json();
+        
+        if (!data.apiKey) {
+            console.error("No se recibió una API Key.");
+            return;
+        }
+        
+        mapIdGlobal = data.mapId;
+
+        let script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&map_ids=${data.mapId}&callback=initMap&libraries=marker&loading=async`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+        
+    } catch (error) {
+        console.error("Error al obtener la API Key:", error);
+    }
 }
 
 function initMap() {
@@ -126,7 +143,11 @@ function createCustomMarkerIcon(colorConfig, initial) {
 
 async function obtenerListaEntregas() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, {
+    headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+    }
+});
         const data = await response.json();
         
         entregasFiltradas = data.filter(row => row.fechaAnulacionPedido === null);

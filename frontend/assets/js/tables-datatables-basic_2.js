@@ -3,6 +3,16 @@ let proveedores = []; // Variable global para almacenar los proveedores
 let pdfWorker = null;
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Esperar autenticación
+    function initWhenAuth() {
+        if (typeof authManager === 'undefined' || !authManager.getCurrentUser()) {
+            setTimeout(initWhenAuth, 500);
+            return;
+        }
+        initDataTable();
+    }
+    
+    function initDataTable() {
     function addCell(tr, content, colSpan = 1) {
         let td = document.createElement('td');
         td.colSpan = colSpan;
@@ -12,14 +22,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let tableRecojos = new DataTable('#example', {
         ajax: {
-            url: 'http://localhost:3000/api/recojos',
+            url: '/api/recojos',
             dataSrc: function (data) {
                 recojosFiltrados = data.filter(row => 
                     row.fechaAnulacionPedido === null && 
                     row.fechaEntregaPedidoMotorizado !== null
                 );
+                console.log(recojosFiltrados);
                 return recojosFiltrados;
-            }
+            },
+            beforeSend: function(xhr) {
+                    console.log('beforeSend ejecutándose...'); // Para debug
+                    const token = localStorage.getItem('authToken');
+                    console.log('Token encontrado:', token ? 'SÍ' : 'NO'); // Para debug
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                        console.log('Header Authorization agregado'); // Para debug
+                    }
+                },
+                error: function(xhr, error, thrown) {
+                    console.error('Error DataTables:', xhr.status, error);
+                    if (xhr.status === 401) {
+                        alert('Sesión expirada');
+                        window.location.href = '/login.html';
+                    }
+                }
         },
         columns: [
             { 
@@ -248,145 +275,382 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    document.getElementById("btnCerrarReportar").addEventListener("click", async function (event) {
-        event.preventDefault();
+    // Reemplaza la sección del evento btnCerrarReportar con esta versión corregida:
+
+document.getElementById("btnCerrarReportar").addEventListener("click", async function (event) {
+    event.preventDefault();
+    console.log("[DEBUG] Botón 'Cerrar y Reportar' presionado");
+
+    // Validaciones iniciales
+    if (!recojosFiltrados || recojosFiltrados.length === 0) {
+        alert("No hay datos de recojos para procesar");
+        return;
+    }
+
+    // Deshabilitar el botón para evitar múltiples clics
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Preparando generación...';
+
+    try {
+        console.log("[DEBUG] Solicitando proveedores desde la API...");
+        const response = await fetch("/api/proveedores", {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        });
+
+        if (!response.ok) {
+            console.error("[ERROR] No se pudieron obtener los proveedores. Código de estado:", response.status);
+            throw new Error(`Error al obtener los proveedores: ${response.status}`);
+        }
+
+        const proveedores = await response.json();
+        console.log("[DEBUG] Proveedores obtenidos correctamente:", proveedores.length, "proveedores");
+
+        // Validar que tenemos datos válidos
+        if (!Array.isArray(proveedores)) {
+            throw new Error("Los datos de proveedores no son válidos");
+        }
+
+        console.log("[DEBUG] Creando Web Worker para generación de PDFs...");
         
-        // Deshabilitar el botón para evitar múltiples clics
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Preparando generación...';
+        // Terminar worker previo si existe
+        if (pdfWorker) {
+            pdfWorker.terminate();
+            pdfWorker = null;
+        }
         
-        try {
-            // Obtener proveedores de la API
-            const response = await fetch("http://localhost:3000/api/proveedores");
-            if (!response.ok) throw new Error("Error al obtener los proveedores");
-    
-            const proveedores = await response.json();
-            
-            // Crear un Web Worker para la generación de PDFs
-            pdfWorker = new Worker('/js/pdf-worker.js');
-            
-            // Configurar el mensaje para el worker
-            pdfWorker.postMessage({
-                type: 'GENERATE_PDFS',
-                data: {
-                    recojosFiltrados: recojosFiltrados,
-                    proveedores: proveedores
-                }
-            });
-            
-            // Manejar la respuesta del worker
-            pdfWorker.onmessage = function(e) {
-                const { type, data } = e.data;
-                
-                switch (type) {
-                    case 'REGISTER_PROVIDER':
-                        console.log('Iniciando registro de proveedor...');
-                        registerProvider(data).then(() => {
-                                pdfWorker.postMessage({type: 'PROVIDER_REGISTERED'});
-                            })
-                            .catch(error => {
-                                console.error('Error en registro:', error);
-                            });
-                        break;
-                    case 'STARTED':
-                        //console.log(`Iniciando generación de ${data.total} PDFs`);
-                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>  0/${data.total} PDFs generados`;
-                        break;
-                        
-                    case 'PROVIDER_START':
-                        //console.log(`Iniciando PDF ${data.current}/${data.total}: ${data.nombre}`);
-                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombreEmpresa}`;
-                        break;
-                        
-                    case 'PROGRESS':
-                        // Actualizar progreso para el proveedor actual
-                        //console.log(`Progreso: ${data.providerProgress}% - ${data.message}`);
-                        break;
-                        
-                        case 'PDF_READY':
-                            // Descargar el PDF si lo necesitas localmente
-                            downloadPDF(data);  // Puedes dejarlo comentado si solo se envía por email
-                        
-                            // Enviar el correo
-                            sendPDFByEmail(data).then(() => {
-                                // Mover documentos solo si el correo fue enviado exitosamente
-                                moverDocumentosAHistorial(data.recojosProveedor)
-                                    .then(() => {
-                                        // Confirmar al worker después de mover
-                                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
-                                    })
-                                    .catch(err => {
-                                        console.error('Error al mover documentos:', err);
-                                        // Confirmar igual al worker para que no se quede colgado
-                                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
-                                    });
-                        
-                            }).catch(error => {
-                                console.error('Error enviando email:', error);
-                                // Notificar al worker para continuar, incluso si falló el correo
-                                pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
-                            });
-                        
-                            break;
-                        
-                        
-                    case 'PROVIDER_ERROR':
-                        console.error(`Error con ${data.nombreEmpresa}: ${data.error}`);
-                        // Puedes decidir continuar con los siguientes o detener todo
-                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' }); // Continuar
-                        break;
-                        
-                    case 'COMPLETE':
-                        // Restaurar el botón
-                        btn.disabled = false;
-                        btn.textContent = "Cerrar y Reportar";
-                        // Notificar al usuario
-                        alert("Todos los PDFs han sido generados exitosamente");
-                        // Terminar el worker
-                        pdfWorker.terminate();
-                        pdfWorker = null;
-                        // Recargar la tabla
-                        tableRecojos.ajax.reload(null, false); // El segundo parámetro evita que cambie de página
-                        break;
-                        
-                    case 'MOVE_RECOJO':
-                        console.log('Iniciando mover entrega...');
-                        registerProvider(data).then(() => {
-                                pdfWorker.postMessage({type: 'PROVIDER_REGISTERED'});
-                            })
-                            .catch(error => {
-                                console.error('Error en registro:', error);
-                            });
-                        break;    
-                    case 'ERROR':
-                        console.error("Error en el worker:", data.error);
-                        
-                        // Restaurar el botón
-                        btn.disabled = false;
-                        btn.textContent = "Cerrar y Reportar";
-                        
-                        alert("Ocurrió un error al generar los PDFs. Ver consola para detalles.");
-                        
-                        // Terminar el worker
-                        if (pdfWorker) {
-                            pdfWorker.terminate();
-                            pdfWorker = null;
-                        }
-                        break;
-                }
-            };
-            
-        } catch (error) {
-            console.error("Error:", error);
-            
-            // Restaurar el botón en caso de error
+        pdfWorker = new Worker('/assets/js/pdf-worker.js');
+
+        // Manejar errores del worker de forma más detallada
+        pdfWorker.onerror = function(error) {
+            console.error('[ERROR] Error en el worker:', error);
             btn.disabled = false;
             btn.textContent = "Cerrar y Reportar";
-            
-            alert("Ocurrió un error al iniciar la generación de PDFs");
+            alert(`Error en el worker: ${error.message || 'Error desconocido'}`);
+        };
+
+        // Manejar errores no capturados
+        pdfWorker.addEventListener('error', function(error) {
+            console.error('[ERROR] Worker error event:', error);
+            btn.disabled = false;
+            btn.textContent = "Cerrar y Reportar";
+            alert("Error en el worker. Ver consola para detalles.");
+        });
+
+        console.log("[DEBUG] Enviando token de autenticación al worker");
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.warn('[WARN] No hay token de autenticación disponible');
         }
+        
+        pdfWorker.postMessage({
+            type: 'SET_TOKEN',
+            data: { token: token }
+        });
+
+        // Validar datos antes de enviar
+        console.log("[DEBUG] Validando datos para envío al worker...");
+        console.log("[DEBUG] Recojos filtrados:", recojosFiltrados.length);
+        console.log("[DEBUG] Proveedores únicos:", [...new Set(recojosFiltrados.map(r => r.proveedorNombre))].length);
+
+        // Enviar datos al worker
+        console.log("[DEBUG] Enviando datos de generación al worker");
+        pdfWorker.postMessage({
+            type: 'GENERATE_PDFS',
+            data: {
+                recojosFiltrados: recojosFiltrados,
+                proveedores: proveedores
+            }
+        });
+
+        pdfWorker.onmessage = function (e) {
+            const { type, data } = e.data;
+            console.log(`[DEBUG] Mensaje recibido del worker: ${type}`, data);
+
+            switch (type) {
+                case 'REGISTER_PROVIDER':
+                    console.log('[DEBUG] Registrando proveedor en segundo plano...');
+                    registerProvider(data).catch(error => {
+                        console.error('[ERROR] Error en registro de proveedor:', error);
+                    });
+                    // No enviamos confirmación, el worker continúa
+                    break;
+
+                case 'STARTED':
+                    console.log(`[DEBUG] Worker inició generación de ${data.total} PDFs`);
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> 0/${data.total} PDFs generados`;
+                    break;
+
+                case 'PROVIDER_START':
+                    console.log(`[DEBUG] Iniciando PDF ${data.current}/${data.total} para ${data.nombreEmpresa}`);
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> ${data.current}/${data.total}: ${data.nombreEmpresa}`;
+                    break;
+
+                case 'PROGRESS':
+                    console.log(`[DEBUG] Progreso del proveedor: ${data.providerProgress}% - ${data.message}`);
+                    break;
+
+                case 'PDF_READY':
+                    console.log(`[DEBUG] PDF listo para ${data.nombreEmpresa}. Enviando correo...`);
+
+                    // Descargar el PDF (esto SÍ se mantiene)
+                    downloadPDF(data);
+
+                    // COMENTAR ESTA SECCIÓN PARA DESHABILITAR EMAILS:
+                    /*
+                    sendPDFByEmail(data).then(() => {
+                        console.log('[DEBUG] Correo enviado con éxito. Moviendo documentos al historial...');
+                        return moverDocumentosAHistorial(data.recojosProveedor);
+                    }).then(() => {
+                        console.log('[DEBUG] Documentos movidos al historial.');
+                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                    }).catch(error => {
+                        console.error('[ERROR] Error en el proceso de email/historial:', error);
+                        pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                    });
+                    */
+
+                    // REEMPLAZAR CON ESTA VERSIÓN SIMPLIFICADA (sin email):
+                    console.log('[DEBUG] Saltando envío de email. Moviendo documentos al historial...');
+                    moverDocumentosAHistorial(data.recojosProveedor)
+                        .then(() => {
+                            console.log('[DEBUG] Documentos movidos al historial.');
+                            pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                        })
+                        .catch(error => {
+                            console.error('[ERROR] Error moviendo documentos al historial:', error);
+                            pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                        });
+                    break;
+
+                case 'PROVIDER_ERROR':
+                    console.error(`[ERROR] Error en proveedor ${data.nombreEmpresa}:`, data.error);
+                    pdfWorker.postMessage({ type: 'PDF_CONFIRMED' });
+                    break;
+
+                case 'COMPLETE':
+                    console.log("[DEBUG] Proceso completo. Restaurando botón y recargando tabla.");
+                    btn.disabled = false;
+                    btn.textContent = "Cerrar y Reportar";
+                    alert("Todos los PDFs han sido generados exitosamente");
+                    if (pdfWorker) {
+                        pdfWorker.terminate();
+                        pdfWorker = null;
+                    }
+                    tableRecojos.ajax.reload(null, false);
+                    break;
+
+                case 'ERROR':
+                    console.error("[ERROR] Error recibido del worker:", data.error);
+                    console.error("[ERROR] Detalles:", data.details);
+                    if (data.stack) {
+                        console.error("[ERROR] Stack trace:", data.stack);
+                    }
+                    btn.disabled = false;
+                    btn.textContent = "Cerrar y Reportar";
+                    alert(`Ocurrió un error al generar los PDFs: ${data.error}\nVer consola para más detalles.`);
+                    if (pdfWorker) {
+                        pdfWorker.terminate();
+                        pdfWorker = null;
+                    }
+                    break;
+
+                default:
+                    console.warn("[WARN] Tipo de mensaje no reconocido desde el worker:", type);
+                    break;
+            }
+        };
+
+    } catch (error) {
+        console.error("[ERROR] Error general al iniciar la generación de PDFs:", error);
+        btn.disabled = false;
+        btn.textContent = "Cerrar y Reportar";
+        alert(`Ocurrió un error al iniciar la generación de PDFs: ${error.message}`);
+        
+        // Limpiar worker si existe
+        if (pdfWorker) {
+            pdfWorker.terminate();
+            pdfWorker = null;
+        }
+    }
+});
+
+// También agrega esta función mejorada para mejor manejo de errores en el registro de proveedores:
+
+async function registerProvider(providerData) {
+    try {
+        // Validar datos de entrada
+        if (!providerData.nombreEmpresa || !providerData.phone) {
+            console.warn('[WARN] Datos incompletos para registro de proveedor:', providerData);
+            return null;
+        }
+
+        const response = await fetch('/api/proveedores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
+            body: JSON.stringify({
+                phone: providerData.phone,
+                nombreEmpresa: providerData.nombreEmpresa,
+                email: providerData.email || 'sin-email@ejemplo.com',
+                rol: 'Proveedor'
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[ERROR] Error en respuesta del servidor:', response.status, errorText);
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('[DEBUG] Proveedor registrado exitosamente:', result);
+        return result;
+        
+    } catch (error) {
+        console.error('[ERROR] Error registrando proveedor:', error);
+        // No lanzar el error para que el proceso continúe
+        return null;
+    }
+}
+
+// Y mejora la función de envío de emails con mejor manejo de errores:
+
+async function sendPDFByEmail(pdfData) {
+    const statusElement = document.getElementById('email-status');
+    
+    try {
+        if (statusElement) {
+            statusElement.textContent = `Enviando reporte a ${pdfData.nombreEmpresa}...`;
+            statusElement.style.color = 'blue';
+        }
+
+        // Validar datos requeridos
+        if (!pdfData.blob) {
+            throw new Error('No hay datos de PDF para enviar');
+        }
+
+        if (!pdfData.email || pdfData.email === 'sin-email@ejemplo.com') {
+            console.warn('[WARN] Email no válido para', pdfData.nombreEmpresa);
+            if (statusElement) {
+                statusElement.textContent = `Email no válido para ${pdfData.nombreEmpresa} - saltando envío`;
+                statusElement.style.color = 'orange';
+            }
+            return; // Saltar envío pero no fallar
+        }
+        
+        // Convertir Blob a base64 para enviarlo
+        const base64Pdf = await blobToBase64(pdfData.blob);
+        
+        // Enviar a tu API backend
+        const response = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
+            body: JSON.stringify({
+                to: pdfData.email,
+                subject: `Reporte de entregas - ${pdfData.nombreEmpresa}`,
+                text: 'Adjunto encontrará el reporte de entregas correspondiente.',
+                pdf: base64Pdf,
+                filename: `Reporte_${pdfData.nombreEmpresa}.pdf`,
+                proveedor: pdfData.nombreEmpresa,
+                totalPedidos: pdfData.totalPedidos
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+        
+        console.log(`[DEBUG] PDF enviado por email a ${pdfData.email}`);
+
+        if (statusElement) {
+            statusElement.textContent = `Reporte enviado a ${pdfData.email}`;
+            statusElement.style.color = 'green';
+        }
+        
+    } catch (error) {
+        console.error('[ERROR] Error en sendPDFByEmail:', error);
+        if (statusElement) {
+            statusElement.textContent = `Error enviando a ${pdfData.nombreEmpresa}: ${error.message}`;
+            statusElement.style.color = 'red';
+        }
+        throw error;
+    }
+}
+
+// Mejora la función de conversión blob con timeout:
+
+function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        // Timeout para evitar bloqueos
+        const timeout = setTimeout(() => {
+            reader.abort();
+            reject(new Error('Timeout convirtiendo blob a base64'));
+        }, 30000); // 30 segundos
+        
+        reader.onloadend = () => {
+            clearTimeout(timeout);
+            resolve(reader.result.split(',')[1]);
+        };
+        
+        reader.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error('Error leyendo blob'));
+        };
+        
+        reader.readAsDataURL(blob);
     });
+}
+
+    setTimeout(() => {
+        [{
+            selector: ".dt-buttons .btn",
+            classToRemove: "btn-secondary"
+        }, {
+            selector: ".dt-search .form-control",
+            classToRemove: "form-control-sm",
+            classToAdd: "ms-4"
+        }, {
+            selector: ".dt-length .form-select",
+            classToRemove: "form-select-sm"
+        }, {
+            selector: ".dt-layout-table",
+            classToRemove: "row mt-2"
+        }, {
+            selector: ".dt-layout-end",
+            classToAdd: "mt-0"
+        }, {
+            selector: ".dt-layout-end .dt-search",
+            classToAdd: "mt-0 mt-md-6"
+        }, {
+            selector: ".dt-layout-start",
+            classToAdd: "mt-0"
+        }, {
+            selector: ".dt-layout-end .dt-buttons",
+            classToAdd: "mb-0"
+        }].forEach(({ selector: e, classToRemove: a, classToAdd: s }) => {
+            document.querySelectorAll(e).forEach(t => {
+                a && a.split(" ").forEach(e => t.classList.remove(e)),
+                    s && s.split(" ").forEach(e => t.classList.add(e))
+            }
+            )
+        }
+        )
+    }
+        , 100)
+    } // Cierra initDataTable()
+    
+    initWhenAuth(); // Inicia el proceso
 });
 
 
@@ -723,10 +987,11 @@ async function sendPDFByEmail(pdfData) {
         const base64Pdf = await blobToBase64(pdfData.blob);
         
         // Enviar a tu API backend
-        const response = await fetch('http://localhost:3000/api/send-email', {
+        const response = await fetch('/api/send-email', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
             },
             body: JSON.stringify({
                 to: proveedorEmail,
@@ -767,11 +1032,12 @@ function blobToBase64(blob) {
 
 async function registerProvider(providerData) {
     try {
-        const response = await fetch('http://localhost:3000/api/proveedores', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        const response = await fetch('/api/proveedores', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+        },
             body: JSON.stringify({
                 phone: providerData.phone,
                 nombreEmpresa: providerData.nombreEmpresa,
@@ -793,10 +1059,11 @@ async function registerProvider(providerData) {
 
 async function moverDocumentosAHistorial(listaDeDocumentos) {
     try {
-      const response = await fetch('http://localhost:3000/api/mover-a-historial', {
+      const response = await fetch('/api/mover-a-historial', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
         },
         body: JSON.stringify({ documentos: listaDeDocumentos })
       });

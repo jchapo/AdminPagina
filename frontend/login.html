@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ñanpi Courier - Iniciar Sesión</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            margin: 20px;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+        
+        .btn-google {
+            background: #db4437;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-google:hover {
+            background: #c23321;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(219, 68, 55, 0.4);
+            color: white;
+        }
+        
+        .btn-google:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            color: #667eea;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .divider:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e9ecef;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 20px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <div class="loading-text">Verificando credenciales...</div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-truck"></i>
+            </div>
+            <h2 class="mb-0">Ñanpi Courier</h2>
+            <p class="mb-0 mt-2">Sistema de Gestión</p>
+        </div>
+        
+        <div class="login-body">
+            <div id="alertContainer"></div>
+            
+            <!-- Botón de Google Sign-In -->
+            <button type="button" class="btn btn-google" id="googleSignInBtn">
+                <i class="fab fa-google"></i>
+                <span id="googleBtnText">Continuar con Google</span>
+                <span id="googleSpinner" class="spinner-border spinner-border-sm d-none"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script src="assets/js/firebase-config.js"></script>
+    
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getAuth, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            onAuthStateChanged,
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Verificar que la configuración existe
+        if (!window.firebaseConfig) {
+            showAlert('Error de configuración de Firebase. Contacta al administrador.', 'danger');
+            console.error('firebaseConfig no encontrado');
+        } else {
+            // Initialize Firebase
+            const app = initializeApp(window.firebaseConfig);
+            const auth = getAuth(app);
+            const provider = new GoogleAuthProvider();
+            
+            // Configurar el provider para forzar selección de cuenta
+            provider.addScope('email');
+            provider.addScope('profile');
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+
+            // Elementos del DOM
+            const googleSignInBtn = document.getElementById('googleSignInBtn');
+            const googleBtnText = document.getElementById('googleBtnText');
+            const googleSpinner = document.getElementById('googleSpinner');
+            const alertContainer = document.getElementById('alertContainer');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            // Verificar si ya está autenticado
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    try {
+                        //showLoading('Verificando permisos...');
+                        
+                        const token = await user.getIdToken();
+                        
+                        // Verificar con el servidor
+                        const response = await fetch('/api/verify-auth', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const userData = await response.json();
+                            const rol = userData.user.role;
+                            
+                            if (rol === 'Admin' || rol === 'Motorizado') {
+                                localStorage.setItem('authToken', token);
+                                showAlert('¡Sesión activa! Redirigiendo...', 'success');
+                                
+                                setTimeout(() => {
+                                    window.location.href = '/index.html';
+                                }, 1000);
+                            } else {
+                                showAlert('Tu cuenta no tiene permisos para acceder al sistema', 'danger');
+                                await signOut(auth);
+                            }
+                        } else {
+                            console.log('Token no válido en el servidor');
+                            await signOut(auth);
+                        }
+                    } catch (error) {
+                        console.error('Error verificando sesión existente:', error);
+                        showAlert('Error verificando sesión. Intenta nuevamente.', 'warning');
+                        await signOut(auth);
+                    } finally {
+                        hideLoading();
+                    }
+                } else {
+                    hideLoading();
+                }
+            });
+
+            // Manejar clic en botón de Google
+            googleSignInBtn.addEventListener('click', async () => {
+                setGoogleBtnLoading(true);
+                //showLoading('Conectando con Google...');
+                
+                try {
+                    // Intentar iniciar sesión con Google
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+                    
+                    //showLoading('Verificando permisos...');
+                    
+                    // Obtener token
+                    const token = await user.getIdToken();
+                    
+                    // Verificar rol del usuario con el servidor
+                    const response = await fetch('/api/verify-auth', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const userData = await response.json();
+                        const rol = userData.user.role;
+                        
+                        if (rol === 'Admin' || rol === 'Motorizado') {
+                            showAlert('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
+                            // Guardar información del usuario
+                            localStorage.setItem('authToken', token);
+                            localStorage.setItem('userRole', rol);
+                            localStorage.setItem('userName', userData.user.name || user.email);
+                            localStorage.setItem('userEmail', user.email);
+                            localStorage.setItem('userPhoto', user.photoURL);
+                            
+                            // Redirigir después de un breve delay
+                            setTimeout(() => {
+                                window.location.href = '/index.html';
+                            }, 1500);
+                        } else {
+                            showAlert('Tu cuenta no tiene permisos para acceder al sistema. Contacta al administrador.', 'danger');
+                            await signOut(auth);
+                        }
+                    } else if (response.status === 404) {
+                        showAlert('Tu cuenta no está registrada en el sistema. Contacta al administrador para obtener acceso.', 'warning');
+                        await signOut(auth);
+                    } else {
+                        showAlert('Error verificando permisos. Contacta al administrador.', 'danger');
+                        await signOut(auth);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error de autenticación:', error);
+                    let errorMessage = 'Error al iniciar sesión';
+                    
+                    switch (error.code) {
+                        case 'auth/popup-closed-by-user':
+                            errorMessage = 'Inicio de sesión cancelado';
+                            break;
+                        case 'auth/popup-blocked':
+                            errorMessage = 'Popup bloqueado. Permite popups para este sitio';
+                            break;
+                        case 'auth/network-request-failed':
+                            errorMessage = 'Error de conexión. Verifica tu internet';
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMessage = 'Demasiados intentos. Intenta más tarde';
+                            break;
+                        case 'auth/user-disabled':
+                            errorMessage = 'Tu cuenta ha sido deshabilitada';
+                            break;
+                        default:
+                            errorMessage = `Error: ${error.message}`;
+                    }
+                    
+                    showAlert(errorMessage, 'danger');
+                } finally {
+                    setGoogleBtnLoading(false);
+                    //hideLoading();
+                }
+            });
+
+            // Función para mostrar alertas
+            function showAlert(message, type) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'} me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+            }
+
+            // Función para manejar estado de carga del botón Google
+            function setGoogleBtnLoading(loading) {
+                googleSignInBtn.disabled = loading;
+                if (loading) {
+                    googleBtnText.textContent = 'Conectando...';
+                    googleSpinner.classList.remove('d-none');
+                } else {
+                    googleBtnText.textContent = 'Continuar con Google';
+                    googleSpinner.classList.add('d-none');
+                }
+            }
+            
+            // Función para mostrar/ocultar overlay de carga
+            function showLoading(message = 'Cargando...') {
+                loadingOverlay.querySelector('.loading-text').textContent = message;
+                loadingOverlay.style.display = 'flex';
+            }
+            
+            function hideLoading() {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

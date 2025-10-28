@@ -3,14 +3,40 @@ let o;
 // Declarar rowDataOriginal como variable global
 let rowDataOriginal;
 document.addEventListener("DOMContentLoaded", function (e) {
+    // Esperar autenticación
+    function initWhenAuth() {
+        if (typeof authManager === 'undefined' || !authManager.getCurrentUser()) {
+            setTimeout(initWhenAuth, 500);
+            return;
+        }
+        initDataTable();
+    }
+    
+    function initDataTable() {
 
     var r, t = document.querySelector(".datatables-basic");
     t && ((s = document.createElement("h5")).classList.add("card-title", "mb-0", "text-md-start", "text-center"),
         s.innerHTML = "Tabla Pedidos",
         o = new DataTable(t, {
             ajax: {
-                url: 'http://localhost:3000/api/recojos',
-                dataSrc: ''
+                url: '/api/recojos',
+                dataSrc: '',
+                beforeSend: function(xhr) {
+                    console.log('beforeSend ejecutándose...'); // Para debug
+                    const token = localStorage.getItem('authToken');
+                    console.log('Token encontrado:', token ? 'SÍ' : 'NO'); // Para debug
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                        console.log('Header Authorization agregado'); // Para debug
+                    }
+                },
+                error: function(xhr, error, thrown) {
+                    console.error('Error DataTables:', xhr.status, error);
+                    if (xhr.status === 401) {
+                        alert('Sesión expirada');
+                        window.location.href = '/login.html';
+                    }
+                }
             },
             columns: [
                 {
@@ -208,7 +234,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 }
             },
-            order: [[3, "desc"], [4, "asc"]],
+            //order: [[3, "asc"], [4, "asc"]],
+            order: [[3, "asc"]],
             displayLength: 7,
             layout: {
                 top2Start: {
@@ -491,6 +518,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
         )
     }
         , 100)
+    } // Cierra initDataTable()
+    
+    initWhenAuth(); // Inicia el proceso
 });
 
 // Función auxiliar para formatear la fecha
@@ -1248,7 +1278,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // API Key de Geocoding
-        const API_KEY = 'AIzaSyCRW58a_3iVfoD1WFCU7UbtZ9dZddw-L9w';
+        const API_KEY = 'AIzaSyDpOBtbDU5SwFxfOeLsM9-YrYmMD_A2Lqk';
 
         // Codificar la dirección para la URL
         const direccionCodificada = encodeURIComponent(direccion);

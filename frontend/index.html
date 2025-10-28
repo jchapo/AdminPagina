@@ -88,7 +88,8 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
-
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/auth-manager.js"></script>
 
 </head>
 
@@ -251,8 +252,9 @@
                                         <div class="dropdown-divider my-1"></div>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="auth-login-cover.html" target="_blank"> <i
-                                                class="icon-base bx bx-power-off icon-md me-3"></i><span>Log Out</span>
+                                        <a class="dropdown-item" href="javascript:void(0)" onclick="handleLogout()"> 
+                                            <i class="icon-base bx bx-power-off icon-md me-3"></i>
+                                            <span>Cerrar Sesión</span>
                                         </a>
                                     </li>
                                 </ul>
